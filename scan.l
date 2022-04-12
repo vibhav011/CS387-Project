@@ -16,13 +16,11 @@ ROLLBACK { return ROLLBACK; }
 WITH { return WITH; }
 , { return COMMA; }
 AS { return AS; }
-{letter}{letter|digit}* { return NAME; }
 ( { return ROUND_BRACKET_OPEN; }
 ) { return ROUND_BRACKET_CLOSE; }
 SELECT { return SELECT; }
 FROM { return FROM; }
 WHERE { return WHERE; }
-{letter}{letter|digit}*\.{letter}{letter|digit}* { return DOT_NAME; }
 AND { return AND; }
 OR { return OR; }
 NOT { return NOT; }
@@ -36,9 +34,6 @@ DIV { return DIV; }
 "<=" { return LE; }
 "!=" { return NE; }
 "==" { return EQ; }
-\"[^\"]\" { return TEXT_CONSTANT; }
-{digit}+ { return INT_CONSTANT; }
-{digit}+\.{digit}+ { return FLOAT_CONSTANT; }
 CREATE { return CREATE; }
 TABLE { return TABLE; }
 INT { return INT; }
@@ -55,3 +50,8 @@ UPDATE { return UPDATE; }
 SET { return SET; }
 DELETE { return DELETE; }
 INFINITY { return INFINITY; }
+{letter}{letter|digit}*\.{letter}{letter|digit}* { return DOT_NAME; }
+{letter}{letter|digit}* { return NAME; }
+\"[^\"]\" { return TEXT_CONSTANT; }
+{digit}+ { return INT_CONSTANT; }
+{digit}+\.{digit}+ { return FLOAT_CONSTANT; }
