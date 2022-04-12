@@ -22,7 +22,7 @@ PFbufAlloc(
     int fd,		/* file descriptor */
     int pagenum,	/* page number */
     PFfpage **fpage,	/* pointer to file page */
-    int (*writefcn)()
+    int (*writefcn)(int, int, PFfpage*)
 );
 
 int

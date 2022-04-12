@@ -68,7 +68,7 @@ typedef struct PFhash_entry {
 
 /******************* Interface functions from Hash Table ****************/
 extern void PFhashInit();
-extern PFbpage *PFhashFind();
+extern PFbpage *PFhashFind(int, int);
 extern int PFhashInsert(
     int fd,		/* file descriptor */
     int page,	/* page number */
@@ -81,7 +81,7 @@ extern int PFhashDelete(
 extern void PFhashPrint();
 
 /****************** Interface functions from Buffer Manager *************/
-extern int PFbufGet();
-extern int PFbufUnfix();
-extern int PFbufalloc();
-extern int PFbufReleaseFile();
+extern int PFbufGet(int, int, PFfpage**, int (*)(int, int, PFfpage*), int (*)(int, int, PFfpage*));
+extern int PFbufUnfix(int, int, int);
+extern int PFbufalloc(int, int, PFfpage**, int (*)(int, int, PFfpage*));
+extern int PFbufReleaseFile(int, int (*)(int, int, PFfpage*));

@@ -35,8 +35,8 @@ sense that it's <0 or >= # of pages in the file */
 
 
 /****************** Internal Support Functions *****************************/
-static char *savestr(str)
-char *str;		/* string to be saved */
+static char *savestr(char *str)
+		/* string to be saved */
 /****************************************************************************
 SPECIFICATIONS:
 	Allocate memory and save string pointed by str.
@@ -45,14 +45,14 @@ SPECIFICATIONS:
 {
     char *s;
 
-    if ((s=malloc(strlen(str)+1))!= NULL) {
+    if ((s=(char*)malloc(strlen(str)+1))!= NULL) {
         strcpy(s,str);
     }
     return(s);
 }
 
-static int PFtabFindFname(fname)
-char *fname;		/* file name to find */
+static int PFtabFindFname(char *fname)
+		/* file name to find */
 /****************************************************************************
 SPECIFICATIONS:
 	Find the index to PFftab[] entry whose "fname" field is the
@@ -767,8 +767,8 @@ static char *PFerrormsg[]= {
     "page already in hash table"
 };
 
-void PF_PrintError(s)
-char *s;	/* string to write */
+void PF_PrintError(char *s)
+	/* string to write */
 /****************************************************************************
 SPECIFICATIONS:
 	Write the string "s" onto stderr, then write the last

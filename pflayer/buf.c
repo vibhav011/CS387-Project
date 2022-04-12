@@ -14,8 +14,8 @@ static PFbpage *PFlastbpage = NULL;	/* ptr to last buffer page, or NULL */
 static PFbpage *PFfreebpage= NULL;	/* list of free buffer pages */
 
 
-static void PFbufInsertFree(bpage)
-PFbpage *bpage;
+static void PFbufInsertFree(PFbpage *bpage)
+
 /****************************************************************************
 SPECIFICATIONS:
 	Insert the buffer page pointed by "bpage" into the free list.
@@ -28,8 +28,8 @@ AUTHOR: clc
 }
 
 
-static void PFbufLinkHead(bpage)
-PFbpage *bpage;		/* pointer to buffer page to be linked */
+static void PFbufLinkHead(PFbpage *bpage)
+		/* pointer to buffer page to be linked */
 /****************************************************************************
 SPECIFICATIONS:
 
@@ -100,9 +100,9 @@ GLOBAL VARIABLES MODIFIED:
 }
 
 
-static int PFbufInternalAlloc(bpage,writefcn)
-PFbpage **bpage;	/* pointer to pointer to buffer bpage to be allocated*/
-int (*writefcn)();
+static int PFbufInternalAlloc(PFbpage **bpage,int (*writefcn)(int, int, PFfpage*))
+	/* pointer to pointer to buffer bpage to be allocated*/
+
 /****************************************************************************
 SPECIFICATIONS:
 	Allocate a buffer page and set *bpage to point to it. *bpage
@@ -203,8 +203,8 @@ PFbufGet(
     int fd,	/* file descriptor */
     int pagenum,	/* page number */
     PFfpage **fpage,	/* pointer to pointer to file page */
-    int (*readfcn)(),	/* function to read a page */
-    int (*writefcn)()	/* function to write a page */
+    int (*readfcn)(int, int, PFfpage*),	/* function to read a page */
+    int (*writefcn)(int, int, PFfpage*)	/* function to write a page */
 )
 /****************************************************************************
 SPECIFICATIONS:
@@ -340,7 +340,7 @@ PFbufAlloc(
     int fd,		/* file descriptor */
     int pagenum,	/* page number */
     PFfpage **fpage,	/* pointer to file page */
-    int (*writefcn)()
+    int (*writefcn)(int, int, PFfpage*)
 )
 /****************************************************************************
 SPECIFICATIONS:
@@ -395,7 +395,7 @@ RETURN VALUE:
 int
 PFbufReleaseFile(
     int fd,		/* file descriptor */
-    int (*writefcn)()	/* function to write a page of file */
+    int (*writefcn)(int, int, PFfpage*)	/* function to write a page of file */
 )
 /****************************************************************************
 SPECIFICATIONS:
@@ -518,6 +518,6 @@ AUTHOR: clc
         for(bpage = PFfirstbpage; bpage != NULL; bpage= bpage->nextpage)
             printf("%d\t%d\t%d\t%d\t%d\n",
                    bpage->fd,bpage->page,(int)bpage->fixed,
-                   (int)bpage->dirty,(int)&bpage->fpage);
+                   (int)bpage->dirty,(int)bpage->fpage.nextfree);
     }
 }
