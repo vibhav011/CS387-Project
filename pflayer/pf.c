@@ -744,7 +744,7 @@ PF_UnfixPage(int fd,	/* file descriptor */
 }
 
 /* error messages */
-static char *PFerrormsg[]= {
+static const char *PFerrormsg[]= {
     "No error",
     "No memory",
     "No buffer space",
@@ -767,7 +767,7 @@ static char *PFerrormsg[]= {
     "page already in hash table"
 };
 
-void PF_PrintError(char *s)
+void PF_PrintError(const char *s)
 	/* string to write */
 /****************************************************************************
 SPECIFICATIONS:

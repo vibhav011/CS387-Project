@@ -48,8 +48,8 @@ parseSchema(char *buf) {
     buf = strdup(buf);
     char *tokens[MAX_TOKENS];
     int n = split(buf, ",", tokens);
-    Schema *sch = malloc(sizeof(Schema));
-    sch->columns = malloc(n * sizeof(ColumnDesc *));
+    Schema *sch = (Schema*)malloc(sizeof(Schema));
+    sch->columns = (ColumnDesc**)malloc(n * sizeof(ColumnDesc *));
     // strtok is terrible; it depends on global state.
     // Do one split based on ',".
     // Could use strtok_s for this use case

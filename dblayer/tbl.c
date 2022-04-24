@@ -72,7 +72,7 @@ Table_Open(char *dbname, Schema *schema, bool overwrite, Table **ptable)
     Table *table = (Table *) malloc(sizeof(Table));
     table->schema = schema;
     table->fd = fd;
-    table->lastPage = malloc(sizeof(int));
+    table->lastPage = (int *)malloc(sizeof(int));
     *table->lastPage = -1;
     table->numPages = 0;
     table->pagebuf = (char **) malloc(sizeof(char *));
@@ -149,7 +149,7 @@ Table_Insert(Table *tbl, byte *record, int len, RecId *rid) {
     return 0;
 }
 
-#define checkerr(err) {if (err < 0) {PF_PrintError(); exit(EXIT_FAILURE);}}
+#define checkerr(err) {if (err < 0) {PF_PrintError("err"); exit(EXIT_FAILURE);}}
 
 /*
   Given an rid, fill in the record (but at most maxlen bytes).

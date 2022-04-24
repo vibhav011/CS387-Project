@@ -1,11 +1,11 @@
-CC=cc
-CFLAGS = -g
-OBJS=tbl.o codec.o util.o ../pflayer/pflayer.a ../amlayer/amlayer.a
+CC=g++
+CFLAGS = -g -std=c++11
+OBJS=tbl.o codec.o util.o ../pflayer/pflayer.a
 
 all: dumpdb loaddb 
 
 
-dumpdb : dumpdb.o $(OBJS) ../pflayer/pflayer.a ../amlayer/amlayer.a
+dumpdb : dumpdb.o $(OBJS) ../pflayer/pflayer.a
 	$(CC) $(CFLAGS) -o dumpdb dumpdb.o $(OBJS) 
 
 loaddb : loaddb.o $(OBJS) 

@@ -13,7 +13,7 @@
     {                        \
         if (err < 0)         \
         {                    \
-            PF_PrintError(); \
+            PF_PrintError("err"); \
             exit(1);         \
         }                    \
     }
@@ -102,7 +102,7 @@ loadCSV()
     int err;
     err = Table_Open(DB_NAME, sch, false, &tbl); // opening the table (creating if it doesn't exist)
     checkerr(err); // for table open errors
-    AM_CreateIndex(DB_NAME, 0, 'i', 4); // creating a new index for type int, size 4 and index no. 0
+    // AM_CreateIndex(DB_NAME, 0, 'i', 4); // creating a new index for type int, size 4 and index no. 0
     int indexFD = PF_OpenFile(INDEX_NAME); // opening file for passing the descriptor to index creation
     checkerr(indexFD);
 
@@ -122,6 +122,7 @@ loadCSV()
 
         printf("%d %s\n", rid, tokens[0]);
 
+        /*
         // Indexing on the population column
         int population = atoi(tokens[2]);
 
@@ -130,6 +131,7 @@ loadCSV()
         // Use the population field as the field to index on
 
         checkerr(err);
+        */
     }
     fclose(fp);
     Table_Close(tbl);

@@ -10,7 +10,7 @@
     {                        \
         if (err < 0)         \
         {                    \
-            PF_PrintError(); \
+            PF_PrintError("err"); \
             exit(1);         \
         }                    \
     }
@@ -25,7 +25,7 @@ void printRow(void *callbackObj, RecId rid, byte *row, int len)
         // decoding bytes from record for each type of column and printing them
         switch (schema->columns[i]->type)
         {
-        case INT:;
+        case INT:; {
             int int_field = DecodeInt(cursor);
             cursor += 4; // cursor offset by size of int
             if (i + 1 != schema->numColumns)
@@ -33,8 +33,9 @@ void printRow(void *callbackObj, RecId rid, byte *row, int len)
             else
                 printf("%d\n", int_field);
             break;
+        }
 
-        case VARCHAR:;
+        case VARCHAR:; {
             char string_field[256];
             int len = DecodeCString(cursor, string_field, 256); // check max len
             cursor += 2 + len; // cursor offset by 2 byte len + string length
@@ -43,8 +44,9 @@ void printRow(void *callbackObj, RecId rid, byte *row, int len)
             else
                 printf("%s\n", string_field);
             break;
+        }
 
-        case LONG:;
+        case LONG:; {
             long long long_field = DecodeLong(cursor);
             cursor += 8; // cursor offset by size of long long
             if (i + 1 != schema->numColumns)
@@ -52,6 +54,7 @@ void printRow(void *callbackObj, RecId rid, byte *row, int len)
             else
                 printf("%lld\n", long_field);
             break;
+        }
 
         default:
             break;
@@ -63,12 +66,13 @@ void printRow(void *callbackObj, RecId rid, byte *row, int len)
 #define DB_NAME "data.db"
 #define INDEX_NAME "data.db.0"
 
+/*
 void index_scan(Table *tbl, Schema *schema, int indexFD, int op, int value)
 {
     int scanDesc = AM_OpenIndexScan(indexFD, 'i', 4, op, (char *)&value);
     checkerr(scanDesc);
     int recId;
-    byte *record = malloc(PF_PAGE_SIZE);
+    byte *record = (byte *)malloc(PF_PAGE_SIZE);
 
     while ((recId = AM_FindNextEntry(scanDesc)) >= 0)
     {   
@@ -79,6 +83,7 @@ void index_scan(Table *tbl, Schema *schema, int indexFD, int op, int value)
     int errVal = AM_CloseIndexScan(scanDesc);
     checkerr(errVal);
 }
+*/
 
 int main(int argc, char **argv)
 {
@@ -104,6 +109,7 @@ int main(int argc, char **argv)
         Table_Scan(tbl, schema, printRow);
         // invoke Table_Scan with printRow, which will be invoked for each row in the table.
     }
+    /*
     else
     {
         // index scan by default
@@ -135,5 +141,6 @@ int main(int argc, char **argv)
             index_scan(tbl, schema, indexFD, GREATER_THAN, 100000);
         }
     }
+    */
     Table_Close(tbl);
 }

@@ -37,7 +37,8 @@
 /* externs from the PF layer */
 extern int PFerrno;		/* error number of last error */
 extern void PF_Init();
-extern void PF_PrintError();
+// extern void PF_PrintError();
+extern void PF_PrintError(const char *);
 
 /****************************************************************************
 PF_CreateFile:
