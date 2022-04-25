@@ -67,3 +67,26 @@ Temp_Table* execute_select(string table_name, vector<string>* col_names, AST* co
 
     return result;
 }
+
+void execute_update(string table_name, vector<Update_pair*>* update_list, AST* cond_tree) {
+    Table* tbl = Tbls[table_name];
+    vector<string>* all_cols = new vector<string>(1, "*");
+    Temp_Table* result = execute_select(table_name, all_cols, cond_tree);
+    for(int i=0; i<result->rows.size(); i++){
+        Table_row* old_value = result->rows[i];
+        Table_row* new_value = new Table_row();
+        *new_value = *old_value;
+        for (int j = 0; j < update_list->size(); j++)
+        {
+            int change_col_num = tbl->schema->getColumnNum(((*update_list)[j]->lhs).c_str());
+            new_value->fields[change_col_num].str_val = new string((*update_list)[j]->rhs);
+        }
+        Log_entry* log_entry = new Log_entry();
+        log_entry->old_value = old_value;
+        log_entry->new_value = new_value;
+        log_entry->change_type = UPDATE;
+        int table_num = TableNum[table_name];
+        ChangeLogs[table_num].insert({UIds[table_num],*log_entry});
+    }
+   
+}
