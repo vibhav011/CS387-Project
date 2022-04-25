@@ -48,7 +48,7 @@ Table_Get(Table *t, RecId rid, byte *record, int maxlen);
 void
 Table_Close(Table *);
 
-typedef void (*ReadFunc)(void *callbackObj, RecId rid, byte *row, int len);
+typedef int (*ReadFunc)(void *callbackObj, RecId rid, byte *row, int len);
 
 void
 Table_Scan(Table *tbl, void *callbackObj, ReadFunc callbackfn);

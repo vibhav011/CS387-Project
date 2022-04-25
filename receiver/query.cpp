@@ -6,6 +6,7 @@ using namespace std;
 
 extern map<string, Table*> Tbls;
 extern set<int> changed_unique_ids;
+extern ChangeLog change_log;
 
 Query_Obj::Query_Obj(vector<string>* col_names, AST* cond_tree, Temp_Table* temp_table, Schema* schema) {
     this->schema = schema;
@@ -14,7 +15,7 @@ Query_Obj::Query_Obj(vector<string>* col_names, AST* cond_tree, Temp_Table* temp
     this->cond_tree = cond_tree;
 }
 
-void Table_Single_Select(void *callbackObj, RecId rid, byte *row, int len) {
+int Table_Single_Select(void *callbackObj, RecId rid, byte *row, int len) {
     Query_Obj* cObj = (Query_Obj *)callbackObj;
     Table_row* tr = new Table_row();
     // Decoding the fields
@@ -50,20 +51,62 @@ void Table_Single_Select(void *callbackObj, RecId rid, byte *row, int len) {
         tr->fields.push_back(entry);
     }
     int unique_id = tr->fields[0].int_val;
-    if (changed_unique_ids.find(unique_id) != changed_unique_ids.end())
+    if (change_log.find(unique_id) != change_log.end()) {
+        *tr = *change_log[unique_id].new_value;
+    }
 
-    if (!cObj->cond_tree->check_condition(row, len)) return;
+    int status = cObj->cond_tree->check_condition(tr);
+    if (status == C_ERROR) {
+        cObj->ret_value = C_ERROR;
+        return C_ERROR;
+    }
+    if (status == C_FALSE) return 0;
 
-    Schema *schema = cObj->schema;
-    byte *cursor = row;
+    // Expanding col_names if it is '*'
+    if (cObj->col_names->at(0) == "*") {
+        cObj->col_names->pop_back();
+        for (int i = 0; i < cObj->schema->numColumns; i++) {
+            string s(cObj->schema->columns[i]->name);
+            cObj->col_names->push_back(s);
+        }
+    }
+
+    Table_row *new_row = new Table_row();
+
+    // Adding the required columns in new_row (in the order in which they are needed)
+    int num_cols = cObj->col_names->size();
+    for (int i = 0; i < num_cols; i++) {
+        for (int j = 0; j < cObj->schema->numColumns; j++) {
+            string s(cObj->schema->columns[i]->name);
+            if (s == cObj->col_names->at(i)) {
+                new_row->fields.push_back(tr->fields[j]);
+            }
+        }
+    }
+    cObj->temp_table->rows.push_back(new_row);
+
+    return 0;
 }
 
-Temp_Table* execute_select(string table_name, vector<string>* col_names, AST* cond_tree) {
+// For non-join selects
+int execute_select1(Temp_Table *result, string table_name, vector<string>* col_names, AST* cond_tree) {
     Table* tbl = Tbls[table_name];
-    Temp_Table* result = new Temp_Table();
 
     Query_Obj* callbackObj = new Query_Obj(col_names, cond_tree, result, tbl->schema);
     Table_Scan(tbl, callbackObj, Table_Single_Select);
 
-    return result;
+    return callbackObj->ret_value;
+}
+
+// For join selects
+int execute_select2(Temp_Table *result, vector<string> table_names, vector<string>* col_names, AST* cond_tree) {
+    return 0;
+}
+
+int execute_select(Temp_Table *result, vector<string> table_names, vector<string>* col_names, AST* cond_tree) {
+    if (table_names.size() == 1) {
+        return execute_select1(result, table_names[0], col_names, cond_tree);
+    }
+
+    return execute_select2(result, table_names, col_names, cond_tree);
 }

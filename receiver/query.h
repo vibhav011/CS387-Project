@@ -35,6 +35,7 @@ struct Query_Obj {
     AST* cond_tree;
     Temp_Table *temp_table;
     Schema* schema;
+    int ret_value;
 
     Query_Obj(vector<string>*, AST*, Temp_Table*, Schema*);
 };
@@ -43,5 +44,6 @@ typedef map<int, Log_entry> ChangeLog;      // map from unique_id to Log_Entry
 typedef map<int, int> MappingLog;           // map from unique_id to record_id
 
 Temp_Table* execute_select(string table_name, vector<string>col_names, AST* cond_tree);
+int execute_select(Temp_Table *result, vector<string> table_names, vector<string>col_names, AST* cond_tree);
 
 #endif
