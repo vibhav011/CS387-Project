@@ -8,9 +8,17 @@
 
 typedef char byte;
 
+typedef union {
+    int int_val;
+    string* str_val;
+    double float_val;
+} Value;
+
 typedef struct {
     char *name;
     int  type;  // one of VARCHAR, INT, LONG
+    Value lower_bound;
+    Value upper_bound;
 } ColumnDesc;
 
 typedef struct {
@@ -26,6 +34,7 @@ typedef struct {
 
 typedef struct {
     Schema *schema;
+    vector<string> pk;
 
     int fd;         // file descriptor of associated file 
     int *lastPage;   // last page number in file
