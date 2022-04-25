@@ -7,7 +7,11 @@
 #include <string>
 using namespace std;
 
-typedef string Entry;
+typedef union {
+    int int_val;
+    string* str_val;
+    double float_val;
+} Entry;
 
 struct Table_row {
     vector<Entry> fields;
@@ -24,6 +28,15 @@ struct Temp_Table {
 struct Log_entry {
     Table_row *old_value, *new_value;       // NULL indicates value does not exist
     enum {UPDATE, INSERT, DELETE} change_type;
+};
+
+struct Query_Obj {
+    vector<string>* col_names;
+    AST* cond_tree;
+    Temp_Table *temp_table;
+    Schema* schema;
+
+    Query_Obj(vector<string>*, AST*, Temp_Table*, Schema*);
 };
 
 typedef map<int, Log_entry> ChangeLog;      // map from unique_id to Log_Entry
