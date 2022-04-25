@@ -16,6 +16,12 @@ typedef struct {
 typedef struct {
     int numColumns;
     ColumnDesc **columns; // array of column descriptors
+    int getColumnNum(const char* name) {
+        for(int i = 0; i<numColumns; i++) {
+            if(columns[i]->name == name) return i;
+        }
+        return -1;
+    }
 } Schema;
 
 typedef struct {
