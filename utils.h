@@ -1,6 +1,9 @@
 #include<string>
 #include<vector>
+#include<map>
 #include<iostream>
+#include "dblayer/tbl.h"
+
 using namespace std;
 
 typedef union {
@@ -47,3 +50,12 @@ struct Temp_Table {
 
 int execute_select(Temp_Table *result, vector<string> table_names, vector<string>col_names, AST* cond_tree);
 AST::check_condition(Table_row *tr1, Table_row *tr2);   // tr2 = NULL in case select is not a join
+
+/////////////////////////////
+// Shared global variables //
+/////////////////////////////
+
+map<string, int> table_name_to_id;
+vector<Table*> tables;              // objects of all tables
+vector<ChangeLog*> change_logs;     // objects of change logs for corresponding tables in `tables`
+vector<MappingLog*> mapping_logs;
