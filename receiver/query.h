@@ -51,7 +51,9 @@ typedef map<int, int> MappingLog;           // map from unique_id to record_id
 
 vector<ChangeLog> ChangeLogs;
 
-typedef map<string, int> TableNum;          // map from table num to table number
+int num_tables = 0;         // constantly increasing integer for keeping track of number of tables
+
+map<string, int> TableNum;          // map from table name to table number
 
 vector<int> UIds;           // constanstly increasing uids for each of the tables
 

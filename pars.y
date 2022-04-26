@@ -190,6 +190,6 @@ update
 ;           
 
 delete_query
-    : DELETE FROM NAME condition {$$ = execute_delete($3, $4);}
+    : DELETE FROM NAME WHERE condition {$$ = execute_delete($3, $4);}
     | DELETE FROM NAME {$$ = execute_delete($3);}
 ;
