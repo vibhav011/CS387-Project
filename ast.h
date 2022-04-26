@@ -28,11 +28,7 @@ class Constant
     string val;
     int dt;
 
-    Constant(string val, int dt)
-    {
-        this->val = val;
-        this->dt = dt;
-    }
+    Constant(string val, int dt);
 };
 
 class Range
@@ -69,31 +65,32 @@ class AST
 
 class ExprAST: AST
 {
-    string val;
+    protected:
     int dt;
 
     public:
     virtual ~ExprAST();
-    virtual string getVal();
+    virtual string getVal(Table_Row *row1, Table_Row *row2){};
     int getType();
 };  
 
 class ConstAST: ExprAST
 {
-    Constant data;
+    Constant *data;
 
     public:
-    ConstAST(Constant data);
-    string getVal();
+    ConstAST(Constant *data);
+    string getVal(Table_Row *row1, Table_Row *row2);
 };
 
 class ColAST: ExprAST
 {
     string col;
+    string table_name;
 
     public:
     ColAST(string name);
-    string getVal();
+    string getVal(Table_Row* row1, Table_Row *row2);
 };
 
 class UnaryArithAST: ExprAST
@@ -101,7 +98,7 @@ class UnaryArithAST: ExprAST
     ExprAST *child;
     public:
     UnaryArithAST(ExprAST *child);
-    string getVal();
+    string getVal(Table_Row *row1, Table_Row *row2);
 };
 
 class BinArithAST: ExprAST
@@ -111,14 +108,14 @@ class BinArithAST: ExprAST
 
     public:
     BinArithAST(ExprAST *lhs, ExprAST *rhs, int op);
-    string getVal();
+    string getVal(Table_Row *row1, Table_Row *row2);
 };
 
 class CondAST: AST
 {
     public:
     virtual ~CondAST();
-    virtual bool check_row(Table_Row *row1, Table_Row *row2=NULL);
+    virtual bool check_row(Table_Row *row1, Table_Row *row2=NULL){};
 }; 
 
 class RelAST: CondAST

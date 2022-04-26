@@ -2,6 +2,7 @@
 #include "../utils.h"
 #include "../dblayer/tbl.h"
 #include "../dblayer/codec.h"
+#include "../ast.h"
 #include <set>
 using namespace std;
 
@@ -11,7 +12,7 @@ extern vector<int> UIds;                   // constanstly increasing uids for ea
 extern vector<ChangeLog> change_logs;     // objects of change logs for corresponding tables in `tables`
 extern vector<MappingLog> mapping_logs;
 
-Query_Obj::Query_Obj(vector<string>* col_names, AST* cond_tree, Temp_Table* temp_table, int tbl1_id, int tbl2_id) {
+Query_Obj::Query_Obj(vector<string>* col_names, CondAST* cond_tree, Temp_Table* temp_table, int tbl1_id, int tbl2_id) {
     this->col_names = col_names;
     this->cond_tree = cond_tree;
     this->temp_table = temp_table;
@@ -86,7 +87,7 @@ int Table_Single_Select(void *callbackObj, RecId rid, byte *row, int len) {
         }
     }
 
-    int status = cObj->cond_tree->check_condition(tr, cObj->tr2);
+    int status = cObj->cond_tree->check_row(tr, cObj->tr2);
 
     if (status == C_ERROR) {
         cObj->ret_value = C_ERROR;
@@ -212,7 +213,7 @@ int Table_Single_Select_Join(void *callbackObj, RecId rid, byte *row, int len) {
     return cObj->ret_value;
 }
 
-int execute_select(Temp_Table *result, vector<string> table_names, vector<string>* col_names, AST* cond_tree) {
+int execute_select(Temp_Table *result, vector<string> table_names, vector<string>* col_names, CondAST* cond_tree) {
     // For non-join selects
     if (table_names.size() == 1) {
         if (table_name_to_id.find(table_names[0]) == table_name_to_id.end()) {
@@ -325,7 +326,7 @@ bool passes_pk_constraints(string table_name, Table_Row* new_row) {
     return true;
 }
 
-int execute_update(string table_name, vector<Update_pair*>* update_list, AST* cond_tree) {
+int execute_update(string table_name, vector<Update_pair*>* update_list, CondAST* cond_tree) {
     try {
         if(table_name_to_id.find(table_name) == table_name_to_id.end()) return C_TABLE_NOT_FOUND;
         int table_num = table_name_to_id[table_name];
@@ -467,7 +468,7 @@ int execute_insert(string table_name, vector<string*>* column_val_list) {
     }
 }
 
-int execute_delete(string table_name, AST* cond_tree) {
+int execute_delete(string table_name, CondAST* cond_tree) {
     try {
         if(table_name_to_id.find(table_name) == table_name_to_id.end()) return C_TABLE_NOT_FOUND;
         int table_num = table_name_to_id[table_name];

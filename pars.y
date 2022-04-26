@@ -212,7 +212,7 @@ expression
     }
     | constant 
     {
-        $$ = new ConstAST(*$1);
+        $$ = new ConstAST($1);
     }
     | DOT_NAME 
     {

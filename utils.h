@@ -15,16 +15,6 @@ typedef union {
     double float_val;
 } Entry;
 
-// typedef struct {
-//     char *name;
-//     int  type;  // one of VARCHAR, INT, LONG
-// } ColumnDesc;
-
-// typedef struct {
-//     int numColumns;
-//     ColumnDesc **columns; // array of column descriptors
-// } Schema;
-
 typedef enum {UPDATE, INSERT, DELETE} Change_type;
 struct Log_entry {
     Table_Row *old_value, *new_value;       // NULL indicates value does not exist
