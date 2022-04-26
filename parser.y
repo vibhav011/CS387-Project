@@ -1,5 +1,4 @@
 %{
-#include "query.h"
 #include "ast.h"
 
 extern table_list results;
@@ -36,11 +35,12 @@ int const_type;
 %left PLUS MINUS
 %left MULT DIV
 
+%type <int_val> type
 %type <constant> constant
 %type <vec_table> table_as_list
 %type <table> table_as select_query create_query insert_query update_query delete_query
 %type <name_cols> table_desc
-%type <vec_string> column_list table_list, constraint column_val_list
+%type <vec_string> column_list table_list constraint column_val_list
 %type <str> column table column_val
 %type <vec_col_desc> column_desc_list
 %type <col_desc> column_desc
@@ -164,6 +164,9 @@ condition
         $$ = new UnaryLogAST($2);
     }
     | relex
+    {
+        $$ = (CondAST *)$1
+    }
 ;
 
 relex
@@ -251,11 +254,11 @@ column_desc_list
 column_desc
     : NAME type range 
     {
-        $$ = new col_desc(*$1, $2, $3->lower_bound, $3->upper_bound);
+        $$ = new Column_Desc(*$1.c_str(), $2, $3->lower_bound, $3->upper_bound);
     }
     | NAME type 
     {
-        $$ = new col_desc(*$1, $2);
+        $$ = new Column_Desc(*$1.c_str(), $2);
     }
 ;
 

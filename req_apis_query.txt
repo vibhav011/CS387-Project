@@ -1,4 +1,0 @@
-1. int execute_create_temp(vector<Table*>)
-    returns 0 if successful
-
-2. 
