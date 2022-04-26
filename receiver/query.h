@@ -12,7 +12,7 @@ struct Query_Obj {
     AST *cond_tree;
     Temp_Table *temp_table;
     int tbl1_id, tbl2_id;
-    Table_row *tr1, *tr2;
+    Table_Row *tr1, *tr2;
     int ret_value;
 
     Query_Obj(vector<string>*, AST*, Temp_Table*, int, int);
@@ -23,6 +23,26 @@ struct Update_pair {
     string rhs;
 };
 
+struct Temp_Table {
+    string name;
+    Schema* schema;
+    vector<Table_Row*> rows;
+
+    void set_schema_columns(vector<string> names)
+    {
+        for(int i=0;i<names.size();i++)
+            this->schema->columns[i]->name = &(names[i])[0];
+    }
+
+    void set_name(string name)
+    {
+        this->name = name;
+    }
+};
+
+# define table_list vector<Temp_Table*>
+
+int execute_create_temp(table_list tables);
 int execute_select(Temp_Table *result, vector<string> table_names, vector<string>col_names, AST* cond_tree);
 int execute_update(string table_name, vector<Update_pair*>* update_list, AST* cond_tree);
 int execute_create(string table_name, vector<ColumnDesc*>* column_desc_list, vector<string*>* constraint);
