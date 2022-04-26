@@ -81,7 +81,7 @@ RelAST::RelAST(ExprAST *lhs, ExprAST *rhs, int op)
 }
 
 // All check_row funcs are not implemented just to check query processing basic
-bool check_row(Table_Row *row1, Table_Row *row2=NULL)
+bool check_row(Table_Row *row1, Table_Row *row2)
 {
     return true;
 }
@@ -93,7 +93,7 @@ BinLogAST::BinLogAST(CondAST *lhs, CondAST *rhs, int op)
     this->op = op;
 }
 
-bool BinLogAST::check_row(Table_Row *row1, Table_Row *row2=NULL)
+bool BinLogAST::check_row(Table_Row *row1, Table_Row *row2)
 {
     return true;
 }
@@ -103,7 +103,7 @@ UnaryLogAST::UnaryLogAST(CondAST *child)
     this->child = child;
 }
 
-bool UnaryLogAST::check_row(Table_Row *row1, Table_Row *row2=NULL)
+bool UnaryLogAST::check_row(Table_Row *row1, Table_Row *row2)
 {
     return true;
 }
