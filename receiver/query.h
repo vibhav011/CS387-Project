@@ -1,7 +1,6 @@
-#include "../dblayer/tbl.h"
-
 #ifndef _QRY_H_
 #define _QRY_H_
+#include "../dblayer/tbl.h"
 #include <vector>
 #include <map>
 #include <string>
@@ -40,7 +39,7 @@ struct Temp_Table {
     }
 };
 
-# define table_list vector<Temp_Table*>
+typedef vector<Temp_Table*> table_list;
 
 int execute_create_temp(table_list tables);
 int execute_select(Temp_Table *result, vector<string> table_names, vector<string>col_names, CondAST* cond_tree);
