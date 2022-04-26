@@ -25,9 +25,10 @@ struct Temp_Table {
     vector<Table_row*> rows;
 };
 
+typedef enum {UPDATE, INSERT, DELETE} Change_type;
 struct Log_entry {
     Table_row *old_value, *new_value;       // NULL indicates value does not exist
-    enum {UPDATE, INSERT, DELETE} change_type;
+    Change_type change_type;
 };
 
 struct Query_Obj {
@@ -47,9 +48,10 @@ struct Update_pair {
 };
 
 typedef map<int, Log_entry> ChangeLog;      // map from unique_id to Log_Entry
-typedef map<int, int> MappingLog;           // map from unique_id to record_id
+typedef map<int, RecId> MappingLog;           // map from unique_id to record_id
 
 vector<ChangeLog> ChangeLogs;
+vector<MappingLog> MappingLogs;
 
 int num_tables = 0;         // constantly increasing integer for keeping track of number of tables
 
@@ -57,9 +59,6 @@ map<string, int> TableNum;          // map from table name to table number
 
 vector<int> UIds;           // constanstly increasing uids for each of the tables
 
-Temp_Table* execute_select(string table_name, vector<string>col_names, AST* cond_tree);
 int execute_select(Temp_Table *result, vector<string> table_names, vector<string>col_names, AST* cond_tree);
-
-enum {C_OK, C_TRUE, C_FALSE, C_ERROR, C_TABLE_NOT_FOUND, C_FIELD_NOT_FOUND} error_codes;
 
 #endif

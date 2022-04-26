@@ -1,4 +1,5 @@
 #include "query.h"
+#include "utils.h"
 #include "../dblayer/tbl.h"
 #include "../dblayer/codec.h"
 #include <set>
@@ -69,7 +70,9 @@ Temp_Table* execute_select(string table_name, vector<string>* col_names, AST* co
 }
 
 bool passes_range_constraints(string table_name, int column_num, string new_value) {
-    Table* tbl  = Tbls[table_name];
+    if(table_name_to_id.find(table_name) == table_name_to_id.end()) return false;
+    int table_num = table_name_to_id[table_name];
+    Table* tbl  = tables[table_num];
     Value lb = tbl->schema->columns[column_num]->lower_bound;
     Value ub = tbl->schema->columns[column_num]->lower_bound;
     switch(tbl->schema->columns[column_num]->type) {
@@ -90,7 +93,7 @@ bool passes_range_constraints(string table_name, int column_num, string new_valu
                 int new_float_value = atol(new_value.c_str());
                 if(lb.float_val > new_float_value || ub.float_val < new_float_value) return false;
             }
-            catch {
+            catch(int x) {
                 false;
             }
             break;
@@ -101,13 +104,15 @@ bool passes_range_constraints(string table_name, int column_num, string new_valu
 }
 
 bool passes_pk_constraints(string table_name, Table_row* new_row) {
-    Table* tbl = Tbls[table_name];
+    if(table_name_to_id.find(table_name) == table_name_to_id.end()) return false;
+    int table_num = table_name_to_id[table_name];
+    Table* tbl  = tables[table_num];
     Temp_Table* result = new Temp_Table();
     int ret = execute_select(result, table_name, tbl->pk);
     for(int i=0; i<result->rows.size(); i++)
     {
         bool match = true;
-        for (int j = 0; j < pk.size(); j++)
+        for (int j = 0; j < tbl->pk.size(); j++)
         {
             int pk_col_num = tbl->schema->getColumnNum(tbl->pk[j]);
             if(new_row->getField(pk_col_num) != result->rows[i]->getField(j)){
@@ -126,7 +131,9 @@ bool passes_pk_constraints(string table_name, Table_row* new_row) {
 
 int execute_update(string table_name, vector<Update_pair*>* update_list, AST* cond_tree) {
     try {
-        Table* tbl = Tbls[table_name];
+        if(table_name_to_id.find(table_name) == table_name_to_id.end()) return C_TABLE_NOT_FOUND;
+        int table_num = table_name_to_id[table_name];
+        Table* tbl  = tables[table_num];
         vector<string>* all_cols = new vector<string>(1, "*");
         Temp_Table* result = execute_select(table_name, all_cols, cond_tree);
         delete all_cols;
@@ -146,7 +153,6 @@ int execute_update(string table_name, vector<Update_pair*>* update_list, AST* co
                 }
                 string* new_rhs = new string((*update_list)[j]->rhs);
                 new_value->fields[change_col_num].str_val = new_rhs;
-                delete new_rhs;
                 violates = ! passes_pk_constraints(table_name, new_value);
                 if(violates) {
                     return -1;
@@ -157,8 +163,7 @@ int execute_update(string table_name, vector<Update_pair*>* update_list, AST* co
             log_entry->new_value = new_value;
             log_entry->change_type = UPDATE;
             int table_num = TableNum[table_name];
-            ChangeLogs[table_num].insert({result->rows[i]->fields[0].int_val,*log_entry});
-            delete new_value;
+            change_logs[table_num].insert({result->rows[i]->fields[0].int_val,*log_entry});
         }
         return 0;
     }
@@ -173,7 +178,7 @@ int execute_create(string table_name, vector<ColumnDesc*>* column_desc_list, vec
         schema->numColumns = column_desc_list->size();
         ColumnDesc** cols = new ColumnDesc*[schema->numColumns];
         schema->columns = cols;
-        delete cols;
+       
         for (int i = 0; i < schema->numColumns; i++)
         {
             *(schema->columns[i]) = *((*column_desc_list)[i]);
@@ -181,7 +186,6 @@ int execute_create(string table_name, vector<ColumnDesc*>* column_desc_list, vec
         Table* tbl = new Table();
 
         int err = Table_Open("data.db", schema, false, &tbl);
-        delete schema;
         if(err<0) {
             return -1;
         }
@@ -189,10 +193,10 @@ int execute_create(string table_name, vector<ColumnDesc*>* column_desc_list, vec
         {
             tbl->pk.push_back(*((*constraint)[i]));
         }
-        TableNum[table_name] = num_tables++;
+        table_name_to_id[table_name] = tables.size()+1;
         UIds.push_back(0);
-        Tbls[table_name] = tbl;
-        delete tbl;
+        tables.push_back(tbl);
+
         // call real_execute_create as well?
         return 0;
     }
@@ -203,7 +207,9 @@ int execute_create(string table_name, vector<ColumnDesc*>* column_desc_list, vec
 
 int execute_insert(string table_name, vector<string*>* column_val_list) {
     try {
-        Table* tbl = Tbls[table_name];
+        if(table_name_to_id.find(table_name) == table_name_to_id.end()) return C_TABLE_NOT_FOUND;
+        int table_num = table_name_to_id[table_name];
+        Table* tbl  = tables[table_num];
         Table_row* new_row = new Table_row();
         Schema* schema = tbl->schema;
         for (int i = 0; i < schema->numColumns; i++)
@@ -242,9 +248,9 @@ int execute_insert(string table_name, vector<string*>* column_val_list) {
         log_entry->old_value = NULL;
         log_entry->new_value = new_row;
         log_entry->change_type = INSERT;
-        int table_num = TableNum[table_name];
+        int table_num = table_name_to_id[table_name];
         UIds[table_num] += 1;
-        ChangeLogs[table_num].insert({UIds[table_num],*log_entry});
+        change_logs[table_num].insert({UIds[table_num],*log_entry});
         return 0;
     }
     catch (int x) {
@@ -254,17 +260,20 @@ int execute_insert(string table_name, vector<string*>* column_val_list) {
 
 int execute_delete(string table_name, AST* cond_tree) {
     try {
-        Table* tbl = Tbls[table_name];
+        if(table_name_to_id.find(table_name) == table_name_to_id.end()) return C_TABLE_NOT_FOUND;
+        int table_num = table_name_to_id[table_name];
+        Table* tbl  = tables[table_num];
         vector<string>* all_cols = new vector<string>(1, "*");
-        Temp_Table* result = execute_select(table_name, all_cols, cond_tree);   
+        Temp_Table* result = execute_select(table_name, all_cols, cond_tree); 
+        delete all_cols;  
         for (int i = 0; i < result->rows.size(); i++)
         {
             Log_entry* log_entry = new Log_entry();
             log_entry->old_value = result->rows[i];
             log_entry->new_value = NULL;
             log_entry->change_type = DELETE;
-            int table_num = TableNum[table_name];
-            ChangeLogs[table_num].insert({result->rows[i]->fields[0].int_val,*log_entry});
+            int table_num = table_name_to_id[table_name];
+            change_logs[table_num].insert({result->rows[i]->fields[0].int_val,*log_entry});
         }
         return 0;
     }
