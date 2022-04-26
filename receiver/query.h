@@ -1,26 +1,12 @@
 #ifndef _QRY_H_
 #define _QRY_H_
 #include "../dblayer/tbl.h"
+#include "../ast.h"
+#include "../utils.h"
 #include <vector>
 #include <map>
 #include <string>
 using namespace std;
-
-struct Query_Obj {
-    vector<string> *col_names;
-    CondAST *cond_tree;
-    Temp_Table *temp_table;
-    int tbl1_id, tbl2_id;
-    Table_Row *tr1, *tr2;
-    int ret_value;
-
-    Query_Obj(vector<string>*, CondAST*, Temp_Table*, int, int);
-};
-
-struct Update_pair {
-    string lhs;
-    string rhs;
-};
 
 struct Temp_Table {
     string name;
@@ -37,6 +23,23 @@ struct Temp_Table {
     {
         this->name = name;
     }
+};
+
+
+struct Query_Obj {
+    vector<string> *col_names;
+    CondAST* cond_tree;
+    Temp_Table *temp_table;
+    int tbl1_id, tbl2_id;
+    Table_Row *tr1, *tr2;
+    int ret_value;
+
+    Query_Obj(vector<string>*, CondAST*, Temp_Table*, int, int);
+};
+
+struct Update_pair {
+    string lhs;
+    string rhs;
 };
 
 typedef vector<Temp_Table*> table_list;

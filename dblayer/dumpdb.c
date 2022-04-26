@@ -106,7 +106,7 @@ int main(int argc, char **argv)
 
     if (argc == 2 && *(argv[1]) == 's')
     {
-        Table_Scan(tbl, schema, printRow);
+        // Table_Scan(tbl, schema, printRow);
         // invoke Table_Scan with printRow, which will be invoked for each row in the table.
     }
     /*

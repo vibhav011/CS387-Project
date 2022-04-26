@@ -482,11 +482,23 @@ int execute_delete(string table_name, CondAST* cond_tree) {
         for (int i = 0; i < result->rows.size(); i++)
         {
             Log_entry* log_entry = new Log_entry();
-            log_entry->old_value = result->rows[i];
-            log_entry->new_value = NULL;
-            log_entry->change_type = DELETE;
             int table_num = table_name_to_id[table_name];
-            change_logs[table_num][result->rows[i]->fields[0].int_val] = *log_entry;
+
+            ChangeLog &change_log = change_logs[table_num];
+            int unqiue_id = result->rows[i]->fields[0].int_val;
+
+            if (change_log.find(unqiue_id) != change_log.end()) {
+                delete change_log[unqiue_id].new_value;
+                change_log[unqiue_id].change_type = DELETE;
+                change_log[unqiue_id].new_value = NULL;
+            }
+            else {
+                Log_entry* log_entry = new Log_entry();
+                log_entry->old_value = result->rows[i];
+                log_entry->new_value = NULL;
+                log_entry->change_type = DELETE;
+                change_log[unqiue_id] = *log_entry;
+            }
         }
         return 0;
     }

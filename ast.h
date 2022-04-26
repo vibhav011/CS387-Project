@@ -3,7 +3,8 @@
 
 #include<string>
 #include "utils.h"
-#include "receiver/query.h"
+#include "./receiver/query.h"
+using namespace std;
 
 # define _AND 0
 # define _OR 1
@@ -63,7 +64,7 @@ class AST
     virtual ~AST();
 };
 
-class ExprAST: AST
+class ExprAST: public AST
 {
     protected:
     int dt;
@@ -74,7 +75,7 @@ class ExprAST: AST
     int getType();
 };  
 
-class ConstAST: ExprAST
+class ConstAST: public ExprAST
 {
     Constant *data;
 
@@ -83,7 +84,7 @@ class ConstAST: ExprAST
     string getVal(Table_Row *row1, Table_Row *row2);
 };
 
-class ColAST: ExprAST
+class ColAST: public ExprAST
 {
     string col;
     string table_name;
@@ -93,7 +94,7 @@ class ColAST: ExprAST
     string getVal(Table_Row* row1, Table_Row *row2);
 };
 
-class UnaryArithAST: ExprAST
+class UnaryArithAST: public ExprAST
 {
     ExprAST *child;
     public:
@@ -101,7 +102,7 @@ class UnaryArithAST: ExprAST
     string getVal(Table_Row *row1, Table_Row *row2);
 };
 
-class BinArithAST: ExprAST
+class BinArithAST: public ExprAST
 {
     ExprAST *lhs, *rhs;
     int op;
@@ -111,14 +112,14 @@ class BinArithAST: ExprAST
     string getVal(Table_Row *row1, Table_Row *row2);
 };
 
-class CondAST: AST
+class CondAST: public AST
 {
     public:
     virtual ~CondAST();
     virtual bool check_row(Table_Row *row1, Table_Row *row2=NULL){};
 }; 
 
-class RelAST: CondAST
+class RelAST: public CondAST
 {
     ExprAST *lhs, *rhs;
     int op;
@@ -128,7 +129,7 @@ class RelAST: CondAST
     bool check_row(Table_Row *row1, Table_Row *row2=NULL);
 };
 
-class BinLogAST: CondAST
+class BinLogAST: pulbic CondAST
 {
     CondAST *lhs, *rhs;
     int op;
@@ -138,7 +139,7 @@ class BinLogAST: CondAST
     bool check_row(Table_Row *row1, Table_Row *row2=NULL);
 };
 
-class UnaryLogAST: CondAST
+class UnaryLogAST: public CondAST
 {
     CondAST *child;
     
@@ -146,5 +147,3 @@ class UnaryLogAST: CondAST
     UnaryLogAST(CondAST *child);
     bool check_row(Table_Row *row1, Table_Row *row2=NULL);
 };
-
-#endif

@@ -1,14 +1,14 @@
-/* A Bison parser, made by GNU Bison 3.5.1.  */
+/* A Bison parser, made by GNU Bison 2.3.  */
 
-/* Bison interface for Yacc-like parsers in C
+/* Skeleton interface for Bison's Yacc-like parsers in C
 
-   Copyright (C) 1984, 1989-1990, 2000-2015, 2018-2020 Free Software Foundation,
-   Inc.
+   Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002, 2003, 2004, 2005, 2006
+   Free Software Foundation, Inc.
 
-   This program is free software: you can redistribute it and/or modify
+   This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
-   the Free Software Foundation, either version 3 of the License, or
-   (at your option) any later version.
+   the Free Software Foundation; either version 2, or (at your option)
+   any later version.
 
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -16,7 +16,9 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program; if not, write to the Free Software
+   Foundation, Inc., 51 Franklin Street, Fifth Floor,
+   Boston, MA 02110-1301, USA.  */
 
 /* As a special exception, you may create a larger work that contains
    part or all of the Bison parser skeleton and distribute that work
@@ -31,72 +33,60 @@
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
-/* Undocumented macros, especially those whose name start with YY_,
-   are private implementation details.  Do not rely on them.  */
-
-#ifndef YY_YY_Y_TAB_H_INCLUDED
-# define YY_YY_Y_TAB_H_INCLUDED
-/* Debug traces.  */
-#ifndef YYDEBUG
-# define YYDEBUG 0
-#endif
-#if YYDEBUG
-extern int yydebug;
-#endif
-
-/* Token type.  */
+/* Tokens.  */
 #ifndef YYTOKENTYPE
 # define YYTOKENTYPE
-  enum yytokentype
-  {
-    DOT_NAME = 258,
-    NAME = 259,
-    TEXT_CONSTANT = 260,
-    INT_CONSTANT = 261,
-    FLOAT_CONSTANT = 262,
-    INT = 263,
-    FLOAT = 264,
-    TEXT = 265,
-    AND = 266,
-    OR = 267,
-    NOT = 268,
-    MULT = 269,
-    PLUS = 270,
-    MINUS = 271,
-    DIV = 272,
-    GE = 273,
-    LT = 274,
-    GT = 275,
-    LE = 276,
-    NE = 277,
-    EQ = 278,
-    SEMICOLON = 279,
-    COMMIT = 280,
-    ROLLBACK = 281,
-    WITH = 282,
-    COMMA = 283,
-    AS = 284,
-    ROUND_BRACKET_OPEN = 285,
-    ROUND_BRACKET_CLOSE = 286,
-    SELECT = 287,
-    FROM = 288,
-    WHERE = 289,
-    CREATE = 290,
-    TABLE = 291,
-    RANGE = 292,
-    PRIMARY = 293,
-    KEY = 294,
-    INSERT = 295,
-    INTO = 296,
-    VALUES = 297,
-    ASSIGN = 298,
-    UPDATE = 299,
-    SET = 300,
-    DELETE = 301,
-    INFINITY = 302,
-    BETWEEN = 303,
-    TWO = 304
-  };
+   /* Put the tokens into the symbol table, so that GDB and other debuggers
+      know about them.  */
+   enum yytokentype {
+     DOT_NAME = 258,
+     NAME = 259,
+     TEXT_CONSTANT = 260,
+     INT_CONSTANT = 261,
+     FLOAT_CONSTANT = 262,
+     INTTOK = 263,
+     FLOAT = 264,
+     TEXT = 265,
+     AND = 266,
+     OR = 267,
+     NOT = 268,
+     MULT = 269,
+     PLUS = 270,
+     MINUS = 271,
+     DIV = 272,
+     GE = 273,
+     LT = 274,
+     GT = 275,
+     LE = 276,
+     NE = 277,
+     EQ = 278,
+     SEMICOLON = 279,
+     COMMIT = 280,
+     ROLLBACK = 281,
+     WITH = 282,
+     COMMA = 283,
+     AS = 284,
+     ROUND_BRACKET_OPEN = 285,
+     ROUND_BRACKET_CLOSE = 286,
+     SELECT = 287,
+     FROM = 288,
+     WHERE = 289,
+     CREATE = 290,
+     TABLE = 291,
+     RANGE = 292,
+     PRIMARY = 293,
+     KEY = 294,
+     INSERTTOK = 295,
+     INTO = 296,
+     VALUES = 297,
+     ASSIGN = 298,
+     UPDATETOK = 299,
+     SET = 300,
+     DELETETOK = 301,
+     INFINITY = 302,
+     BETWEEN = 303,
+     REDC = 304
+   };
 #endif
 /* Tokens.  */
 #define DOT_NAME 258
@@ -104,7 +94,7 @@ extern int yydebug;
 #define TEXT_CONSTANT 260
 #define INT_CONSTANT 261
 #define FLOAT_CONSTANT 262
-#define INT 263
+#define INTTOK 263
 #define FLOAT 264
 #define TEXT 265
 #define AND 266
@@ -136,50 +126,47 @@ extern int yydebug;
 #define RANGE 292
 #define PRIMARY 293
 #define KEY 294
-#define INSERT 295
+#define INSERTTOK 295
 #define INTO 296
 #define VALUES 297
 #define ASSIGN 298
-#define UPDATE 299
+#define UPDATETOK 299
 #define SET 300
-#define DELETE 301
+#define DELETETOK 301
 #define INFINITY 302
 #define BETWEEN 303
-#define TWO 304
+#define REDC 304
 
-/* Value type.  */
+
+
+
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-union YYSTYPE
-{
+typedef union YYSTYPE
 #line 8 "parser.y"
-
+{
     int int_val;
     string* str;
     Range* range;
     Constant* constant;
-    Column_Desc* col_desc;
+    ColumnDesc* col_desc;
     Update_pair* update_pair;
     Temp_Table* table;
     pair<string, vector<string> >* name_cols;
     vector<Temp_Table*>* vec_table;
     vector<string>* vec_string;
-    vector<Column_Desc*>* vec_col_desc;
+    vector<ColumnDesc*>* vec_col_desc;
     vector<Update_pair*>* vec_update_pair;
     ExprAST* exprast;
     CondAST* logast;
     RelAST* relast;
-
-#line 173 "y.tab.h"
-
-};
-typedef union YYSTYPE YYSTYPE;
-# define YYSTYPE_IS_TRIVIAL 1
+}
+/* Line 1529 of yacc.c.  */
+#line 165 "y.tab.h"
+	YYSTYPE;
+# define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
+# define YYSTYPE_IS_TRIVIAL 1
 #endif
-
 
 extern YYSTYPE yylval;
 
-int yyparse (void);
-
-#endif /* !YY_YY_Y_TAB_H_INCLUDED  */
