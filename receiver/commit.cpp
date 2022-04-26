@@ -4,6 +4,7 @@
 #include "../dblayer/tbl.h"
 #include "../pflayer/pf.h"
 #include "../dblayer/codec.h"
+#include "../utils.h"
 
 extern vector<ChangeLog> ChangeLogs;
 extern vector<MappingLog> MappingLogs;
@@ -107,5 +108,5 @@ int execute_commit(vector<int>* ChangeIndices) {
 }
 
 int commit_delete(Table *tbl, RecId rid) {
-    
+    return C_OK;
 }
