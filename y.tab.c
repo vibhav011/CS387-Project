@@ -71,7 +71,7 @@
      TEXT_CONSTANT = 260,
      INT_CONSTANT = 261,
      FLOAT_CONSTANT = 262,
-     INT = 263,
+     INTTOK = 263,
      FLOAT = 264,
      TEXT = 265,
      AND = 266,
@@ -103,13 +103,13 @@
      RANGE = 292,
      PRIMARY = 293,
      KEY = 294,
-     INSERT = 295,
+     INSERTTOK = 295,
      INTO = 296,
      VALUES = 297,
      ASSIGN = 298,
-     UPDATE = 299,
+     UPDATETOK = 299,
      SET = 300,
-     DELETE = 301,
+     DELETETOK = 301,
      INFINITY = 302,
      BETWEEN = 303,
      REDC = 304
@@ -121,7 +121,7 @@
 #define TEXT_CONSTANT 260
 #define INT_CONSTANT 261
 #define FLOAT_CONSTANT 262
-#define INT 263
+#define INTTOK 263
 #define FLOAT 264
 #define TEXT 265
 #define AND 266
@@ -153,13 +153,13 @@
 #define RANGE 292
 #define PRIMARY 293
 #define KEY 294
-#define INSERT 295
+#define INSERTTOK 295
 #define INTO 296
 #define VALUES 297
 #define ASSIGN 298
-#define UPDATE 299
+#define UPDATETOK 299
 #define SET 300
-#define DELETE 301
+#define DELETETOK 301
 #define INFINITY 302
 #define BETWEEN 303
 #define REDC 304
@@ -202,13 +202,13 @@ typedef union YYSTYPE
     string* str;
     Range* range;
     Constant* constant;
-    Column_Desc* col_desc;
+    ColumnDesc* col_desc;
     Update_pair* update_pair;
     Temp_Table* table;
     pair<string, vector<string> >* name_cols;
     vector<Temp_Table*>* vec_table;
     vector<string>* vec_string;
-    vector<Column_Desc*>* vec_col_desc;
+    vector<ColumnDesc*>* vec_col_desc;
     vector<Update_pair*>* vec_update_pair;
     ExprAST* exprast;
     CondAST* logast;
@@ -559,18 +559,18 @@ static const yytype_uint16 yyrline[] =
 static const char *const yytname[] =
 {
   "$end", "error", "$undefined", "DOT_NAME", "NAME", "TEXT_CONSTANT",
-  "INT_CONSTANT", "FLOAT_CONSTANT", "INT", "FLOAT", "TEXT", "AND", "OR",
+  "INT_CONSTANT", "FLOAT_CONSTANT", "INTTOK", "FLOAT", "TEXT", "AND", "OR",
   "NOT", "MULT", "PLUS", "MINUS", "DIV", "GE", "LT", "GT", "LE", "NE",
   "EQ", "SEMICOLON", "COMMIT", "ROLLBACK", "WITH", "COMMA", "AS",
   "ROUND_BRACKET_OPEN", "ROUND_BRACKET_CLOSE", "SELECT", "FROM", "WHERE",
-  "CREATE", "TABLE", "RANGE", "PRIMARY", "KEY", "INSERT", "INTO", "VALUES",
-  "ASSIGN", "UPDATE", "SET", "DELETE", "INFINITY", "BETWEEN", "REDC",
-  "$accept", "query", "with_query", "table_as_list", "table_as",
-  "table_desc", "select_query", "column_list", "column", "table_list",
-  "table", "condition", "relex", "expression", "constant", "create_query",
-  "column_desc_list", "column_desc", "type", "range", "constraint",
-  "insert_query", "column_val_list", "column_val", "update_query",
-  "update_list", "update", "delete_query", 0
+  "CREATE", "TABLE", "RANGE", "PRIMARY", "KEY", "INSERTTOK", "INTO",
+  "VALUES", "ASSIGN", "UPDATETOK", "SET", "DELETETOK", "INFINITY",
+  "BETWEEN", "REDC", "$accept", "query", "with_query", "table_as_list",
+  "table_as", "table_desc", "select_query", "column_list", "column",
+  "table_list", "table", "condition", "relex", "expression", "constant",
+  "create_query", "column_desc_list", "column_desc", "type", "range",
+  "constraint", "insert_query", "column_val_list", "column_val",
+  "update_query", "update_list", "update", "delete_query", 0
 };
 #endif
 
@@ -1589,7 +1589,7 @@ yyreduce:
   case 15:
 #line 109 "parser.y"
     {
-        Temp_table *temp = new Temp_Table();
+        Temp_Table *temp = new Temp_Table();
         check_err(execute_select(temp, *(yyvsp[(4) - (4)].vec_string), *(yyvsp[(2) - (4)].vec_string)));
         (yyval.table) = temp;
     }
@@ -1598,7 +1598,7 @@ yyreduce:
   case 16:
 #line 115 "parser.y"
     {
-        Temp_table *temp = new Temp_Table();
+        Temp_Table *temp = new Temp_Table();
         check_err(execute_select(temp, *(yyvsp[(4) - (6)].vec_string), *(yyvsp[(2) - (6)].vec_string), (yyvsp[(6) - (6)].logast)));
         (yyval.table) = temp;
     }

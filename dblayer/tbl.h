@@ -1,6 +1,11 @@
 #ifndef _TBL_H_
 #define _TBL_H_
 #include <stdbool.h>
+#include<string>
+#include<vector>
+#include<map>
+#include<iostream>
+using namespace std;
 
 #define VARCHAR 1
 #define INT     2

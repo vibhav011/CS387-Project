@@ -10,13 +10,13 @@ int const_type;
     string* str;
     Range* range;
     Constant* constant;
-    Column_Desc* col_desc;
+    ColumnDesc* col_desc;
     Update_pair* update_pair;
     Temp_Table* table;
     pair<string, vector<string> >* name_cols;
     vector<Temp_Table*>* vec_table;
     vector<string>* vec_string;
-    vector<Column_Desc*>* vec_col_desc;
+    vector<ColumnDesc*>* vec_col_desc;
     vector<Update_pair*>* vec_update_pair;
     ExprAST* exprast;
     CondAST* logast;
@@ -24,9 +24,9 @@ int const_type;
 }
 
 %token <str> DOT_NAME NAME TEXT_CONSTANT INT_CONSTANT FLOAT_CONSTANT
-%token <int_val> INT FLOAT TEXT
+%token <int_val> INTTOK FLOAT TEXT
 %token AND OR NOT MULT PLUS MINUS DIV GE LT GT LE NE EQ
-%token SEMICOLON COMMIT ROLLBACK WITH COMMA AS ROUND_BRACKET_OPEN ROUND_BRACKET_CLOSE SELECT FROM WHERE CREATE TABLE RANGE PRIMARY KEY INSERT INTO VALUES ASSIGN UPDATE SET DELETE INFINITY BETWEEN
+%token SEMICOLON COMMIT ROLLBACK WITH COMMA AS ROUND_BRACKET_OPEN ROUND_BRACKET_CLOSE SELECT FROM WHERE CREATE TABLE RANGE PRIMARY KEY INSERTTOK INTO VALUES ASSIGN UPDATETOK SET DELETETOK INFINITY BETWEEN
 
 %left OR
 %left AND
@@ -107,13 +107,13 @@ table_desc
 select_query
     : SELECT column_list FROM table_list 
     {
-        Temp_table *temp = new Temp_Table();
+        Temp_Table *temp = new Temp_Table();
         check_err(execute_select(temp, *$4, *$2));
         $$ = temp;
     }
     | SELECT column_list FROM table_list WHERE condition 
     {
-        Temp_table *temp = new Temp_Table();
+        Temp_Table *temp = new Temp_Table();
         check_err(execute_select(temp, *$4, *$2, $6));
         $$ = temp;
     }
@@ -167,7 +167,7 @@ condition
     }
     | relex
     {
-        $$ = (CondAST *)$1
+        $$ = (CondAST *)$1;
     }
 ;
 
@@ -265,7 +265,7 @@ column_desc
 ;
 
 type 
-    : INT
+    : INTTOK
     | FLOAT
     | TEXT
 ;
@@ -282,7 +282,7 @@ constraint
 ;
 
 insert_query
-    : INSERT INTO NAME VALUES ROUND_BRACKET_OPEN column_val_list ROUND_BRACKET_CLOSE 
+    : INSERTTOK INTO NAME VALUES ROUND_BRACKET_OPEN column_val_list ROUND_BRACKET_CLOSE 
     {
         checkerr(execute_insert(*$3, *$6));
     }
@@ -304,11 +304,11 @@ column_val
 ;
 
 update_query
-    : UPDATE NAME SET update_list WHERE condition 
+    : UPDATETOK NAME SET update_list WHERE condition 
     {
         checkerr(execute_update(*$2, *$4, $6));
     }
-    | UPDATE NAME SET update_list 
+    | UPDATETOK NAME SET update_list 
     {
         checkerr(execute_update($2, $4));
     }
@@ -325,11 +325,11 @@ update
 ;           
 
 delete_query
-    : DELETE FROM NAME condition 
+    : DELETETOK FROM NAME condition 
     {
         checkerr(execute_delete($3, $4));
     }
-    | DELETE FROM NAME 
+    | DELETETOK FROM NAME 
     {
         checkerr(execute_delete($3));
     }

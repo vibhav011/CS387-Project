@@ -40,7 +40,7 @@ TABLE { return TABLE; }
 
 INT { 
     yylval.int_val = _INT;
-    return INT; 
+    return INTTOK; 
 }
 
 FLOAT { 
@@ -56,13 +56,13 @@ TEXT {
 RANGE { return RANGE; }
 PRIMARY { return PRIMARY; }
 KEY { return KEY; }
-INSERT { return INSERT; }
+INSERT { return INSERTTOK; }
 INTO { return INTO; }
 VALUES { return VALUES; }
 "=" { return ASSIGN; }
-UPDATE { return UPDATE; }
+UPDATE { return UPDATETOK; }
 SET { return SET; }
-DELETE { return DELETE; }
+DELETE { return DELETETOK; }
 INFINITY { return INFINITY; }
 
 {letter}({letter})|({digit})*\.{letter}({letter})|({digit})* { 
