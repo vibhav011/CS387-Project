@@ -3,7 +3,6 @@
 
 #include<string>
 #include "utils.h"
-#include "./receiver/query.h"
 using namespace std;
 
 # define _AND 0
@@ -61,7 +60,7 @@ class Range
 class AST
 {
     public:
-    virtual ~AST();
+    virtual ~AST(){};
 };
 
 class ExprAST: public AST
@@ -70,8 +69,8 @@ class ExprAST: public AST
     int dt;
 
     public:
-    virtual ~ExprAST();
-    virtual string getVal(Table_Row *row1, Table_Row *row2){};
+    virtual ~ExprAST(){};
+    virtual string getVal(Table_Row *row1, Table_Row *row2){return "";};
     int getType();
 };  
 
@@ -115,8 +114,8 @@ class BinArithAST: public ExprAST
 class CondAST: public AST
 {
     public:
-    virtual ~CondAST();
-    virtual bool check_row(Table_Row *row1, Table_Row *row2=NULL){};
+    virtual ~CondAST(){};
+    virtual bool check_row(Table_Row *row1, Table_Row *row2=NULL){return true;};
 }; 
 
 class RelAST: public CondAST
@@ -129,7 +128,7 @@ class RelAST: public CondAST
     bool check_row(Table_Row *row1, Table_Row *row2=NULL);
 };
 
-class BinLogAST: pulbic CondAST
+class BinLogAST: public CondAST
 {
     CondAST *lhs, *rhs;
     int op;
@@ -147,3 +146,5 @@ class UnaryLogAST: public CondAST
     UnaryLogAST(CondAST *child);
     bool check_row(Table_Row *row1, Table_Row *row2=NULL);
 };
+
+#endif

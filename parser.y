@@ -1,8 +1,12 @@
 %{
 #include "ast.h"
 #include "utils.h"
+#include "./receiver/query.h"
 
-extern table_list results;
+int yylex();
+int yyerror(int id, const char *);
+
+extern vector<Temp_Table*> results;
 int const_type;
 
 extern int yylex();
@@ -18,13 +22,13 @@ extern int readInputForLexer(char* buffer,unsigned long *numBytesRead,int maxByt
     Range* range;
     Constant* constant;
     ColumnDesc* col_desc;
-    Update_pair* update_pair;
+    Update_Pair* update_pair;
     Temp_Table* table;
     pair<string, vector<string> >* name_cols;
     vector<Temp_Table*>* vec_table;
     vector<string>* vec_string;
     vector<ColumnDesc*>* vec_col_desc;
-    vector<Update_pair*>* vec_update_pair;
+    vector<Update_Pair*>* vec_update_pair;
     ExprAST* exprast;
     CondAST* logast;
     RelAST* relast;
@@ -33,7 +37,7 @@ extern int readInputForLexer(char* buffer,unsigned long *numBytesRead,int maxByt
 %token <str> DOT_NAME NAME TEXT_CONSTANT INT_CONSTANT FLOAT_CONSTANT
 %token <int_val> INTTOK FLOAT TEXT
 %token AND OR NOT MULT PLUS MINUS DIV GE LT GT LE NE EQ
-%token SEMICOLON COMMIT ROLLBACK WITH COMMA AS ROUND_BRACKET_OPEN ROUND_BRACKET_CLOSE SELECT FROM WHERE CREATE TABLE RANGE PRIMARY KEY INSERTTOK INTO VALUES ASSIGN UPDATETOK SET DELETETOK INFINITY BETWEEN
+%token SEMICOLON COMMIT ROLLBACK WITH COMMA AS ROUND_BRACKET_OPEN ROUND_BRACKET_CLOSE SELECT FROM WHERE CREATE TABLE RANGE PRIMARY KEY INSERTTOK INTO VALUES ASSIGN UPDATETOK SET DELETE INFINITY BETWEEN
 
 %left OR
 %left AND
@@ -66,7 +70,7 @@ query
     : with_query SEMICOLON query SEMICOLON
     | select_query SEMICOLON
     {
-        results[results_ind] = $1;
+        results[worker_id] = $1;
     }
     | create_query SEMICOLON
     | insert_query SEMICOLON
@@ -115,13 +119,13 @@ select_query
     : SELECT column_list FROM table_list 
     {
         Temp_Table *temp = new Temp_Table();
-        check_err(execute_select(temp, *$4, *$2));
+        checkerr(execute_select(temp, *$4, *$2));
         $$ = temp;
     }
     | SELECT column_list FROM table_list WHERE condition 
     {
         Temp_Table *temp = new Temp_Table();
-        check_err(execute_select(temp, *$4, *$2, $6));
+        checkerr(execute_select(temp, *$4, *$2, $6));
         $$ = temp;
     }
 ;
@@ -208,19 +212,19 @@ relex
 expression
     : expression MULT expression 
     {
-        $$ = new ExprAST($1, $3, _MULT);
+        $$ = new BinArithAST($1, $3, _MULT);
     }
     | expression PLUS expression
     {
-        $$ = new ExprAST($1, $3, _PLUS);
+        $$ = new BinArithAST($1, $3, _PLUS);
     }
     | expression MINUS expression
     {
-        $$ = new ExprAST($1, $3, _MINUS);
+        $$ = new BinArithAST($1, $3, _MINUS);
     }
     | expression DIV expression
     {
-        $$ = new ExprAST($1, $3, _DIV);
+        $$ = new BinArithAST($1, $3, _DIV);
     }
     | constant 
     {
@@ -256,18 +260,18 @@ column_desc_list
     }
     | column_desc 
     {
-        $$ = new vector<col_desc> (1, $1);
+        $$ = new vector<ColumnDesc*> (1, $1);
     }
 ;
 
 column_desc
     : NAME type range 
     {
-        $$ = new Column_Desc(*$1.c_str(), $2, $3->lower_bound, $3->upper_bound);
+        $$ = new ColumnDesc(&(*$1)[0], $2, $3->lower_bound, $3->upper_bound);
     }
     | NAME type 
     {
-        $$ = new Column_Desc(*$1.c_str(), $2);
+        $$ = new ColumnDesc(&(*$1)[0], $2);
     }
 ;
 
@@ -317,27 +321,47 @@ update_query
     }
     | UPDATETOK NAME SET update_list 
     {
-        checkerr(execute_update($2, $4));
+        checkerr(execute_update(*$2, *$4));
     }
 ;
 
 update_list
-    : update_list COMMA update {$$->push_back($3);}
-    | update {$$ = new vector<update_pair*> (1, $1);}
+    : update_list COMMA update 
+    {
+        $$->push_back($3);
+    }
+    | update 
+    {
+        $$ = new vector<Update_Pair*> (1, $1);
+    }
 ;
 
 update
-    : NAME ASSIGN NAME {$$ = new update_pair($1, $3);}
-    | NAME ASSIGN constant {$$ = new update_pair($1, $3);}
+    : NAME ASSIGN NAME 
+    {
+        $$ = new Update_Pair(*$1, *$3);
+    }
+    | NAME ASSIGN constant 
+    {
+        $$ = new Update_Pair(*$1, $3->val);
+    }
 ;           
 
 delete_query
-    : DELETETOK FROM NAME condition 
+    : DELETE FROM NAME condition 
     {
-        checkerr(execute_delete($3, $4));
+        checkerr(execute_delete(*$3, $4));
     }
-    | DELETETOK FROM NAME 
+    | DELETE FROM NAME 
     {
-        checkerr(execute_delete($3));
+        checkerr(execute_delete(*$3));
     }
 ;
+
+%%
+
+int yyerror(int id, const char *err)
+{
+    cerr<<err<<endl;
+    return 1;
+}

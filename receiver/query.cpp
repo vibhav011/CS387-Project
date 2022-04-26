@@ -213,7 +213,7 @@ int Table_Single_Select_Join(void *callbackObj, RecId rid, byte *row, int len) {
     return cObj->ret_value;
 }
 
-int execute_select(Temp_Table *result, vector<string> table_names, vector<string>* col_names, CondAST* cond_tree) {
+int execute_select(Temp_Table *result, vector<string> table_names, vector<string>* col_names, CondAST* cond_tree=NULL) {
     // For non-join selects
     if (table_names.size() == 1) {
         if (table_name_to_id.find(table_names[0]) == table_name_to_id.end()) {
@@ -326,7 +326,7 @@ bool passes_pk_constraints(string table_name, Table_Row* new_row) {
     return true;
 }
 
-int execute_update(string table_name, vector<Update_pair*>* update_list, CondAST* cond_tree) {
+int execute_update(string table_name, vector<Update_Pair*>* update_list, CondAST* cond_tree) {
     try {
         if(table_name_to_id.find(table_name) == table_name_to_id.end()) return C_TABLE_NOT_FOUND;
         int table_num = table_name_to_id[table_name];
@@ -365,14 +365,14 @@ int execute_update(string table_name, vector<Update_pair*>* update_list, CondAST
 
             if (change_log.find(unqiue_id) != change_log.end()) {
                 delete change_log[unqiue_id].new_value;
-                change_log[unqiue_id].change_type = UPDATE;
+                change_log[unqiue_id].change_type = _UPDATE;
                 change_log[unqiue_id].new_value = new_value;
             }
             else {
                 Log_entry* log_entry = new Log_entry();
                 log_entry->old_value = old_value;
                 log_entry->new_value = new_value;
-                log_entry->change_type = UPDATE;
+                log_entry->change_type = _UPDATE;
                 change_log[unqiue_id] = *log_entry;
             }
         }
@@ -457,7 +457,7 @@ int execute_insert(string table_name, vector<string*>* column_val_list) {
         Log_entry* log_entry = new Log_entry();
         log_entry->old_value = NULL;
         log_entry->new_value = new_row;
-        log_entry->change_type = INSERT;
+        log_entry->change_type = _INSERT;
         int table_num = table_name_to_id[table_name];
         UIds[table_num] += 1;
         change_logs[table_num][UIds[table_num]] = *log_entry;
@@ -489,14 +489,14 @@ int execute_delete(string table_name, CondAST* cond_tree) {
 
             if (change_log.find(unqiue_id) != change_log.end()) {
                 delete change_log[unqiue_id].new_value;
-                change_log[unqiue_id].change_type = DELETE;
+                change_log[unqiue_id].change_type = _DELETE;
                 change_log[unqiue_id].new_value = NULL;
             }
             else {
                 Log_entry* log_entry = new Log_entry();
                 log_entry->old_value = result->rows[i];
                 log_entry->new_value = NULL;
-                log_entry->change_type = DELETE;
+                log_entry->change_type = _DELETE;
                 change_log[unqiue_id] = *log_entry;
             }
         }

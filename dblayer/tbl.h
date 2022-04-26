@@ -20,12 +20,28 @@ typedef union {
     double float_val;
 } Value;
 
-typedef struct {
+struct ColumnDesc {
     char *name;
     int  type;  // one of VARCHAR, INT, LONG
     Value lower_bound;
     Value upper_bound;
-} ColumnDesc;
+
+    ColumnDesc(char *name, int type, Value lower_bound, Value upper_bound)
+    {
+        this->name = name;
+        this->type = type;
+        this->lower_bound = lower_bound;
+        this->upper_bound = upper_bound;
+    }
+
+    ColumnDesc(char *name, int type)
+    {
+        this->name = name;
+        this->type = type;
+        // this->lower_bound = something
+        // this->upper_bound = something
+    }
+};
 
 typedef struct {
     int numColumns;

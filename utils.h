@@ -22,7 +22,7 @@ struct Table_Row {
     }
 };
 
-typedef enum {UPDATE, INSERT, DELETE} Change_type;
+typedef enum {_UPDATE, _INSERT, _DELETE} Change_type;
 struct Log_entry {
     Table_Row *old_value, *new_value;       // NULL indicates value does not exist
     Change_type change_type;
