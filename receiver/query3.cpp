@@ -69,8 +69,8 @@ int Table_Single_Select(void *callbackObj, RecId rid, byte *row, int len) {
         // Decoding the fields
         decode_to_table_row(tr, cObj->tbl1->schema, row);
         int unique_id = tr->fields[0].int_val;
-        if (change_log.find(unique_id) != change_log.end()) {
-            *tr = *change_log[unique_id].new_value;
+        if (change_logs.find(unique_id) != change_logs.end()) {
+            *tr = *change_logs[unique_id].new_value;
         }
     }
 
@@ -181,8 +181,8 @@ int Table_Single_Select_Join(void *callbackObj, RecId rid, byte *row, int len) {
         // Decoding the fields
         decode_to_table_row(tr, cObj->tbl2->schema, row);
         int unique_id = tr->fields[0].int_val;
-        if (change_log.find(unique_id) != change_log.end()) {
-            *tr = *change_log[unique_id].new_value;
+        if (change_logs.find(unique_id) != change_logs.end()) {
+            *tr = *change_logs[unique_id].new_value;
         }
     }
     cObj->tr2 = tr;
