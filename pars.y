@@ -74,7 +74,7 @@ select_query
 
 column_list
     : column_list COMMA column {$$ = $1; $$->push_back($3);}
-    | column {$$ = new vector<string> (1, $1);}
+    | column {$$ = new vector<string*> (1, $1);}
 ;
 
 column
@@ -84,7 +84,7 @@ column
 
 table_list
     : table COMMA table {$$ = $1; $$->push_back($3);}
-    | table {$$ = new vector<string> (1, $1);}
+    | table {$$ = new vector<string*> (1, $1);}
 ;
 
 table
@@ -144,7 +144,7 @@ create_query
 
 column_desc_list
     : column_desc_list COMMA column_desc {$$->push_back($3);}
-    | column_desc {$$ = new vector<col_desc> (1, $1);}
+    | column_desc {$$ = new vector<col_desc*> (1, $1);}
 ;
 
 column_desc
@@ -167,11 +167,11 @@ insert_query
 
 column_val_list
     : column_val_list COMMA column_val {$$->push_back($3);}
-    | column_val {$$ = new vector<string> (1, $1);}
+    | column_val {$$ = new vector<string*> (1, $1);}
 ;
 
 column_val
-    : CONSTANT {$$ = $1;}
+    : constant {$$ = $1;}
 ;
 
 update_query
@@ -181,7 +181,7 @@ update_query
 
 update_list
     : update_list COMMA update {$$->push_back($3);}
-    | update {$$ = new vector<update_pair> (1, $1);}
+    | update {$$ = new vector<update_pair*> (1, $1);}
 ;
 
 update

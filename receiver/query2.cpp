@@ -190,6 +190,6 @@ int execute_create(string table_name, vector<ColumnDesc*>* column_desc_list, vec
     return 0;
 }
 
-int execute_insert() {
+int execute_insert(string table_name, vector<string*>* column_val_list) {
     
 }
