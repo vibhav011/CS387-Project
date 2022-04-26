@@ -157,8 +157,39 @@ int execute_update(string table_name, vector<Update_pair*>* update_list, AST* co
         log_entry->change_type = UPDATE;
         int table_num = TableNum[table_name];
         ChangeLogs[table_num].insert({result->rows[i]->fields[0].int_val,*log_entry});
-        delete new_row;
+        delete new_value;
     }
 }
 
-int create_table() 
+int execute_create(string table_name, vector<ColumnDesc*>* column_desc_list, vector<string*>* constraint) {
+    Schema* schema = new Schema();
+    schema->numColumns = column_desc_list->size();
+    ColumnDesc** cols = new ColumnDesc*[schema->numColumns];
+    schema->columns = cols;
+    delete cols;
+    for (int i = 0; i < schema->numColumns; i++)
+    {
+        *(schema->columns[i]) = *((*column_desc_list)[i]);
+    }
+    Table* tbl = new Table();
+
+    int err = Table_Open("data.db", schema, false, &tbl);
+    delete schema;
+    if(err<0) {
+        return -1;
+    }
+    for (int i = 0; i < constraint->size(); i++)
+    {
+        tbl->pk.push_back(*((*constraint)[i]));
+    }
+    TableNum[table_name] = num_tables++;
+    UIds.push_back(0);
+    Tbls[table_name] = tbl;
+    delete tbl;
+    // call real_execute_create as well?
+    return 0;
+}
+
+int execute_insert() {
+    
+}
