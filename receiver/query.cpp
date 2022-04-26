@@ -83,7 +83,7 @@ int Table_Single_Select(void *callbackObj, RecId rid, byte *row, int len) {
         }
     }
 
-    int status = cObj->cond_tree->check_condition(tr, cObj->tr2);
+    int status = cObj->cond_tree->check_row(tr, cObj->tr2);
 
     if (status == C_ERROR) {
         cObj->ret_value = C_ERROR;
