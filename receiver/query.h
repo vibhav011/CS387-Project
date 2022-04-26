@@ -11,11 +11,11 @@ struct Query_Obj {
     vector<string> *col_names;
     AST *cond_tree;
     Temp_Table *temp_table;
-    Table *tbl1, *tbl2;
+    int tbl1_id, tbl2_id;
     Table_row *tr1, *tr2;
     int ret_value;
 
-    Query_Obj(vector<string>*, AST*, Temp_Table*, Table*, Table*);
+    Query_Obj(vector<string>*, AST*, Temp_Table*, int, int);
 };
 
 struct Update_pair {

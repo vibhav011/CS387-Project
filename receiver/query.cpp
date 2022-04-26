@@ -5,15 +5,18 @@
 #include <set>
 using namespace std;
 
-extern map<string, Table*> Tbls;
-extern set<int> changed_unique_ids;
+extern map<string, int> table_name_to_id;
+extern vector<Table*> tables;              // objects of all tables
+extern vector<int> UIds;                   // constanstly increasing uids for each of the tables
+extern vector<ChangeLog> change_logs;     // objects of change logs for corresponding tables in `tables`
+extern vector<MappingLog> mapping_logs;
 
-Query_Obj::Query_Obj(vector<string>* col_names, AST* cond_tree, Temp_Table* temp_table, Table *tbl1, Table *tbl2) {
+Query_Obj::Query_Obj(vector<string>* col_names, AST* cond_tree, Temp_Table* temp_table, int tbl1_id, int tbl2_id) {
     this->col_names = col_names;
     this->cond_tree = cond_tree;
     this->temp_table = temp_table;
-    this->tbl1 = tbl1;
-    this->tbl2 = tbl2;
+    this->tbl1_id = tbl1_id;
+    this->tbl2_id = tbl2_id;
 }
 
 void Table_Scan(Temp_Table *tbl, void *callbackObj, ReadFunc callbackfn) {
@@ -61,16 +64,21 @@ void decode_to_table_row(Table_row *result, Schema *schema, byte *row) {
 int Table_Single_Select(void *callbackObj, RecId rid, byte *row, int len) {
     Query_Obj* cObj = (Query_Obj *)callbackObj;
     Table_row* tr = new Table_row();
+    Table* tbl1 = tables[cObj->tbl1_id];
+    Table *tbl2 = NULL;
+    if (cObj->tbl2_id != -1)
+        tbl2 = tables[cObj->tbl2_id];
 
     if (cObj->tr1 != NULL) {
         *tr = *cObj->tr1;
         cObj->tr1 = NULL;
     } else {
         // Decoding the fields
-        decode_to_table_row(tr, cObj->tbl1->schema, row);
+        decode_to_table_row(tr, tbl1->schema, row);
         int unique_id = tr->fields[0].int_val;
-        if (change_logs.find(unique_id) != change_logs.end()) {
-            *tr = *change_logs[unique_id].new_value;
+        ChangeLog& change_log = change_logs[cObj->tbl1_id];
+        if (change_log.find(unique_id) != change_log.end()) {
+            *tr = *change_log[unique_id].new_value;
         }
     }
 
@@ -89,18 +97,18 @@ int Table_Single_Select(void *callbackObj, RecId rid, byte *row, int len) {
     // Expanding col_names if it is '*'
     if (cObj->col_names->at(0) == "*") {
         cObj->col_names->pop_back();
-        for (int i = 0; i < cObj->tbl1->schema->numColumns; i++) {
-            string s(cObj->tbl1->schema->columns[i]->name);
-            cObj->col_names->push_back(cObj->tbl1->name + "." + s);
+        for (int i = 0; i < tbl1->schema->numColumns; i++) {
+            string s(tbl1->schema->columns[i]->name);
+            cObj->col_names->push_back(tbl1->name + "." + s);
         }
-        if (cObj->tbl2 != NULL) {
-            for (int i = 0; i < cObj->tbl2->schema->numColumns; i++) {
-                string s(cObj->tbl2->schema->columns[i]->name);
-                cObj->col_names->push_back(cObj->tbl2->name + "." + s);
+        if (tbl2 != NULL) {
+            for (int i = 0; i < tbl2->schema->numColumns; i++) {
+                string s(tbl2->schema->columns[i]->name);
+                cObj->col_names->push_back(tbl2->name + "." + s);
             }
         }
     }
-    cObj->col_names->insert(cObj->col_names->begin(), cObj->tbl1->name+".unique_id");
+    cObj->col_names->insert(cObj->col_names->begin(), tbl1->name+".unique_id");
 
     Table_row *new_row = new Table_row();
     Table_row *use_row; Schema *scm;
@@ -113,16 +121,16 @@ int Table_Single_Select(void *callbackObj, RecId rid, byte *row, int len) {
         string table_name = table_col.substr(0, pos);
         string col_name = table_col.substr(pos + 1);
 
-        scm = cObj->tbl1->schema;
+        scm = tbl1->schema;
         use_row = tr;
-        if (cObj->tbl2 != NULL) {
-           if (table_name == cObj->tbl2->name) {
-                scm = cObj->tbl2->schema;
+        if (tbl2 != NULL) {
+           if (table_name == tbl2->name) {
+                scm = tbl2->schema;
                 use_row = cObj->tr2;
            }
         }
         
-        if (scm == cObj->tbl1->schema && cObj->tbl1->name != table_name && table_name != "") {
+        if (scm == tbl1->schema && tbl1->name != table_name && table_name != "") {
             delete new_row;
             delete tr;
             cObj->ret_value = C_TABLE_NOT_FOUND;
@@ -139,13 +147,13 @@ int Table_Single_Select(void *callbackObj, RecId rid, byte *row, int len) {
             }
         }
         if (!found) {
-            if (table_name != "" || cObj->tbl2 == NULL) {
+            if (table_name != "" || tbl2 == NULL) {
                 delete new_row;
                 delete tr;
                 cObj->ret_value = C_FIELD_NOT_FOUND;
                 return C_FIELD_NOT_FOUND;
             }
-            scm = cObj->tbl2->schema;
+            scm = tbl2->schema;
             for (int j = 0; j < scm->numColumns; j++) {
                 string s(scm->columns[i]->name);
                 if (s == cObj->col_names->at(i)) {
@@ -179,14 +187,17 @@ int Table_Single_Select_Join(void *callbackObj, RecId rid, byte *row, int len) {
     }
     else {
         // Decoding the fields
-        decode_to_table_row(tr, cObj->tbl2->schema, row);
+        Table* tbl2 = tables[cObj->tbl2_id];
+        decode_to_table_row(tr, tbl2->schema, row);
         int unique_id = tr->fields[0].int_val;
-        if (change_logs.find(unique_id) != change_logs.end()) {
-            *tr = *change_logs[unique_id].new_value;
+        ChangeLog& change_log = change_logs[cObj->tbl2_id];
+        if (change_log.find(unique_id) != change_log.end()) {
+            *tr = *change_log[unique_id].new_value;
         }
     }
     cObj->tr2 = tr;
-    Table_Scan(cObj->tbl1, cObj, Table_Single_Select);
+    Table* tbl1 = tables[cObj->tbl1_id];
+    Table_Scan(tbl1, cObj, Table_Single_Select);
 
     cObj->tr2 = NULL;
     delete tr;
@@ -196,9 +207,13 @@ int Table_Single_Select_Join(void *callbackObj, RecId rid, byte *row, int len) {
 int execute_select(Temp_Table *result, vector<string> table_names, vector<string>* col_names, AST* cond_tree) {
     // For non-join selects
     if (table_names.size() == 1) {
-        Table* tbl = Tbls[table_names[0]];
+        if (table_name_to_id.find(table_names[0]) == table_name_to_id.end()) {
+            return C_TABLE_NOT_FOUND;
+        }
+        int table_id = table_name_to_id[table_names[0]];
+        Table* tbl = tables[table_id];
 
-        Query_Obj* callbackObj = new Query_Obj(col_names, cond_tree, result, tbl, NULL);
+        Query_Obj* callbackObj = new Query_Obj(col_names, cond_tree, result, table_id, -1);
         callbackObj->tr1 = NULL;
         callbackObj->tr2 = NULL;
         callbackObj->ret_value = 0;
@@ -208,10 +223,16 @@ int execute_select(Temp_Table *result, vector<string> table_names, vector<string
     }
 
     // For join selects
-    Table* tbl1 = Tbls[table_names[0]];
-    Table* tbl2 = Tbls[table_names[1]];
+    if (table_name_to_id.find(table_names[0]) == table_name_to_id.end() ||
+        table_name_to_id.find(table_names[1]) == table_name_to_id.end()) {
+        return C_TABLE_NOT_FOUND;
+    }
+    int tbl1_id = table_name_to_id[table_names[0]];
+    int tbl2_id = table_name_to_id[table_names[1]];
+    Table* tbl1 = tables[tbl1_id];
+    Table* tbl2 = tables[tbl2_id];
 
-    Query_Obj* callbackObj = new Query_Obj(col_names, cond_tree, result, tbl1, tbl2);
+    Query_Obj* callbackObj = new Query_Obj(col_names, cond_tree, result, tbl1_id, tbl2_id);
     callbackObj->tr1 = NULL;
     callbackObj->tr2 = NULL;
     callbackObj->ret_value = 0;
