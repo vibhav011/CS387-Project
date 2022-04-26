@@ -31,23 +31,25 @@ struct Log_entry {
 };
 
 struct Query_Obj {
-    vector<string>* col_names;
-    AST* cond_tree;
+    vector<string> *col_names;
+    AST *cond_tree;
     Temp_Table *temp_table;
-    Schema* schema;
+    Table *tbl1, *tbl2;
+    Table_row *tr1, *tr2;
     int ret_value;
 
-    Query_Obj(vector<string>*, AST*, Temp_Table*, Schema*);
+    Query_Obj(vector<string>*, AST*, Temp_Table*, Table*, Table*);
 };
 
 struct Update_pair {
     string lhs;
     string rhs;
-}
+};
 
-vector<map<int, Log_entry>> ChangeLogs;      // map from unique_id to Log_Entry
-
+typedef map<int, Log_entry> ChangeLog;      // map from unique_id to Log_Entry
 typedef map<int, int> MappingLog;           // map from unique_id to record_id
+
+vector<ChangeLog> ChangeLogs;
 
 typedef map<string, int> TableNum;          // map from table num to table number
 
@@ -55,5 +57,7 @@ vector<int> UIds;           // constanstly increasing uids for each of the table
 
 Temp_Table* execute_select(string table_name, vector<string>col_names, AST* cond_tree);
 int execute_select(Temp_Table *result, vector<string> table_names, vector<string>col_names, AST* cond_tree);
+
+enum {C_OK, C_TRUE, C_FALSE, C_ERROR, C_TABLE_NOT_FOUND, C_FIELD_NOT_FOUND} error_codes;
 
 #endif

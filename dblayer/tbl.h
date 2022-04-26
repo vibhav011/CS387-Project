@@ -36,10 +36,11 @@ typedef struct {
     Schema *schema;
     vector<string> pk;
 
-    int fd;         // file descriptor of associated file 
+    string name;     // name of the table
+    int fd;          // file descriptor of associated file 
     int *lastPage;   // last page number in file
-    char **pagebuf; // last page buffer
-    int numPages;   // number of pages in file
+    char **pagebuf;  // last page buffer
+    int numPages;    // number of pages in file
     
 } Table ;
 
