@@ -11,6 +11,11 @@ short
 DecodeShort(byte *bytes);
 
 int
+EncodeDouble(double s, byte *bytes) ;
+double
+DecodeDouble(byte *bytes);
+
+int
 EncodeLong(long long l, byte *bytes);
 
 long long

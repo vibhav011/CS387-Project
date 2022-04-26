@@ -11,11 +11,11 @@ struct Query_Obj {
     vector<string> *col_names;
     AST *cond_tree;
     Temp_Table *temp_table;
-    Table *tbl1, *tbl2;
-    Table_row *tr1, *tr2;
+    int tbl1_id, tbl2_id;
+    Table_Row *tr1, *tr2;
     int ret_value;
 
-    Query_Obj(vector<string>*, AST*, Temp_Table*, Table*, Table*);
+    Query_Obj(vector<string>*, AST*, Temp_Table*, int, int);
 };
 
 struct Update_pair {
@@ -26,7 +26,7 @@ struct Update_pair {
 struct Temp_Table {
     string name;
     Schema* schema;
-    vector<Table_row*> rows;
+    vector<Table_Row*> rows;
 
     void set_schema_columns(vector<string> names)
     {
@@ -42,9 +42,10 @@ struct Temp_Table {
 
 # define table_list vector<Temp_Table*>
 
-
-int execute_select(Temp_Table *result, vector<string> table_names, vector<string> col_names, AST* cond_tree);
-
 int execute_create_temp(table_list tables);
+int execute_select(Temp_Table *result, vector<string> table_names, vector<string>col_names, AST* cond_tree);
+int execute_update(string table_name, vector<Update_pair*>* update_list, AST* cond_tree);
+int execute_create(string table_name, vector<ColumnDesc*>* column_desc_list, vector<string*>* constraint);
+int execute_insert(string table_name, vector<string*>* column_val_list);
 
 #endif

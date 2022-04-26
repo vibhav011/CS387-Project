@@ -63,7 +63,7 @@ class AST
 {
     public:
     virtual ~AST();
-    virtual bool check_row(Table_Row *row);
+    virtual bool check_row(Table_Row *row1, Table_Row *row2=NULL);
 };
 
 class BinArithAST: AST
@@ -73,7 +73,7 @@ class BinArithAST: AST
 
     public:
     BinArithAST(AST *lhs, AST *rhs, int op);
-    bool check_row(Table_Row *row);
+    bool check_row(Table_Row *row1, Table_Row *row2=NULL);
 };  
 
 class BinLogAST: AST
@@ -83,7 +83,7 @@ class BinLogAST: AST
 
     public:
     BinLogAST(AST *lhs, AST *rhs, int op);
-    bool check_row(Table_Row *row);
+    bool check_row(Table_Row *row1, Table_Row *row2=NULL);
 }; 
 
 class BinRelAST: AST
@@ -93,7 +93,7 @@ class BinRelAST: AST
 
     public:
     BinRelAST(AST *lhs, AST *rhs, int op);
-    bool check_row(Table_Row *row);
+    bool check_row(Table_Row *row1, Table_Row *row2=NULL);
 };
 
 class UnaryLogAST: AST
@@ -102,7 +102,7 @@ class UnaryLogAST: AST
     
     public:
     UnaryLogAST(AST *child);
-    bool check_row(Table_Row *child);
+    bool check_row(Table_Row *row1, Table_Row *row2=NULL);
 };
 
 class ConstAST: AST
@@ -111,7 +111,7 @@ class ConstAST: AST
 
     public:
     ConstAST(Constant data);
-    bool check_row(Table_Row *row);
+    bool check_row(Table_Row *row1, Table_Row *row2=NULL);
 };
 
 class ColAST: AST
@@ -120,5 +120,5 @@ class ColAST: AST
 
     public:
     ColAST(string name);
-    bool check_row(Table_Row *row);
+    bool check_row(Table_Row *row1, Table_Row *row2=NULL);
 };
