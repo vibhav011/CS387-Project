@@ -1,18 +1,8 @@
 #include "query.h"
-#include "../utils.h"
-#include "../dblayer/tbl.h"
 #include "../dblayer/codec.h"
-#include "../ast.h"
 #include <set>
-using namespace std;
 
-extern map<string, int> table_name_to_id;
-extern vector<Table*> tables;              // objects of all tables
-extern vector<int> UIds;                   // constanstly increasing uids for each of the tables
-extern vector<ChangeLog> change_logs;     // objects of change logs for corresponding tables in `tables`
-extern vector<MappingLog> mapping_logs;
-
-Query_Obj::Query_Obj(vector<string>* col_names, CondAST* cond_tree, Temp_Table* temp_table, int tbl1_id, int tbl2_id) {
+Query_Obj::Query_Obj(vector<string> col_names, CondAST* cond_tree, Temp_Table* temp_table, int tbl1_id, int tbl2_id) {
     this->col_names = col_names;
     this->cond_tree = cond_tree;
     this->temp_table = temp_table;
@@ -100,28 +90,28 @@ int Table_Single_Select(void *callbackObj, RecId rid, byte *row, int len) {
     }
 
     // Expanding col_names if it is '*'
-    if (cObj->col_names->at(0) == "*") {
-        cObj->col_names->pop_back();
+    if (cObj->col_names.at(0) == "*") {
+        cObj->col_names.pop_back();
         for (int i = 0; i < tbl1->schema->numColumns; i++) {
             string s(tbl1->schema->columns[i]->name);
-            cObj->col_names->push_back(tbl1->name + "." + s);
+            cObj->col_names.push_back(tbl1->name + "." + s);
         }
         if (tbl2 != NULL) {
             for (int i = 0; i < tbl2->schema->numColumns; i++) {
                 string s(tbl2->schema->columns[i]->name);
-                cObj->col_names->push_back(tbl2->name + "." + s);
+                cObj->col_names.push_back(tbl2->name + "." + s);
             }
         }
     }
-    cObj->col_names->insert(cObj->col_names->begin(), tbl1->name+".unique_id");
+    cObj->col_names.insert(cObj->col_names.begin(), tbl1->name+".unique_id");
 
     Table_Row *new_row = new Table_Row();
     Table_Row *use_row; Schema *scm;
 
     // Adding the required columns in new_row (in the order in which they are needed)
-    int num_cols = cObj->col_names->size();
+    int num_cols = cObj->col_names.size();
     for (int i = 0; i < num_cols; i++) {
-        string table_col = cObj->col_names->at(i);
+        string table_col = cObj->col_names.at(i);
         int pos = table_col.find(".");
         string table_name = table_col.substr(0, pos);
         string col_name = table_col.substr(pos + 1);
@@ -145,7 +135,7 @@ int Table_Single_Select(void *callbackObj, RecId rid, byte *row, int len) {
         bool found = false;
         for (int j = 0; j < scm->numColumns; j++) {
             string s(scm->columns[i]->name);
-            if (s == cObj->col_names->at(i)) {
+            if (s == cObj->col_names.at(i)) {
                 new_row->fields.push_back(use_row->fields[j]);
                 found = true;
                 break;
@@ -161,7 +151,7 @@ int Table_Single_Select(void *callbackObj, RecId rid, byte *row, int len) {
             scm = tbl2->schema;
             for (int j = 0; j < scm->numColumns; j++) {
                 string s(scm->columns[i]->name);
-                if (s == cObj->col_names->at(i)) {
+                if (s == cObj->col_names.at(i)) {
                     new_row->fields.push_back(cObj->tr2->fields[j]);
                     found = true;
                     break;
@@ -213,7 +203,8 @@ int Table_Single_Select_Join(void *callbackObj, RecId rid, byte *row, int len) {
     return cObj->ret_value;
 }
 
-int execute_select(Temp_Table *result, vector<string> table_names, vector<string>* col_names, CondAST* cond_tree=NULL) {
+int execute_select(Temp_Table *result, vector<string> table_names, vector<string> col_names, CondAST *cond_tree) {
+
     // For non-join selects
     if (table_names.size() == 1) {
         if (table_name_to_id.find(table_names[0]) == table_name_to_id.end()) {
@@ -297,7 +288,7 @@ bool passes_pk_constraints(string table_name, Table_Row* new_row) {
         bool match = true;
         for (int j = 0; j < tbl->pk.size(); j++)
         {
-            int pk_col_num = tbl->schema->getColumnNum(tbl->pk[j]);
+            int pk_col_num = tbl->schema->getColumnNum(tbl->pk[j].c_str());
             switch(tbl->schema->columns[pk_col_num]->type) {
                 case VARCHAR:
                     if(*(new_row->getField(pk_col_num).str_val) != *(result->rows[i]->getField(j).str_val)){
@@ -384,7 +375,7 @@ int execute_update(string table_name, vector<Update_Pair*>* update_list, CondAST
     }
 }
 
-int execute_create(string table_name, vector<ColumnDesc*>* column_desc_list, vector<string*>* constraint) {
+int execute_create(string table_name, vector<ColumnDesc*>* column_desc_list, vector<string> constraint) {
     try {
         Schema* schema = new Schema();
         schema->numColumns = column_desc_list->size();
@@ -397,13 +388,13 @@ int execute_create(string table_name, vector<ColumnDesc*>* column_desc_list, vec
         }
         Table* tbl = new Table();
 
-        int err = Table_Open("data.db", schema, false, &tbl);
+        int err = Table_Open((char*)"data.db", schema, false, &tbl);
         if(err<0) {
             return -1;
         }
-        for (int i = 0; i < constraint->size(); i++)
+        for (int i = 0; i < constraint.size(); i++)
         {
-            tbl->pk.push_back(*((*constraint)[i]));
+            tbl->pk.push_back(constraint[i]);
         }
         table_name_to_id[table_name] = tables.size()+1;
         UIds.push_back(0);
@@ -415,7 +406,7 @@ int execute_create(string table_name, vector<ColumnDesc*>* column_desc_list, vec
     }
 }
 
-int execute_insert(string table_name, vector<string*>* column_val_list) {
+int execute_insert(string table_name, vector<string> column_val_list) {
     try {
         if(table_name_to_id.find(table_name) == table_name_to_id.end()) return C_TABLE_NOT_FOUND;
         int table_num = table_name_to_id[table_name];
@@ -427,15 +418,15 @@ int execute_insert(string table_name, vector<string*>* column_val_list) {
             Entry* entry = new Entry();
             switch(schema->columns[i]->type) {
                 case VARCHAR:
-                    *(entry->str_val) = *((*column_val_list)[i]);
+                    *(entry->str_val) = column_val_list[i];
                     new_row->fields.push_back(*entry);
                     break;
                 case INT:
-                    entry->int_val = atoi((*((*column_val_list)[i])).c_str());
+                    entry->int_val = atoi(column_val_list[i].c_str());
                     new_row->fields.push_back(*entry);
                     break;
                 case DOUBLE:
-                    entry->float_val = atof((*((*column_val_list)[i])).c_str());
+                    entry->float_val = atof(column_val_list[i].c_str());
                     new_row->fields.push_back(*entry);
                     break;
                 default:
@@ -449,7 +440,7 @@ int execute_insert(string table_name, vector<string*>* column_val_list) {
         for (int i = 0; i < schema->numColumns; i++)
         {
 
-            violates = passes_range_constraints(table_name, i, *((*column_val_list)[i]));
+            violates = passes_range_constraints(table_name, i, column_val_list[i]);
             if(violates) {
                 return -1;
             }
@@ -458,7 +449,7 @@ int execute_insert(string table_name, vector<string*>* column_val_list) {
         log_entry->old_value = NULL;
         log_entry->new_value = new_row;
         log_entry->change_type = _INSERT;
-        int table_num = table_name_to_id[table_name];
+        table_num = table_name_to_id[table_name];
         UIds[table_num] += 1;
         change_logs[table_num][UIds[table_num]] = *log_entry;
         return 0;
