@@ -25,9 +25,10 @@ struct Temp_Table {
     vector<Table_row*> rows;
 };
 
+typedef enum {UPDATE, INSERT, DELETE} Change_type;
 struct Log_entry {
     Table_row *old_value, *new_value;       // NULL indicates value does not exist
-    enum {UPDATE, INSERT, DELETE} change_type;
+    Change_type change_type;
 };
 
 struct Query_Obj {
@@ -47,9 +48,10 @@ struct Update_pair {
 };
 
 typedef map<int, Log_entry> ChangeLog;      // map from unique_id to Log_Entry
-typedef map<int, int> MappingLog;           // map from unique_id to record_id
+typedef map<int, RecId> MappingLog;           // map from unique_id to record_id
 
 vector<ChangeLog> ChangeLogs;
+vector<MappingLog> MappingLogs;
 
 int num_tables = 0;         // constantly increasing integer for keeping track of number of tables
 
