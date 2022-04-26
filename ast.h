@@ -1,7 +1,9 @@
+#ifndef AST_H
+#define AST_H
+
 #include<string>
 #include "utils.h"
 #include "query.h"
-using namespace std;
 
 # define _AND 0
 # define _OR 1
@@ -122,3 +124,5 @@ class ColAST: AST
     ColAST(string name);
     bool check_row(Table_Row *row1, Table_Row *row2=NULL);
 };
+
+#endif
