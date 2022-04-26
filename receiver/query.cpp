@@ -78,6 +78,10 @@ int Table_Single_Select(void *callbackObj, RecId rid, byte *row, int len) {
         int unique_id = tr->fields[0].int_val;
         ChangeLog& change_log = change_logs[cObj->tbl1_id];
         if (change_log.find(unique_id) != change_log.end()) {
+            if (change_log[unique_id].new_value == NULL) { // The row is deleted
+                delete tr;
+                return C_OK;
+            }
             *tr = *change_log[unique_id].new_value;
         }
     }
@@ -192,6 +196,10 @@ int Table_Single_Select_Join(void *callbackObj, RecId rid, byte *row, int len) {
         int unique_id = tr->fields[0].int_val;
         ChangeLog& change_log = change_logs[cObj->tbl2_id];
         if (change_log.find(unique_id) != change_log.end()) {
+            if (change_log[unique_id].new_value == NULL) {    // The row is deleted
+                delete tr;
+                return C_OK;
+            }
             *tr = *change_log[unique_id].new_value;
         }
     }
@@ -351,12 +359,21 @@ int execute_update(string table_name, vector<Update_pair*>* update_list, AST* co
                     return -1;
                 }
             }
-            Log_entry* log_entry = new Log_entry();
-            log_entry->old_value = old_value;
-            log_entry->new_value = new_value;
-            log_entry->change_type = UPDATE;
-            int table_num = table_name_to_id[table_name];
-            change_logs[table_num][result->rows[i]->fields[0].int_val] = *log_entry;
+            ChangeLog &change_log = change_logs[table_num];
+            int unqiue_id = result->rows[i]->fields[0].int_val;
+
+            if (change_log.find(unqiue_id) != change_log.end()) {
+                delete change_log[unqiue_id].new_value;
+                change_log[unqiue_id].change_type = UPDATE;
+                change_log[unqiue_id].new_value = new_value;
+            }
+            else {
+                Log_entry* log_entry = new Log_entry();
+                log_entry->old_value = old_value;
+                log_entry->new_value = new_value;
+                log_entry->change_type = UPDATE;
+                change_log[unqiue_id] = *log_entry;
+            }
         }
         delete result;
         return 0;
