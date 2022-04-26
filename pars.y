@@ -19,7 +19,9 @@ int const_type;
     vector<string>* vec_string;
     vector<Column_Desc*>* vec_col_desc;
     vector<Update_pair*>* vec_update_pair;
-    AST* ast;
+    ExprAST* exprast;
+    CondAST* logast;
+    RelAST* relast;
 }
 
 %token <str> DOT_NAME NAME TEXT_CONSTANT INT_CONSTANT FLOAT_CONSTANT
@@ -45,7 +47,9 @@ int const_type;
 %type <range> range
 %type <update_pair> update
 %type <vec_update_pair> update_list
-%type <ast> condition relex expression
+%type <exprast> expression
+%type <relast> relex
+%type <logast> condition
 
 %%
 
@@ -165,46 +169,46 @@ condition
 relex
     : expression GE expression
     {
-        $$ = new BinRelAST($1, $3, _GE);
+        $$ = new RelAST($1, $3, _GE);
     }
     | expression LT expression
     {
-        $$ = new BinRelAST($1, $3, _LT);
+        $$ = new RelAST($1, $3, _LT);
     }
     | expression GT expression
     {
-        $$ = new BinRelAST($1, $3, _GT);
+        $$ = new RelAST($1, $3, _GT);
     }
     | expression LE expression
     {
-        $$ = new BinRelAST($1, $3, _LE);
+        $$ = new RelAST($1, $3, _LE);
     }
     | expression NE expression
     {
-        $$ = new BinRelAST($1, $3, _NE);
+        $$ = new RelAST($1, $3, _NE);
     }
     | expression EQ expression
     {
-        $$ = new BinRelAST($1, $3, _EQ);
+        $$ = new RelAST($1, $3, _EQ);
     }
 ;
 
 expression
     : expression MULT expression 
     {
-        $$ = new BinArithAST($1, $3, _MULT);
+        $$ = new ExprAST($1, $3, _MULT);
     }
     | expression PLUS expression
     {
-        $$ = new BinArithAST($1, $3, _PLUS);
+        $$ = new ExprAST($1, $3, _PLUS);
     }
     | expression MINUS expression
     {
-        $$ = new BinArithAST($1, $3, _MINUS);
+        $$ = new ExprAST($1, $3, _MINUS);
     }
     | expression DIV expression
     {
-        $$ = new BinArithAST($1, $3, _DIV);
+        $$ = new ExprAST($1, $3, _DIV);
     }
     | constant 
     {
