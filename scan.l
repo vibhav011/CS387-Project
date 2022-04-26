@@ -50,8 +50,21 @@ UPDATE { return UPDATE; }
 SET { return SET; }
 DELETE { return DELETE; }
 INFINITY { return INFINITY; }
-{letter}{letter|digit}*\.{letter}{letter|digit}* { return DOT_NAME; }
-{letter}{letter|digit}* { return NAME; }
-\"[^\"]\" { return TEXT_CONSTANT; }
-{digit}+ { return INT_CONSTANT; }
+{letter}{letter|digit}*\.{letter}{letter|digit}* 
+{ 
+    yylval.string_const = yytext;
+    return DOT_NAME; 
+}
+{letter}{letter|digit}* 
+{ 
+    yylval.string_const = yytext;
+    return NAME; 
+}
+\"[^\"]\" 
+{ 
+    yylval.string_const = yytext;
+    return TEXT_CONSTANT; 
+}
+{digit}+ 
+{ return INT_CONSTANT; }
 {digit}+\.{digit}+ { return FLOAT_CONSTANT; }

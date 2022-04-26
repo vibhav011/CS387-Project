@@ -24,6 +24,26 @@ DecodeInt(byte *bytes) {
 }
 
 typedef union {
+    double d;
+    byte bytes[8];
+} DoubleBytes;
+
+int 
+EncodeDouble(double d, byte *bytes){
+    DoubleBytes db;
+    db.d = d;
+    memcpy(bytes, db.bytes, 8);
+    return 8;
+}
+
+double
+DecodeDouble(byte *bytes){
+    DoubleBytes db;
+    memcpy(db.bytes, bytes, 8);
+    return db.d;
+}
+
+typedef union {
     short s;
     byte  bytes[2];
 } ShortBytes;

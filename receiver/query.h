@@ -23,7 +23,9 @@ struct Update_pair {
     string rhs;
 };
 
-
 int execute_select(Temp_Table *result, vector<string> table_names, vector<string>col_names, AST* cond_tree);
+int execute_update(string table_name, vector<Update_pair*>* update_list, AST* cond_tree);
+int execute_create(string table_name, vector<ColumnDesc*>* column_desc_list, vector<string*>* constraint);
+int execute_insert(string table_name, vector<string*>* column_val_list);
 
 #endif

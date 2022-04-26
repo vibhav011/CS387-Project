@@ -40,6 +40,8 @@
 *.i*86
 *.x86_64
 *.hex
+dbprocess
+daemon
 
 # Debug files
 *.dSYM/
