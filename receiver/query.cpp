@@ -260,9 +260,9 @@ bool passes_range_constraints(string table_name, int column_num, string new_valu
                 return false;
             }
             break;
-        case LONG:
+        case DOUBLE:
             try {
-                int new_float_value = atol(new_value.c_str());
+                int new_float_value = atof(new_value.c_str());
                 if(lb.float_val > new_float_value || ub.float_val < new_float_value) return false;
             }
             catch(int x) {
@@ -280,17 +280,33 @@ bool passes_pk_constraints(string table_name, Table_row* new_row) {
     int table_num = table_name_to_id[table_name];
     Table* tbl  = tables[table_num];
     Temp_Table* result = new Temp_Table();
-    int ret = execute_select(result, table_name, tbl->pk);
+    vector<string>* vec_table_name = new vector<string>(1, table_name);
+    int ret = execute_select(result, *vec_table_name, tbl->pk, NULL);
+    delete vec_table_name;
     for(int i=0; i<result->rows.size(); i++)
     {
         bool match = true;
         for (int j = 0; j < tbl->pk.size(); j++)
         {
             int pk_col_num = tbl->schema->getColumnNum(tbl->pk[j]);
-            if(new_row->getField(pk_col_num) != result->rows[i]->getField(j)){
-                match = false;
+            switch(tbl->schema->columns[pk_col_num]->type) {
+                case VARCHAR:
+                    if(*(new_row->getField(pk_col_num).str_val) != *(result->rows[i]->getField(j).str_val)){
+                        match = false;
+                    }
+                    break;
+                case INT:
+                    if(new_row->getField(pk_col_num).int_val != result->rows[i]->getField(j).int_val){
+                        match = false;
+                    }
+                    break;
+                case DOUBLE:
+                    if(new_row->getField(pk_col_num).float_val != result->rows[i]->getField(j).float_val){
+                        match = false;
+                    }
                 break;
             }
+            if (!match) break;
         }
         if(match) {
             delete result;
@@ -307,7 +323,10 @@ int execute_update(string table_name, vector<Update_pair*>* update_list, AST* co
         int table_num = table_name_to_id[table_name];
         Table* tbl  = tables[table_num];
         vector<string>* all_cols = new vector<string>(1, "*");
-        Temp_Table* result = execute_select(table_name, all_cols, cond_tree);
+        Temp_Table* result = new Temp_Table();
+        vector<string>* vec_table_name = new vector<string>(1, table_name);
+        int ret = execute_select(result, *vec_table_name, tbl->pk, NULL);
+        delete vec_table_name;
         delete all_cols;
         for(int i=0; i<result->rows.size(); i++){
             Table_row* old_value = result->rows[i];
@@ -321,12 +340,14 @@ int execute_update(string table_name, vector<Update_pair*>* update_list, AST* co
                 }
                 bool violates = ! passes_range_constraints(table_name, change_col_num, (*update_list)[j]->rhs);
                 if(violates) {
+                    delete result;
                     return -1;
                 }
                 string* new_rhs = new string((*update_list)[j]->rhs);
                 new_value->fields[change_col_num].str_val = new_rhs;
                 violates = ! passes_pk_constraints(table_name, new_value);
                 if(violates) {
+                    delete result;
                     return -1;
                 }
             }
@@ -334,9 +355,10 @@ int execute_update(string table_name, vector<Update_pair*>* update_list, AST* co
             log_entry->old_value = old_value;
             log_entry->new_value = new_value;
             log_entry->change_type = UPDATE;
-            int table_num = TableNum[table_name];
-            change_logs[table_num].insert({result->rows[i]->fields[0].int_val,*log_entry});
+            int table_num = table_name_to_id[table_name];
+            change_logs[table_num][result->rows[i]->fields[0].int_val] = *log_entry;
         }
+        delete result;
         return 0;
     }
     catch(int x) {
@@ -368,8 +390,6 @@ int execute_create(string table_name, vector<ColumnDesc*>* column_desc_list, vec
         table_name_to_id[table_name] = tables.size()+1;
         UIds.push_back(0);
         tables.push_back(tbl);
-
-        // call real_execute_create as well?
         return 0;
     }
     catch (int x) {
@@ -396,8 +416,8 @@ int execute_insert(string table_name, vector<string*>* column_val_list) {
                     entry->int_val = atoi((*((*column_val_list)[i])).c_str());
                     new_row->fields.push_back(*entry);
                     break;
-                case LONG:
-                    entry->float_val = atol((*((*column_val_list)[i])).c_str());
+                case DOUBLE:
+                    entry->float_val = atof((*((*column_val_list)[i])).c_str());
                     new_row->fields.push_back(*entry);
                     break;
                 default:
@@ -422,7 +442,7 @@ int execute_insert(string table_name, vector<string*>* column_val_list) {
         log_entry->change_type = INSERT;
         int table_num = table_name_to_id[table_name];
         UIds[table_num] += 1;
-        change_logs[table_num].insert({UIds[table_num],*log_entry});
+        change_logs[table_num][UIds[table_num]] = *log_entry;
         return 0;
     }
     catch (int x) {
@@ -436,8 +456,11 @@ int execute_delete(string table_name, AST* cond_tree) {
         int table_num = table_name_to_id[table_name];
         Table* tbl  = tables[table_num];
         vector<string>* all_cols = new vector<string>(1, "*");
-        Temp_Table* result = execute_select(table_name, all_cols, cond_tree); 
-        delete all_cols;  
+        Temp_Table* result = new Temp_Table();
+        vector<string>* vec_table_name = new vector<string>(1, table_name);
+        int ret = execute_select(result, *vec_table_name, tbl->pk, NULL);
+        delete vec_table_name;
+        delete all_cols;
         for (int i = 0; i < result->rows.size(); i++)
         {
             Log_entry* log_entry = new Log_entry();
@@ -445,7 +468,7 @@ int execute_delete(string table_name, AST* cond_tree) {
             log_entry->new_value = NULL;
             log_entry->change_type = DELETE;
             int table_num = table_name_to_id[table_name];
-            change_logs[table_num].insert({result->rows[i]->fields[0].int_val,*log_entry});
+            change_logs[table_num][result->rows[i]->fields[0].int_val] = *log_entry;
         }
         return 0;
     }
