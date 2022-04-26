@@ -251,3 +251,24 @@ int execute_insert(string table_name, vector<string*>* column_val_list) {
         return -1;
     }
 }
+
+int execute_delete(string table_name, AST* cond_tree) {
+    try {
+        Table* tbl = Tbls[table_name];
+        vector<string>* all_cols = new vector<string>(1, "*");
+        Temp_Table* result = execute_select(table_name, all_cols, cond_tree);   
+        for (int i = 0; i < result->rows.size(); i++)
+        {
+            Log_entry* log_entry = new Log_entry();
+            log_entry->old_value = result->rows[i];
+            log_entry->new_value = NULL;
+            log_entry->change_type = DELETE;
+            int table_num = TableNum[table_name];
+            ChangeLogs[table_num].insert({result->rows[i]->fields[0].int_val,*log_entry});
+        }
+        return 0;
+    }
+    catch (int x) {
+        return -1;
+    }
+}
