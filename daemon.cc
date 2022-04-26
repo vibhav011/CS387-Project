@@ -1,10 +1,13 @@
 #include <signal.h>
+#include <string.h>
 #include "sock.hpp"
 using namespace std;
 
 Daemon::Daemon(const char *sock_path, request_handler_t func){
-    for(int i=0; i<MAX_PROCESSES; i++)
+    for(int i=0; i<MAX_PROCESSES; i++){
         this->conn[i].conn_thread = NULL;
+        this->conn[i].worker_id = i;
+    }
 
     struct sockaddr_un addr;
     int i, rc;
@@ -160,7 +163,7 @@ void Daemon::thread_func(Conn *conn){
             conn->inuse = 0;
             break;
         }
-        int resp = this->query_handler(string(buf), conn->stdout_fd);
+        int resp = this->query_handler(string(buf), conn->stdout_fd, conn->worker_id);
 
         q_len = send(conn->client_fd, "OK", 2, MSG_NOSIGNAL);
         if(q_len != 2){
@@ -176,8 +179,21 @@ void Daemon::thread_func(Conn *conn){
     this function is executed on each arriving query
     need to call yyparse() here
 */
+extern string global_query;
+int myhandler(string query, int fd, int worker_id){
+    size_t pos_start = 0, pos_end;
+    string token;
 
-int myhandler(string query, int fd){
+    while (pos_start < query.size() && (pos_end = query.find (";", pos_start)) != string::npos) {
+        token = s.substr (pos_start, pos_end - pos_start);
+        pos_start = pos_end + 1;
+        token.push_back(';');
+
+        query_mutex.lock();
+        global_query = token;
+        yyparse(worker_id);
+        query_mutex.unlock();
+    }
     cout << query << endl;
     write(fd, "this is another output\n", 23);
 

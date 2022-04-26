@@ -1,9 +1,16 @@
 %{
 #include "ast.h"
+#include "utils.h"
 
 extern table_list results;
 int const_type;
+
+extern int yylex();
+extern int readInputForLexer(char* buffer,unsigned long *numBytesRead,int maxBytesToRead);
+
 %}
+
+%parse-param {int worker_id}
 
 %union {
     int int_val;

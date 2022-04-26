@@ -3,10 +3,13 @@ void yyerror(string);
 void addtoken(string);
 int lineno = 1;
 #include "y.tab.h"
+
+#undef YY_INPUT
+#define YY_INPUT(b,r,s) readInputForLexer(b,&r,s)
 %}
 
 digit [0-9]
-letter [a-zA-Z]
+letter [a-zA-Z_]
 
 %%
 
@@ -16,8 +19,8 @@ ROLLBACK { return ROLLBACK; }
 WITH { return WITH; }
 , { return COMMA; }
 AS { return AS; }
-( { return ROUND_BRACKET_OPEN; }
-) { return ROUND_BRACKET_CLOSE; }
+"(" { return ROUND_BRACKET_OPEN; }
+")" { return ROUND_BRACKET_CLOSE; }
 SELECT { return SELECT; }
 FROM { return FROM; }
 WHERE { return WHERE; }
@@ -65,13 +68,13 @@ SET { return SET; }
 DELETE { return DELETE; }
 INFINITY { return INFINITY; }
 
-{letter}({letter})|({digit})*\.{letter}({letter})|({digit})* { 
+{letter}({letter}|{digit})*\.{letter}({letter}|{digit})* { 
     yylval = new string();
     *yylval.str = yytext;
     return DOT_NAME; 
 }
 
-{letter}({letter})|({digit})* {
+{letter}({letter}|{digit})* {
     yylval = new string();
     *yylval.str = yytext;
     return NAME; 
@@ -95,3 +98,16 @@ INFINITY { return INFINITY; }
 }
 
 %%
+
+int readInputForLexer( char *buffer, unsigned long *numBytesRead, int maxBytesToRead ) {
+    unsigned long numBytesToRead = maxBytesToRead;
+    int bytesRemaining = global_query.size()-globalReadOffset;
+    int i;
+    if ( numBytesToRead > bytesRemaining ) { numBytesToRead = bytesRemaining; }
+    for ( i = 0; i < numBytesToRead; i++ ) {
+        buffer[i] = global_query[globalReadOffset+i];
+    }
+    *numBytesRead = numBytesToRead;
+    globalReadOffset += numBytesToRead;
+    return 0;
+}

@@ -10,7 +10,7 @@
 #include <unistd.h>
 #include <thread>
 
-typedef int (*request_handler_t) (std::string,int);
+typedef int (*request_handler_t) (std::string,int,int);
 
 #define MAX_BUFFLEN 1024
 #define SOCK_PATH "/tmp/server.sock"
@@ -36,6 +36,7 @@ struct Conn{
     int inuse;
     int client_fd;
     int stdout_fd;
+    int worker_id;
     std::thread *conn_thread;
 };
 

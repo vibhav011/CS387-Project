@@ -3,7 +3,7 @@
 
 #include<string>
 #include "utils.h"
-#include "query.h"
+#include "receiver/query.h"
 
 # define _AND 0
 # define _OR 1
