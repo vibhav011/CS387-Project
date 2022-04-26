@@ -488,6 +488,7 @@ int execute_delete(string table_name, CondAST* cond_tree) {
             int unqiue_id = result->rows[i]->fields[0].int_val;
 
             if (change_log.find(unqiue_id) != change_log.end()) {
+                delete change_log[unqiue_id].new_value;
                 change_log[unqiue_id].change_type = DELETE;
                 change_log[unqiue_id].new_value = NULL;
             }
