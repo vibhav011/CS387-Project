@@ -299,7 +299,7 @@ update_query
 
 update_list
     : update_list COMMA update {$$->push_back($3);}
-    | update {$$ = new vector<update_pair> (1, $1);}
+    | update {$$ = new vector<update_pair*> (1, $1);}
 ;
 
 update

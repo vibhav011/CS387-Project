@@ -209,13 +209,16 @@ Table_Scan(Table *tbl, void *callbackObj, ReadFunc callbackfn) {
     // Unfix the last page for PF_GetNextPage to work
     PF_UnfixPage(tbl->fd, *tbl->lastPage, true);
     // Iterating over all pages and unfixing the previous ones
-    while (PF_GetNextPage(tbl->fd, pagenum, pagebuf) == PFE_OK) {
+    bool to_break = false;
+    while (PF_GetNextPage(tbl->fd, pagenum, pagebuf) == PFE_OK && !to_break) {
         Header *header = (Header *) *pagebuf;
         int nslots = header->numSlots;
-        for (int i = 0; i < nslots; i++) {
+        for (int i = 0; i < nslots && !to_break; i++) {
             int len = getLen(i, *pagebuf);
             int rid = (*pagenum << 16) + getNthSlotOffset(i, *pagebuf);
-            callbackfn(callbackObj, rid, *pagebuf+header->slotOffsets[i], len);
+            if (callbackfn(callbackObj, rid, *pagebuf+header->slotOffsets[i], len) != 0) {
+                to_break = true;
+            }
         }
         PF_UnfixPage(tbl->fd, prevPage, false);
         prevPage = *pagenum;
