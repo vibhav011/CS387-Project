@@ -34,6 +34,8 @@ int const_type;
 %nonassoc NE EQ LT LE GT GE
 %left PLUS MINUS
 %left MULT DIV
+%nonassoc REDC
+%nonassoc COMMA
 
 %type <int_val> type
 %type <constant> constant
@@ -135,12 +137,12 @@ column
 ;
 
 table_list
-    : table COMMA table 
+    : table COMMA table
     {
         $$ = new vector<string> (1, *$1);
         $$->push_back(*$3);
     }
-    | table 
+    | table %prec REDC
     {
         $$ = new vector<string> (1, *$1);
     }
