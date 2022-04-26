@@ -65,63 +65,88 @@ class AST
 {
     public:
     virtual ~AST();
-    virtual bool check_row(Table_Row *row1, Table_Row *row2=NULL);
 };
 
-class BinArithAST: AST
+class ExprAST: AST
 {
-    AST *lhs, rhs;
-    int op;
+    string val;
+    int dt;
 
     public:
-    BinArithAST(AST *lhs, AST *rhs, int op);
-    bool check_row(Table_Row *row1, Table_Row *row2=NULL);
+    virtual ~ExprAST();
+    virtual string getVal();
+    int getType();
 };  
 
-class BinLogAST: AST
-{
-    AST *lhs, rhs;
-    int op;
-
-    public:
-    BinLogAST(AST *lhs, AST *rhs, int op);
-    bool check_row(Table_Row *row1, Table_Row *row2=NULL);
-}; 
-
-class BinRelAST: AST
-{
-    AST *lhs, rhs;
-    int op;
-
-    public:
-    BinRelAST(AST *lhs, AST *rhs, int op);
-    bool check_row(Table_Row *row1, Table_Row *row2=NULL);
-};
-
-class UnaryLogAST: AST
-{
-    AST *child;
-    
-    public:
-    UnaryLogAST(AST *child);
-    bool check_row(Table_Row *row1, Table_Row *row2=NULL);
-};
-
-class ConstAST: AST
+class ConstAST: ExprAST
 {
     Constant data;
 
     public:
     ConstAST(Constant data);
-    bool check_row(Table_Row *row1, Table_Row *row2=NULL);
+    string getVal();
 };
 
-class ColAST: AST
+class ColAST: ExprAST
 {
     string col;
 
     public:
     ColAST(string name);
+    string getVal();
+};
+
+class UnaryArithAST: ExprAST
+{
+    ExprAST *child;
+    public:
+    UnaryArithAST(ExprAST *child);
+    string getVal();
+};
+
+class BinArithAST: ExprAST
+{
+    ExprAST *lhs, *rhs;
+    int op;
+
+    public:
+    BinArithAST(ExprAST *lhs, ExprAST *rhs, int op);
+    string getVal();
+};
+
+class CondAST: AST
+{
+    public:
+    virtual ~CondAST();
+    virtual bool check_row(Table_Row *row1, Table_Row *row2=NULL);
+}; 
+
+class RelAST: CondAST
+{
+    ExprAST *lhs, *rhs;
+    int op;
+
+    public:
+    RelAST(ExprAST *lhs, ExprAST *rhs, int op);
+    bool check_row(Table_Row *row1, Table_Row *row2=NULL);
+};
+
+class BinLogAST: CondAST
+{
+    CondAST *lhs, *rhs;
+    int op;
+
+    public:
+    BinLogAST(CondAST *lhs, CondAST *rhs, int op);
+    bool check_row(Table_Row *row1, Table_Row *row2=NULL);
+};
+
+class UnaryLogAST: CondAST
+{
+    CondAST *child;
+    
+    public:
+    UnaryLogAST(CondAST *child);
     bool check_row(Table_Row *row1, Table_Row *row2=NULL);
 };
 
