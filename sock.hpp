@@ -5,11 +5,12 @@
 #include <string>
 #include <sys/socket.h>
 #include <sys/un.h>
+#include <fcntl.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <thread>
 
-typedef int (*request_handler_t) (std::string);
+typedef int (*request_handler_t) (std::string,int);
 
 #define MAX_BUFFLEN 1024
 #define SOCK_PATH "/tmp/server.sock"
@@ -22,6 +23,7 @@ public:
     ~DB_inst();
 
     int send_query(const char *);
+    int send_stdout();
 };
 
 /*--------------------DAEMON RELATED DECLS----------------
@@ -49,6 +51,7 @@ public:
     // starts listening for connections
     int accept_conn();
     void thread_func(Conn *);
+    int recv_stdout(Conn *);
 };
 
 #endif 

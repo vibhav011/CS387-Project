@@ -1,0 +1,14 @@
+ChangeLog file structure:
+
+<table_name> <num_fields>
+<schema>
+<uid1> <change_type> <old_row> <new_row>
+...
+
+Example:
+
+player 3
+text int float
+1 0 Sachin 26 20.3 Sachin 32 11.5               // 0 -> UPDATE
+3 1 Dhoni 30 1.1                                // 1 -> INSERT
+1 2 Sachin 32 11.5 2                            // 2 -> DELETE

@@ -50,6 +50,59 @@ Daemon::~Daemon(){
     }
 }
 
+int Daemon::recv_stdout(Conn *conn){
+    union {
+        char buf[CMSG_SPACE(sizeof(int))];
+        struct cmsghdr align;
+    } controlMsg;
+
+    struct msghdr msgh;
+    msgh.msg_name = NULL;
+    msgh.msg_namelen = 0;
+
+    struct iovec iov;
+    int data;
+
+    msgh.msg_iov = &iov;
+    msgh.msg_iovlen = 1;
+
+    iov.iov_base = &data;
+    iov.iov_len = sizeof(data);
+
+    msgh.msg_control = controlMsg.buf;
+    msgh.msg_controllen = sizeof(controlMsg.buf);
+
+    /* recieve stdout as ancillary data */
+    ssize_t nr = recvmsg(conn->client_fd, &msgh, 0);
+    if(nr == -1){
+        perror("couldn't share stdout");
+        return -1;
+    }
+
+    struct cmsghdr *cmsgp = CMSG_FIRSTHDR(&msgh);
+
+    /* Check the validity of the 'cmsghdr' */
+
+    if (cmsgp == NULL || cmsgp->cmsg_len != CMSG_LEN(sizeof(int))){
+        printf("bad cmsg header / message length");
+        return -1;
+    }
+    if (cmsgp->cmsg_level != SOL_SOCKET){
+        printf("cmsg_level != SOL_SOCKET");
+        return -1;
+    }
+    if (cmsgp->cmsg_type != SCM_RIGHTS){
+        printf("cmsg_type != SCM_RIGHTS");
+        return -1;
+    }
+
+    memcpy(&conn->stdout_fd, CMSG_DATA(cmsgp), sizeof(int));
+
+    write(conn->stdout_fd, "database connected\n", 19);
+
+    return 0;
+}
+
 int Daemon::accept_conn(){
     int i, cl;
 
@@ -65,7 +118,7 @@ int Daemon::accept_conn(){
     }
 
     if(i>=MAX_PROCESSES){
-        printf("already too many db-processes open\n");
+        perror("already too many db-processes open\n");
         close(cl);
         return -1;
     }
@@ -74,10 +127,17 @@ int Daemon::accept_conn(){
 
     this->conn[i].inuse = 1;
     this->conn[i].client_fd = cl;
+    int err = this->recv_stdout(&this->conn[i]);
+
+    if(err < 0){
+        perror("didn't recieve the stdout fd");
+        close(cl);
+        return -1;
+    }
 
     this->conn[i].conn_thread = new std::thread(&Daemon::thread_func, this, &this->conn[i]);
 
-    return -1;
+    return 0;
 }
 
 /* 
@@ -100,7 +160,12 @@ void Daemon::thread_func(Conn *conn){
             conn->inuse = 0;
             break;
         }
-        int resp = this->query_handler(string(buf));
+        int resp = this->query_handler(string(buf), conn->stdout_fd);
+
+        q_len = send(conn->client_fd, "OK", 2, MSG_NOSIGNAL);
+        if(q_len != 2){
+            perror("error ack");
+        }
     }
 
     printf("joining back: %p\n", conn);
@@ -112,8 +177,10 @@ void Daemon::thread_func(Conn *conn){
     need to call yyparse() here
 */
 
-int myhandler(string query){
+int myhandler(string query, int fd){
     cout << query << endl;
+    write(fd, "this is another output\n", 23);
+
     return 0;
 }
 
