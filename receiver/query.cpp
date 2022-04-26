@@ -1,5 +1,5 @@
 #include "query.h"
-#include "utils.h"
+#include "../utils.h"
 #include "../dblayer/tbl.h"
 #include "../dblayer/codec.h"
 #include <set>
