@@ -27,7 +27,7 @@ void Table_Scan(Temp_Table *tbl, void *callbackObj, ReadFunc callbackfn) {
     }
 }
 
-void decode_to_table_row(Table_row *result, Schema *schema, byte *row) {
+void decode_to_table_row(Table_Row *result, Schema *schema, byte *row) {
     byte *cursor = row;
     for (int i = 0; i < schema->numColumns; i++)
     {
@@ -63,7 +63,7 @@ void decode_to_table_row(Table_row *result, Schema *schema, byte *row) {
 
 int Table_Single_Select(void *callbackObj, RecId rid, byte *row, int len) {
     Query_Obj* cObj = (Query_Obj *)callbackObj;
-    Table_row* tr = new Table_row();
+    Table_Row* tr = new Table_Row();
     Table* tbl1 = tables[cObj->tbl1_id];
     Table *tbl2 = NULL;
     if (cObj->tbl2_id != -1)
@@ -110,8 +110,8 @@ int Table_Single_Select(void *callbackObj, RecId rid, byte *row, int len) {
     }
     cObj->col_names->insert(cObj->col_names->begin(), tbl1->name+".unique_id");
 
-    Table_row *new_row = new Table_row();
-    Table_row *use_row; Schema *scm;
+    Table_Row *new_row = new Table_Row();
+    Table_Row *use_row; Schema *scm;
 
     // Adding the required columns in new_row (in the order in which they are needed)
     int num_cols = cObj->col_names->size();
@@ -180,7 +180,7 @@ int Table_Single_Select(void *callbackObj, RecId rid, byte *row, int len) {
 
 int Table_Single_Select_Join(void *callbackObj, RecId rid, byte *row, int len) {
     Query_Obj* cObj = (Query_Obj *)callbackObj;
-    Table_row* tr = new Table_row();
+    Table_Row* tr = new Table_Row();
     if (cObj->tr1 != NULL) {
         *tr = *cObj->tr1;
         cObj->tr1 = NULL;
@@ -275,7 +275,7 @@ bool passes_range_constraints(string table_name, int column_num, string new_valu
     return true;
 }
 
-bool passes_pk_constraints(string table_name, Table_row* new_row) {
+bool passes_pk_constraints(string table_name, Table_Row* new_row) {
     if(table_name_to_id.find(table_name) == table_name_to_id.end()) return false;
     int table_num = table_name_to_id[table_name];
     Table* tbl  = tables[table_num];
@@ -329,8 +329,8 @@ int execute_update(string table_name, vector<Update_pair*>* update_list, AST* co
         delete vec_table_name;
         delete all_cols;
         for(int i=0; i<result->rows.size(); i++){
-            Table_row* old_value = result->rows[i];
-            Table_row* new_value = new Table_row();
+            Table_Row* old_value = result->rows[i];
+            Table_Row* new_value = new Table_Row();
             *new_value = *old_value;
             for (int j = 0; j < update_list->size(); j++)
             {
@@ -402,7 +402,7 @@ int execute_insert(string table_name, vector<string*>* column_val_list) {
         if(table_name_to_id.find(table_name) == table_name_to_id.end()) return C_TABLE_NOT_FOUND;
         int table_num = table_name_to_id[table_name];
         Table* tbl  = tables[table_num];
-        Table_row* new_row = new Table_row();
+        Table_Row* new_row = new Table_Row();
         Schema* schema = tbl->schema;
         for (int i = 0; i < schema->numColumns; i++)
         {
