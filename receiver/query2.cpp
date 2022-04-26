@@ -115,8 +115,12 @@ bool passes_pk_constraints(string table_name, Table_row* new_row) {
                 break;
             }
         }
-        if(match) return false;
+        if(match) {
+            delete result;
+            return false;
+        }
     }
+    delete result;
     return true;
 }
 
@@ -124,6 +128,7 @@ int execute_update(string table_name, vector<Update_pair*>* update_list, AST* co
     Table* tbl = Tbls[table_name];
     vector<string>* all_cols = new vector<string>(1, "*");
     Temp_Table* result = execute_select(table_name, all_cols, cond_tree);
+    delete all_cols;
     for(int i=0; i<result->rows.size(); i++){
         Table_row* old_value = result->rows[i];
         Table_row* new_value = new Table_row();
@@ -138,7 +143,9 @@ int execute_update(string table_name, vector<Update_pair*>* update_list, AST* co
             if(violates) {
                 return -1;
             }
-            new_value->fields[change_col_num].str_val = new string((*update_list)[j]->rhs);
+            string* new_rhs = new string((*update_list)[j]->rhs);
+            new_value->fields[change_col_num].str_val = new_rhs;
+            delete new_rhs;
             violates = ! passes_pk_constraints(table_name, new_value);
             if(violates) {
                 return -1;
@@ -150,6 +157,8 @@ int execute_update(string table_name, vector<Update_pair*>* update_list, AST* co
         log_entry->change_type = UPDATE;
         int table_num = TableNum[table_name];
         ChangeLogs[table_num].insert({result->rows[i]->fields[0].int_val,*log_entry});
+        delete new_row;
     }
-     
 }
+
+int create_table() 
