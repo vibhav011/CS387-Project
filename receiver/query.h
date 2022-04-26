@@ -23,7 +23,28 @@ struct Update_pair {
     string rhs;
 };
 
+struct Temp_Table {
+    string name;
+    Schema* schema;
+    vector<Table_row*> rows;
 
-int execute_select(Temp_Table *result, vector<string> table_names, vector<string>col_names, AST* cond_tree);
+    void set_schema_columns(vector<string> names)
+    {
+        for(int i=0;i<names.size();i++)
+            this->schema->columns[i]->name = &(names[i])[0];
+    }
+
+    void set_name(string name)
+    {
+        this->name = name;
+    }
+};
+
+# define table_list vector<Temp_Table*>
+
+
+int execute_select(Temp_Table *result, vector<string> table_names, vector<string> col_names, AST* cond_tree);
+
+int execute_create_temp(table_list tables);
 
 #endif

@@ -28,47 +28,12 @@ struct Log_entry {
 };
 
 
-struct Table_row {
+struct Table_Row {
     vector<Entry> fields;
     Entry getField(int i) {
         return fields[i];
     }
 };
-
-template <typename T>
-struct Range
-{
-    T left, right;
-};
-
-template <typename T>
-struct Column_desc
-{
-    string name;
-    int type;
-    Range<T> *range;
-};
-
-struct Temp_Table {
-    string name;
-    Schema* schema;
-    vector<Table_row*> rows;
-
-    void set_schema_columns(vector<string> names)
-    {
-        for(int i=0;i<names.size();i++)
-            this->schema->columns[i]->name = &(names[i])[0];
-    }
-
-    void set_name(string name)
-    {
-        this->name = name;
-    }
-};
-
-# define table_list vector<Tabl*>
-# define _AND 0
-# define _OR 1
 
 int execute_select(Temp_Table *result, vector<string> table_names, vector<string>col_names, AST* cond_tree);
 AST::check_condition(Table_row *tr1, Table_row *tr2);   // tr2 = NULL in case select is not a join

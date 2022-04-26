@@ -1,11 +1,16 @@
+%{
 #include "query.h"
+#include "ast.h"
 
 extern table_list results;
 int const_type;
+%}
 
 %union {
+    int int_val;
     string* str;
     Range* range;
+    Constant* constant;
     Column_Desc* col_desc;
     Update_pair* update_pair;
     Temp_Table* table;
@@ -15,12 +20,12 @@ int const_type;
     vector<Column_Desc*>* vec_col_desc;
     vector<Update_pair*>* vec_update_pair;
     AST* ast;
-    Op_type op;
 }
 
 %token <str> DOT_NAME NAME TEXT_CONSTANT INT_CONSTANT FLOAT_CONSTANT
-%token <op> AND OR NOT MULT PLUS MINUS DIV GE LT GT LE NE EQ
-%token SEMICOLON COMMIT ROLLBACK WITH COMMA AS ROUND_BRACKET_OPEN ROUND_BRACKET_CLOSE SELECT FROM WHERE CREATE TABLE INT FLOAT TEXT RANGE PRIMARY KEY INSERT INTO VALUES ASSIGN UPDATE SET DELETE INFINITY 
+%token <int_val> INT FLOAT TEXT
+%token AND OR NOT MULT PLUS MINUS DIV GE LT GT LE NE EQ
+%token SEMICOLON COMMIT ROLLBACK WITH COMMA AS ROUND_BRACKET_OPEN ROUND_BRACKET_CLOSE SELECT FROM WHERE CREATE TABLE RANGE PRIMARY KEY INSERT INTO VALUES ASSIGN UPDATE SET DELETE INFINITY BETWEEN
 
 %left OR
 %left AND
@@ -29,22 +34,27 @@ int const_type;
 %left PLUS MINUS
 %left MULT DIV
 
+%type <constant> constant
 %type <vec_table> table_as_list
-%type <tabl> table_as select_query create_query insert_query update_query delete_query
+%type <table> table_as select_query create_query insert_query update_query delete_query
 %type <name_cols> table_desc
 %type <vec_string> column_list table_list, constraint column_val_list
 %type <str> column table column_val
 %type <vec_col_desc> column_desc_list
 %type <col_desc> column_desc
-%type <rang> range
+%type <range> range
 %type <update_pair> update
 %type <vec_update_pair> update_list
+%type <ast> condition relex expression
 
 %%
 
 query
     : with_query SEMICOLON query SEMICOLON
     | select_query SEMICOLON
+    {
+        results[results_ind] = $1;
+    }
     | create_query SEMICOLON
     | insert_query SEMICOLON
     | update_query SEMICOLON
@@ -84,7 +94,7 @@ table_as
 table_desc
     : NAME ROUND_BRACKET_OPEN column_list ROUND_BRACKET_CLOSE 
     {
-        $$ = new pair<string, vector<string> > (*$1, $3);
+        $$ = new pair<string, vector<string> > (*$1, *$3);
     }
 ;
 
@@ -92,13 +102,13 @@ select_query
     : SELECT column_list FROM table_list 
     {
         Temp_table *temp = new Temp_Table();
-        check_err(execute_select(temp, $4, $2));
+        check_err(execute_select(temp, *$4, *$2));
         $$ = temp;
     }
     | SELECT column_list FROM table_list WHERE condition 
     {
         Temp_table *temp = new Temp_Table();
-        check_err(execute_select(temp, $4, $2, $6));
+        check_err(execute_select(temp, *$4, *$2, $6));
         $$ = temp;
     }
 ;
@@ -117,32 +127,23 @@ column_list
 
 column
     : DOT_NAME 
-    {
-        $$ = $1;
-    }
     | NAME 
-    {
-        $$ = $1;
-    }
 ;
 
 table_list
     : table COMMA table 
     {
-        $$ = new vector<string> (1, $1);
+        $$ = new vector<string> (1, *$1);
         $$->push_back(*$3);
     }
     | table 
     {
-        $$ = new vector<string> (1, $1);
+        $$ = new vector<string> (1, *$1);
     }
 ;
 
 table
-    : NAME 
-    {
-        $$ = *$1;
-    }
+    : NAME
 ;
 
 condition
@@ -159,9 +160,6 @@ condition
         $$ = new UnaryLogAST($2);
     }
     | relex
-    {
-        $$ = $1;
-    }
 ;
 
 relex
@@ -210,12 +208,7 @@ expression
     }
     | constant 
     {
-        if(const_type == _TEXT)
-            $$ = new ConstAST<string> ($1);
-        else if(const_type == _INT)
-            $$ = new ConstAST<int> ($1);
-        else
-            $$ = new ConstAST<float> ($1);
+        $$ = new ConstAST(*$1);
     }
     | DOT_NAME 
     {
@@ -224,19 +217,19 @@ expression
 ;
 
 constant
-    : TEXT_CONSTANT {const_type = _TEXT;}
-    | INT_CONSTANT {const_type = _INT;}
-    | FLOAT_CONSTANT {const_type = _FLOAT;}
+    : TEXT_CONSTANT {$$ = new Constant(*$1, _TEXT);}
+    | INT_CONSTANT {$$ = new Constant(*$1, _INT);}
+    | FLOAT_CONSTANT {$$ = new Constant(*$1, _FLOAT);}
 ;
 
 create_query
     : CREATE TABLE NAME ROUND_BRACKET_OPEN column_desc_list COMMA constraint ROUND_BRACKET_CLOSE  
     {
-        checkerr(execute_create($3, $5, $7));
+        checkerr(execute_create(*$3, *$5, *$7));
     }
     | CREATE TABLE NAME ROUND_BRACKET_OPEN column_desc_list ROUND_BRACKET_CLOSE 
     {
-        checkerr(execute_create($3, $5));
+        checkerr(execute_create(*$3, *$5));
     }
 ;
 
@@ -252,20 +245,26 @@ column_desc_list
 ;
 
 column_desc
-    : NAME TYPE range 
+    : NAME type range 
     {
-        $$ = new col_desc($1, $2, $3);
+        $$ = new col_desc(*$1, $2, $3->lower_bound, $3->upper_bound);
     }
-    | NAME TYPE 
+    | NAME type 
     {
-        $$ = new col_desc($1, $2);
+        $$ = new col_desc(*$1, $2);
     }
 ;
 
+type 
+    : INT
+    | FLOAT
+    | TEXT
+;
+
 range
-    : RANGE ROUND_BRACKET_OPEN BETWEEN CONSTANT AND CONSTANT ROUND_BRACKET_CLOSE 
+    : RANGE ROUND_BRACKET_OPEN BETWEEN constant AND constant ROUND_BRACKET_CLOSE 
     {
-        $$ = new Range($4, $6);
+        $$ = new Range(*$4, *$6);
     }
 ;
 
@@ -274,7 +273,10 @@ constraint
 ;
 
 insert_query
-    : INSERT INTO NAME VALUES ROUND_BRACKET_OPEN column_val_list ROUND_BRACKET_CLOSE {$$ = execute_insert($3, $6);}
+    : INSERT INTO NAME VALUES ROUND_BRACKET_OPEN column_val_list ROUND_BRACKET_CLOSE 
+    {
+        checkerr(execute_insert(*$3, *$6));
+    }
 ;
 
 column_val_list
@@ -289,12 +291,18 @@ column_val_list
 ;
 
 column_val
-    : STRING_CONSTANT
+    : TEXT_CONSTANT
 ;
 
 update_query
-    : UPDATE NAME SET update_list WHERE condition {$$ = execute_update($2, $4, $6);}
-    | UPDATE NAME SET update_list {$$ = execute_update($2, $4);}
+    : UPDATE NAME SET update_list WHERE condition 
+    {
+        checkerr(execute_update(*$2, *$4, $6));
+    }
+    | UPDATE NAME SET update_list 
+    {
+        checkerr(execute_update($2, $4));
+    }
 ;
 
 update_list

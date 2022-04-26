@@ -35,10 +35,24 @@ DIV { return DIV; }
 "!=" { return NE; }
 "==" { return EQ; }
 CREATE { return CREATE; }
+BETWEEN { return BETWEEN; }
 TABLE { return TABLE; }
-INT { return INT; }
-FLOAT { return FLOAT; }
-TEXT { return TEXT; }
+
+INT { 
+    yylval.int_val = _INT;
+    return INT; 
+}
+
+FLOAT { 
+    yylval.int_val = _FLOAT;
+    return FLOAT; 
+}
+
+TEXT { 
+    yylval.int_val = _TEXT;
+    return TEXT; 
+}
+
 RANGE { return RANGE; }
 PRIMARY { return PRIMARY; }
 KEY { return KEY; }
@@ -50,21 +64,34 @@ UPDATE { return UPDATE; }
 SET { return SET; }
 DELETE { return DELETE; }
 INFINITY { return INFINITY; }
-{letter}{letter|digit}*\.{letter}{letter|digit}* 
-{ 
-    yylval.string_const = yytext;
+
+{letter}({letter})|({digit})*\.{letter}({letter})|({digit})* { 
+    yylval = new string();
+    *yylval.str = yytext;
     return DOT_NAME; 
 }
-{letter}{letter|digit}* 
-{ 
-    yylval.string_const = yytext;
+
+{letter}({letter})|({digit})* {
+    yylval = new string();
+    *yylval.str = yytext;
     return NAME; 
 }
-\"[^\"]\" 
-{ 
-    yylval.string_const = yytext;
+
+\"[^\"]\" { 
+    yylval.str = yytext;
     return TEXT_CONSTANT; 
 }
-{digit}+ 
-{ return INT_CONSTANT; }
-{digit}+\.{digit}+ { return FLOAT_CONSTANT; }
+
+{digit}+ {
+    yylval = new string()
+    *yylval.str = yytext; 
+    return INT_CONSTANT; 
+}
+
+{digit}+\.{digit}+ { 
+    yylval = new string()
+    *yylval.str = yytext;
+    return FLOAT_CONSTANT; 
+}
+
+%%
