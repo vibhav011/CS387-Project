@@ -42,17 +42,20 @@ int main() {
     cout<<"insert exited with ret val: "<<insert_exit<<endl;
 
     Log_entry le = change_logs[0][0];
-    for (int i = 0; i < le.old_value->fields.size(); i++)
+    cout<<"here"<<endl;
+    cout<<le.new_value->fields.size()<<endl;
+    for (int i = 0; i < le.new_value->fields.size(); i++)
     {
         switch(result->schema->columns[i]->type) {
             case VARCHAR:
-                cout<<le.old_value->fields[i].str_val<<endl;
+                cout<<"here?"<<endl;
+                cout<<*(le.new_value->fields[i].str_val)<<endl;
                 break;
             case INT:
-                cout<<le.old_value->fields[i].int_val<<endl;
+                cout<<le.new_value->fields[i].int_val<<endl;
                 break;
             case DOUBLE:
-                cout<<le.old_value->fields[i].float_val<<endl;
+                cout<<le.new_value->fields[i].float_val<<endl;
                 break;
         }
         
