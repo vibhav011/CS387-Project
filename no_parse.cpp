@@ -2,8 +2,31 @@
 #include "./receiver/query.h"
 #include "utils.h"
 #include "ast.h"
-#include<iostream>
+#include <iostream>
 using namespace std;
+
+void checkerr(int err_code) {
+    switch(err_code) {
+        case C_OK:
+            cout<<"successfully terminated"<<endl;
+            break;
+        case C_TRUE:
+            cout<<"true output"<<endl;
+            break;
+        case C_FALSE:
+            cout<<"false output"<<endl;
+            break;
+        case C_ERROR:
+            cout<<"error"<<endl;
+            break;
+        case C_TABLE_NOT_FOUND:
+            cout<<"table not found"<<endl;
+            break;
+        case C_FIELD_NOT_FOUND:
+            cout<<"field not found"<<endl;
+            break;
+    }
+}
 
 int main() {
     Temp_Table* result = new Temp_Table();
@@ -11,9 +34,9 @@ int main() {
     vector<string>* col_names = new vector<string> (1, "Country");
     col_names->push_back("Capital");
     col_names->push_back("Population");
-    char* nm1 = "Country";
-    char* nm2 = "Capital";
-    char* nm3 = "Population";
+    char nm1[] = "Country";
+    char nm2[] = "Capital";
+    char nm3[] = "Population";
     ColumnDesc* col1 = new ColumnDesc(nm1, VARCHAR);
     ColumnDesc* col2 = new ColumnDesc(nm2, VARCHAR);
     ColumnDesc* col3 = new ColumnDesc(nm3, INT);

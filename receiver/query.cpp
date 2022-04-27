@@ -375,16 +375,16 @@ int execute_update(string table_name, vector<Update_Pair*>* update_list, CondAST
     }
 }
 
-int execute_create(string table_name, vector<ColumnDesc*>* column_desc_list, vector<string> constraint) {
+int execute_create(string table_name, vector<ColumnDesc*> &column_desc_list, vector<string> constraint) {
     try {
         Schema* schema = new Schema();
-        schema->numColumns = column_desc_list->size();
+        schema->numColumns = column_desc_list.size();
         ColumnDesc** cols = new ColumnDesc*[schema->numColumns];
         schema->columns = cols;
        
         for (int i = 0; i < schema->numColumns; i++)
         {
-            *(schema->columns[i]) = *((*column_desc_list)[i]);
+            *(schema->columns[i]) = *(column_desc_list)[i];
         }
         Table* tbl = new Table();
 

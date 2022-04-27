@@ -53,7 +53,7 @@ typedef vector<Temp_Table*> table_list;
 int execute_create_temp(table_list tables);
 int execute_select(Temp_Table *result, vector<string> table_names, vector<string> col_names, CondAST *cond_tree=NULL);
 int execute_update(string table_name, vector<Update_Pair*> update_list, CondAST* cond_tree=NULL);
-int execute_create(string table_name, vector<ColumnDesc*> column_desc_list, vector<string> constraint);
+int execute_create(string table_name, vector<ColumnDesc*> &column_desc_list, vector<string> constraint);
 int execute_insert(string table_name, vector<string> column_val_list);
 int execute_delete(string table_name, CondAST *cond_tree=NULL);
 
