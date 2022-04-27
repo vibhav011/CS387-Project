@@ -1,6 +1,14 @@
 #include "query.h"
+#include "../utils.h"
 #include "../dblayer/codec.h"
 #include <set>
+
+extern map<string, int> table_name_to_id;
+extern vector<Table*> tables;              // objects of all tables
+extern vector<int> UIds;                   // constanstly increasing uids for each of the tables
+extern vector<ChangeLog> change_logs;     // objects of change logs for corresponding tables in `tables`
+extern vector<MappingLog> mapping_logs;
+
 
 Query_Obj::Query_Obj(vector<string> col_names, CondAST* cond_tree, Temp_Table* temp_table, int tbl1_id, int tbl2_id) {
     this->col_names = col_names;

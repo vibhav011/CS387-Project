@@ -36,10 +36,4 @@ enum {C_OK, C_TRUE, C_FALSE, C_ERROR, C_TABLE_NOT_FOUND, C_FIELD_NOT_FOUND} erro
 typedef map<int, Log_entry> ChangeLog;
 typedef map<int, int> MappingLog;
 
-map<string, int> table_name_to_id;
-vector<Table*> tables;              // objects of all tables
-vector<int> UIds;                   // constanstly increasing uids for each of the tables
-vector<ChangeLog> change_logs;     // objects of change logs for corresponding tables in `tables`
-vector<MappingLog> mapping_logs;
-
 #endif
