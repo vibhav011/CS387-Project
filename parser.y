@@ -267,6 +267,8 @@ column_desc_list
 column_desc
     : NAME type range 
     {
+        if(type == _TEXT)
+            return -1;
         $$ = new ColumnDesc(&(*$1)[0], $2, $3->lower_bound, $3->upper_bound);
     }
     | NAME type 

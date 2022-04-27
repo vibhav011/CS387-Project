@@ -2,6 +2,7 @@
 #define _TBL_H_
 #include <stdbool.h>
 #include<string>
+#include<string.h>
 #include<vector>
 #include<map>
 #include<iostream>
@@ -25,6 +26,7 @@ struct ColumnDesc {
     int  type;  // one of VARCHAR, INT, LONG, DOUBLE
     Value lower_bound;
     Value upper_bound;
+    bool range;
 
     ColumnDesc(char *name, int type, Value lower_bound, Value upper_bound)
     {
@@ -32,14 +34,14 @@ struct ColumnDesc {
         this->type = type;
         this->lower_bound = lower_bound;
         this->upper_bound = upper_bound;
+        this->range = true;
     }
 
     ColumnDesc(char *name, int type)
     {
         this->name = name;
         this->type = type;
-        // this->lower_bound = something
-        // this->upper_bound = something
+        this->range = false;
     }
 };
 
@@ -48,10 +50,7 @@ typedef struct {
     ColumnDesc **columns; // array of column descriptors
     int getColumnNum(const char* name) {
         for(int i = 0; i<numColumns; i++) {
-            printf("%s\n", "coldesc defined?");
-            printf("%s\n", columns[i]->name);
-            fflush(stdout);
-            if(columns[i]->name == name) return i;
+            if(strcmp(columns[i]->name, name) == 0) return i;
         }
         return -1;
     }

@@ -10,6 +10,7 @@ extern vector<ChangeLog> change_logs;
 int main() {
     Temp_Table* result = new Temp_Table();
     vector<string>* table_names = new vector<string> (1, "data");
+    table_names->push_back("data1");
     vector<string>* col_names = new vector<string> (1, "Country");
     col_names->push_back("Capital");
     col_names->push_back("Population");
@@ -26,47 +27,49 @@ int main() {
     vector<string> pk;
     pk.push_back("Country");
     int create_exit = execute_create("data", cols, pk);
-    cout<<"create exited with ret val: "<<create_exit<<endl;
 
     vector<string> col_val_list1;
     col_val_list1.push_back("Afghanistan");
     col_val_list1.push_back("Kabul");
     col_val_list1.push_back("35530081");
     int insert_exit = execute_insert("data", col_val_list1);
-    cout<<"insert exited with ret val: "<<insert_exit<<endl;
+
     vector<string> col_val_list2;
     col_val_list2.push_back("Albania");
     col_val_list2.push_back("Tirana");
     col_val_list2.push_back("2930187");
     insert_exit = execute_insert("data", col_val_list2);
-    cout<<"insert exited with ret val: "<<insert_exit<<endl;
 
-    Log_entry le = change_logs[0][0];
-    for (int i = 0; i < le.old_value->fields.size(); i++)
-    {
-        switch(result->schema->columns[i]->type) {
-            case VARCHAR:
-                cout<<le.old_value->fields[i].str_val<<endl;
-                break;
-            case INT:
-                cout<<le.old_value->fields[i].int_val<<endl;
-                break;
-            case DOUBLE:
-                cout<<le.old_value->fields[i].float_val<<endl;
-                break;
-        }
-        
-    }
-    
-    
+    create_exit = execute_create("data1", cols, pk);
 
-    ColAST* col_ast = new ColAST("data.Country");
-    Constant* data = new Constant("Albania", _TEXT);
-    cout<<"here?"<<endl;
-    ConstAST* const_ast = new ConstAST(data);
-    RelAST* cond_tree = new RelAST(col_ast, const_ast, _EQ);
-    cout<<"calling seletc"<<endl;
-    int select_exit = execute_select(result, *table_names, *col_names, cond_tree);
+    col_val_list1.clear();
+    col_val_list1.push_back("India");
+    col_val_list1.push_back("New Delhi");
+    col_val_list1.push_back("32435");
+    insert_exit = execute_insert("data1", col_val_list1);
+
+    col_val_list2.clear();
+    col_val_list2.push_back("China");
+    col_val_list2.push_back("Beijing");
+    col_val_list2.push_back("454657");
+    insert_exit = execute_insert("data1", col_val_list2);
+
+    Log_entry le = change_logs[1][1];
+    cout<<le.new_value->fields[0].int_val<<endl;
+    cout<<*(le.new_value->fields[1].str_val)<<endl;
+    cout<<*(le.new_value->fields[2].str_val)<<endl;
+    cout<<le.new_value->fields[3].int_val<<endl;
+
+    // ColAST* col_ast = new ColAST("data.Country");
+    // Constant* data = new Constant("Albania", _TEXT);
+    // cout<<"here?"<<endl;
+    // ConstAST* const_ast = new ConstAST(data);
+    // RelAST* cond_tree = new RelAST(col_ast, const_ast, _EQ);
+    // cout<<"calling seletc"<<endl;
+
+    vector<string> fetch_cols = {"data.Country", "data.Capital", "data1.Country", "data1.Capital"};
+
+    int select_exit = execute_select(result, {"data", "data1"}, fetch_cols);
     cout<<"final result size "<< result->rows.size()<<endl;
     cout<<"select exited with: "<<select_exit<<endl;
     delete result;
@@ -75,8 +78,8 @@ int main() {
     delete col1;
     delete col2;
     delete col3;
-    delete col_ast;
-    delete data;
-    delete const_ast;
-    delete cond_tree;
+    // delete col_ast;
+    // delete data;
+    // delete const_ast;
+    // delete cond_tree;
 }

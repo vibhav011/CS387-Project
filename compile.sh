@@ -1,3 +1,6 @@
+rm -rf data.db 
+rm -rf data.tbl
+
 cd ./dblayer 
 make
 cd ..

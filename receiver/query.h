@@ -24,8 +24,6 @@ struct Temp_Table {
     {
         this->name = name;
     }
-
-    ~Temp_Table() {cout<<"del temp tbl"<<endl;}
 };
 
 
@@ -38,9 +36,6 @@ struct Query_Obj {
     int ret_value;
 
     Query_Obj(vector<string>, CondAST*, Temp_Table*, int, int);
-    ~Query_Obj() {
-        cout<<"qobj dest alled"<<endl;
-    };
 };
 
 struct Update_Pair {
@@ -62,5 +57,8 @@ int execute_update(string table_name, vector<Update_Pair*> update_list, CondAST*
 int execute_create(string table_name, vector<ColumnDesc*> &column_desc_list, vector<string> constraint);
 int execute_insert(string table_name, vector<string> column_val_list);
 int execute_delete(string table_name, CondAST *cond_tree=NULL);
+
+int query_process(Query_Obj *cObj, Table_Row *tr);
+int log_scan(Query_Obj *cObj);
 
 #endif

@@ -1,0 +1,13 @@
+Insert: 4
+start?
+unfix page?
+while started
+qobj dest alled
+del temp tbl
+=============================
+0
+Insert: 4
+start?
+unfix page?
+while started
+qobj dest alled
