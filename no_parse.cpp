@@ -5,29 +5,6 @@
 #include <iostream>
 using namespace std;
 
-void checkerr(int err_code) {
-    switch(err_code) {
-        case C_OK:
-            cout<<"successfully terminated"<<endl;
-            break;
-        case C_TRUE:
-            cout<<"true output"<<endl;
-            break;
-        case C_FALSE:
-            cout<<"false output"<<endl;
-            break;
-        case C_ERROR:
-            cout<<"error"<<endl;
-            break;
-        case C_TABLE_NOT_FOUND:
-            cout<<"table not found"<<endl;
-            break;
-        case C_FIELD_NOT_FOUND:
-            cout<<"field not found"<<endl;
-            break;
-    }
-}
-
 int main() {
     Temp_Table* result = new Temp_Table();
     vector<string>* table_names = new vector<string> (1, "data");

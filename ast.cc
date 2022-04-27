@@ -81,7 +81,7 @@ RelAST::RelAST(ExprAST *lhs, ExprAST *rhs, int op)
 }
 
 // All check_row funcs are not implemented just to check query processing basic
-bool check_row(Table_Row *row1, Table_Row *row2)
+bool RelAST::check_row(Table_Row *row1, Table_Row *row2)
 {
     return true;
 }

@@ -9,6 +9,8 @@
 #include "pftypes.h"
 #include "pfinternals.h"
 #include <unistd.h>
+#include <string.h>
+
 extern int
 PFbufUsed(
     int fd,		/* file descriptor */

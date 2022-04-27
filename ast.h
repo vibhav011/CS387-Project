@@ -114,6 +114,7 @@ class BinArithAST: public ExprAST
 class CondAST: public AST
 {
     public:
+    // CondAST(){};
     virtual ~CondAST(){};
     virtual bool check_row(Table_Row *row1, Table_Row *row2=NULL){return true;};
 }; 
@@ -125,6 +126,7 @@ class RelAST: public CondAST
 
     public:
     RelAST(ExprAST *lhs, ExprAST *rhs, int op);
+    ~RelAST(){};
     bool check_row(Table_Row *row1, Table_Row *row2=NULL);
 };
 
