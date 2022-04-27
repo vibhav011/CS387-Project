@@ -109,27 +109,29 @@ int Table_Single_Select_Join(void *callbackObj, RecId rid, byte *row, int len) {
     cObj->tr2 = tr;
     Table* tbl1 = tables[cObj->tbl1_id];
     Table_Scan(tbl1, cObj, Table_Single_Select);
-
+    log_scan(cObj);
+    
     cObj->tr2 = NULL;
     delete tr;
     return cObj->ret_value;
 }
 
-int log_scan(Query_Obj *cObj)
+int log_scan(Query_Obj *cObj, int table_id)
 {
-    if(cObj->tbl2_id == -1)
+    ChangeLog &logs = change_logs[table_id];
+    for(pair<int, Log_entry> entry: logs)
     {
-        ChangeLog &logs = change_logs[cObj->tbl1_id];
-        for(pair<int, Log_entry> entry: logs)
-        {
-            if(entry.second.change_type != _INSERT)
-                continue;
-            Table_Row *tr = new Table_Row();
-            *tr = *(entry.second.new_value);
-            int err = query_process(cObj, tr);
-            if(err != 0)
-                return err;
+        if(entry.second.change_type != _INSERT)
+            continue;
+        Table_Row *tr = new Table_Row();
+        *tr = *(entry.second.new_value);
+        if (cObj->tbl2_id != -1) {
+            Table_Scan(tables[cObj->tbl1_id], cObj, Table_Single_Select);
+            log_scan(cObj, cObj->tbl1_id);
         }
+        int err = query_process(cObj, tr);
+        if(err != 0)
+            return err;
     }
     return C_OK;
 }
@@ -180,6 +182,7 @@ int query_process(Query_Obj *cObj, Table_Row *tr)
 
     // Adding the required columns in new_row (in the order in which they are needed)
     int num_cols = cObj->col_names.size();
+    cout<<num_cols<<endl;
     for(int i=0;i<num_cols;i++) {
         string table_col = cObj->col_names[i];
         int pos = table_col.find(".");
@@ -192,7 +195,7 @@ int query_process(Query_Obj *cObj, Table_Row *tr)
             col_name = table_col.substr(pos+1);
         }
 
-        cout<<table_name<<" "<<col_name<<endl;
+        cout<<"Column names: "<<table_name<<" "<<col_name<<endl;
 
         scm = tbl1->schema;
         use_row = tr;
