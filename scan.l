@@ -1,8 +1,12 @@
 %{
-void yyerror(string);
+#include "ast.h"
+#include "utils.h"
+#include "./receiver/query.h"
+#include "y.tab.h"
+extern void yyerror(int, string);
 void addtoken(string);
 int lineno = 1;
-#include "y.tab.h"
+int readInputForLexer( char *buffer, unsigned long *numBytesRead, int maxBytesToRead );
 
 #undef YY_INPUT
 #define YY_INPUT(b,r,s) readInputForLexer(b,&r,s)
@@ -65,34 +69,34 @@ VALUES { return VALUES; }
 "=" { return ASSIGN; }
 UPDATE { return UPDATETOK; }
 SET { return SET; }
-DELETE { return DELETETOK; }
+DELETE { return DELETE; }
 INFINITY { return INFINITY; }
 
 {letter}({letter}|{digit})*\.{letter}({letter}|{digit})* { 
-    yylval = new string();
+    yylval.str = new string();
     *yylval.str = yytext;
     return DOT_NAME; 
 }
 
 {letter}({letter}|{digit})* {
-    yylval = new string();
+    yylval.str = new string;
     *yylval.str = yytext;
     return NAME; 
 }
 
 \"[^\"]\" { 
-    yylval.str = yytext;
+    *yylval.str = yytext;
     return TEXT_CONSTANT; 
 }
 
 {digit}+ {
-    yylval = new string()
+    yylval.str = new string;
     *yylval.str = yytext; 
     return INT_CONSTANT; 
 }
 
 {digit}+\.{digit}+ { 
-    yylval = new string()
+    yylval.str = new string;
     *yylval.str = yytext;
     return FLOAT_CONSTANT; 
 }
