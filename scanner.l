@@ -104,7 +104,7 @@ INFINITY { return INFINITY; }
 
 %%
 
-int readInputForLexer( char *buffer, unsigned long *numBytesRead, int maxBytesToRead ) {
+int readInputForLexer(char *buffer, unsigned long *numBytesRead, int maxBytesToRead ) {
     unsigned long numBytesToRead = maxBytesToRead;
     int bytesRemaining = global_query.size()-globalReadOffset;
     int i;
