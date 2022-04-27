@@ -22,7 +22,7 @@ typedef union {
 
 struct ColumnDesc {
     char *name;
-    int  type;  // one of VARCHAR, INT, LONG
+    int  type;  // one of VARCHAR, INT, LONG, DOUBLE
     Value lower_bound;
     Value upper_bound;
 

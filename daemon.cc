@@ -1,5 +1,6 @@
 #include <signal.h>
 #include <string.h>
+#include <mutex>
 #include "sock.hpp"
 using namespace std;
 
@@ -180,12 +181,15 @@ void Daemon::thread_func(Conn *conn){
     need to call yyparse() here
 */
 extern string global_query;
+extern mutex query_mutex;
+extern int yyparse(int);
+
 int myhandler(string query, int fd, int worker_id){
     size_t pos_start = 0, pos_end;
     string token;
 
     while (pos_start < query.size() && (pos_end = query.find (";", pos_start)) != string::npos) {
-        token = s.substr (pos_start, pos_end - pos_start);
+        token = query.substr (pos_start, pos_end - pos_start);
         pos_start = pos_end + 1;
         token.push_back(';');
 
