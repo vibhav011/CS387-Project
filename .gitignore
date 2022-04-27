@@ -176,4 +176,10 @@ $RECYCLE.BIN/
 dumpdb
 loaddb
 
+## PARSER files ##
+lex.yy.c
+y.output
+y.tab.c
+y.tab.h
+
 # End of https://www.toptal.com/developers/gitignore/api/c,c++,macos,linux,windows
