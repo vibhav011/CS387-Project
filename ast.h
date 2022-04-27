@@ -115,7 +115,7 @@ class CondAST: public AST
 {
     public:
     // CondAST(){};
-    virtual ~CondAST(){};
+    virtual ~CondAST(){cout<<"condast dest called"<<endl;};
     virtual bool check_row(Table_Row *row1, Table_Row *row2=NULL){return true;};
 }; 
 

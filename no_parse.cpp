@@ -25,12 +25,28 @@ int main() {
     pk.push_back("Country");
     int create_exit = execute_create("data", cols, pk);
     cout<<"create exited with ret val: "<<create_exit<<endl;
+
+    vector<string> col_val_list1;
+    col_val_list1.push_back("Afghanistan");
+    col_val_list1.push_back("Kabul");
+    col_val_list1.push_back("35530081");
+    int insert_exit = execute_insert("data", col_val_list1);
+    cout<<"insert exited with ret val: "<<insert_exit<<endl;
+    vector<string> col_val_list2;
+    col_val_list2.push_back("Albania");
+    col_val_list2.push_back("Tirana");
+    col_val_list2.push_back("2930187");
+    insert_exit = execute_insert("data", col_val_list2);
+    cout<<"insert exited with ret val: "<<insert_exit<<endl;
+
     ColAST* col_ast = new ColAST("data.Country");
     Constant* data = new Constant("Albania", _TEXT);
     cout<<"here?"<<endl;
     ConstAST* const_ast = new ConstAST(data);
     RelAST* cond_tree = new RelAST(col_ast, const_ast, _EQ);
+    cout<<"calling seletc"<<endl;
     int select_exit = execute_select(result, *table_names, *col_names, cond_tree);
+    cout<<"final result size "<< result->rows.size()<<endl;
     cout<<"select exited with: "<<select_exit<<endl;
     delete result;
     delete col_names;

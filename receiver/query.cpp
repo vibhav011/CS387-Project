@@ -230,7 +230,11 @@ int execute_select(Temp_Table *result, vector<string> table_names, vector<string
         cout<<"calling table scan\n"<<endl;
         Table_Scan(tbl, callbackObj, Table_Single_Select);
         cout<<"out?"<<endl;
-        return callbackObj->ret_value;
+        cout<<callbackObj->ret_value<<endl;
+        cout<<callbackObj->ret_value<<endl;
+        int retval = callbackObj->ret_value;
+        delete callbackObj;
+        return retval;
     }
 
     // For join selects
@@ -292,19 +296,27 @@ bool passes_pk_constraints(string table_name, Table_Row* new_row) {
     Table* tbl  = tables[table_num];
     Temp_Table* result = new Temp_Table();
     vector<string>* vec_table_name = new vector<string>(1, table_name);
+    cout<<"this exec"<<endl;
     int ret = execute_select(result, *vec_table_name, tbl->pk, NULL);
+    cout<<"out now"<<endl;
     delete vec_table_name;
+    cout<<"del"<<endl;
+    cout<<result->rows.size()<<endl;
     for(int i=0; i<result->rows.size(); i++)
     {
         bool match = true;
+        cout<<"sz 0"<<endl;
         for (int j = 0; j < tbl->pk.size(); j++)
         {
             int pk_col_num = tbl->schema->getColumnNum(tbl->pk[j].c_str());
+            cout<<pk_col_num<<endl;
             switch(tbl->schema->columns[pk_col_num]->type) {
                 case VARCHAR:
+                    cout<<"var"<<endl;
                     if(*(new_row->getField(pk_col_num).str_val) != *(result->rows[i]->getField(j).str_val)){
                         match = false;
                     }
+                    cout<<"not out"<<endl;
                     break;
                 case INT:
                     if(new_row->getField(pk_col_num).int_val != result->rows[i]->getField(j).int_val){
@@ -410,9 +422,11 @@ int execute_create(string table_name, vector<ColumnDesc*> &column_desc_list, vec
         {
             tbl->pk.push_back(constraint[i]);
         }
-        table_name_to_id[table_name] = tables.size()+1;
+        table_name_to_id[table_name] = tables.size();
         UIds.push_back(0);
         tables.push_back(tbl);
+        map<int, Log_entry>* chnglog = new map<int, Log_entry>();
+        change_logs.push_back(*chnglog);
         return 0;
     }
     catch (int x) {
@@ -422,16 +436,22 @@ int execute_create(string table_name, vector<ColumnDesc*> &column_desc_list, vec
 
 int execute_insert(string table_name, vector<string> column_val_list) {
     try {
+        cout<<"hello"<<endl;
         if(table_name_to_id.find(table_name) == table_name_to_id.end()) return C_TABLE_NOT_FOUND;
+        cout<<"hello3"<<endl;
         int table_num = table_name_to_id[table_name];
+        cout<<table_num<<endl;
         Table* tbl  = tables[table_num];
         Table_Row* new_row = new Table_Row();
         Schema* schema = tbl->schema;
+        cout<<"start loop"<<endl;
         for (int i = 0; i < schema->numColumns; i++)
         {
+            cout<<"col "<<i<<" is "<<schema->columns[i]->name<<endl;
             Entry* entry = new Entry();
             switch(schema->columns[i]->type) {
                 case VARCHAR:
+                    entry->str_val = new string();
                     *(entry->str_val) = column_val_list[i];
                     new_row->fields.push_back(*entry);
                     break;
@@ -448,6 +468,7 @@ int execute_insert(string table_name, vector<string> column_val_list) {
             }
         }
         bool violates = ! passes_pk_constraints(table_name, new_row);
+        cout<<"pk: "<<violates<<endl;
         if(violates) {
             return -1;
         }
@@ -459,13 +480,17 @@ int execute_insert(string table_name, vector<string> column_val_list) {
                 return -1;
             }
         }
+        cout<<"const "<<endl;
         Log_entry* log_entry = new Log_entry();
         log_entry->old_value = NULL;
         log_entry->new_value = new_row;
         log_entry->change_type = _INSERT;
         table_num = table_name_to_id[table_name];
-        UIds[table_num] += 1;
+        cout<<table_num<<endl;
+        cout<<UIds[table_num]<<endl;
         change_logs[table_num][UIds[table_num]] = *log_entry;
+        UIds[table_num] += 1;
+        cout<<"gaya"<<endl;
         return 0;
     }
     catch (int x) {

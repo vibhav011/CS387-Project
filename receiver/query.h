@@ -6,6 +6,7 @@
 #include <vector>
 #include <map>
 #include <string>
+#include<iostream>
 using namespace std;
 
 struct Temp_Table {
@@ -23,6 +24,8 @@ struct Temp_Table {
     {
         this->name = name;
     }
+
+    ~Temp_Table() {cout<<"del temp tbl"<<endl;}
 };
 
 
@@ -35,6 +38,9 @@ struct Query_Obj {
     int ret_value;
 
     Query_Obj(vector<string>, CondAST*, Temp_Table*, int, int);
+    ~Query_Obj() {
+        cout<<"qobj dest alled"<<endl;
+    };
 };
 
 struct Update_Pair {

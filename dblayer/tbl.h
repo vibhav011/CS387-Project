@@ -48,6 +48,9 @@ typedef struct {
     ColumnDesc **columns; // array of column descriptors
     int getColumnNum(const char* name) {
         for(int i = 0; i<numColumns; i++) {
+            printf("%s\n", "coldesc defined?");
+            printf("%s\n", columns[i]->name);
+            fflush(stdout);
             if(columns[i]->name == name) return i;
         }
         return -1;
