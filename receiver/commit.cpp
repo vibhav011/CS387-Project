@@ -108,5 +108,6 @@ int execute_commit(vector<int>* ChangeIndices) {
 }
 
 int commit_delete(Table *tbl, RecId rid) {
-    return C_OK;
+    int ret = Table_Delete(tbl, rid);
+    return ret;
 }
