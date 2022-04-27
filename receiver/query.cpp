@@ -1,6 +1,14 @@
 #include "query.h"
+#include "../utils.h"
 #include "../dblayer/codec.h"
 #include <set>
+
+extern map<string, int> table_name_to_id;
+extern vector<Table*> tables;              // objects of all tables
+extern vector<int> UIds;                   // constanstly increasing uids for each of the tables
+extern vector<ChangeLog> change_logs;     // objects of change logs for corresponding tables in `tables`
+extern vector<MappingLog> mapping_logs;
+
 
 Query_Obj::Query_Obj(vector<string> col_names, CondAST* cond_tree, Temp_Table* temp_table, int tbl1_id, int tbl2_id) {
     this->col_names = col_names;
@@ -375,16 +383,16 @@ int execute_update(string table_name, vector<Update_Pair*>* update_list, CondAST
     }
 }
 
-int execute_create(string table_name, vector<ColumnDesc*>* column_desc_list, vector<string> constraint) {
+int execute_create(string table_name, vector<ColumnDesc*> column_desc_list, vector<string> constraint) {
     try {
         Schema* schema = new Schema();
-        schema->numColumns = column_desc_list->size();
+        schema->numColumns = column_desc_list.size();
         ColumnDesc** cols = new ColumnDesc*[schema->numColumns];
         schema->columns = cols;
        
         for (int i = 0; i < schema->numColumns; i++)
         {
-            *(schema->columns[i]) = *((*column_desc_list)[i]);
+            *(schema->columns[i]) = *(column_desc_list[i]);
         }
         Table* tbl = new Table();
 
