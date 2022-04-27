@@ -21,8 +21,8 @@
 #define MAX_PAGE_SIZE 4000
 
 #define DB_NAME "data.db"
-#define INDEX_NAME "data.db.0"
-#define CSV_NAME "data.csv"
+// #define INDEX_NAME "data.db.0"
+#define CSV_NAME "data3.csv"
 
 /*
 Takes a schema, and an array of strings (fields), and uses the functionality
@@ -135,7 +135,7 @@ loadCSV()
     }
     fclose(fp);
     Table_Close(tbl);
-    err = PF_CloseFile(indexFD);
+    // err = PF_CloseFile(indexFD);
     checkerr(err);
     return sch;
 }

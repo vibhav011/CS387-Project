@@ -6,6 +6,7 @@
 extern void yyerror(int, string);
 void addtoken(string);
 int lineno = 1;
+int readInputForLexer( char *buffer, unsigned long *numBytesRead, int maxBytesToRead );
 
 int readInputForLexer( char *buffer, unsigned long *numBytesRead, int maxBytesToRead);
 #undef YY_INPUT
