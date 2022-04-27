@@ -4,10 +4,12 @@
 #include "./receiver/query.h"
 #include "y.tab.h"
 extern void yyerror(int, string);
+extern string global_query;
 
 void addtoken(string);
+int globalReadOffset;
 int lineno = 1;
-int readInputForLexer( char *buffer, unsigned long *numBytesRead, int maxBytesToRead );
+int readInputForLexer( char *buffer, int *numBytesRead, int maxBytesToRead );
 
 #undef YY_INPUT
 #define YY_INPUT(b,r,s) readInputForLexer(b,&r,s)
@@ -104,7 +106,7 @@ INFINITY { return INFINITY; }
 
 %%
 
-int readInputForLexer( char *buffer, unsigned long *numBytesRead, int maxBytesToRead ) {
+int readInputForLexer( char *buffer, int *numBytesRead, int maxBytesToRead ) {
     unsigned long numBytesToRead = maxBytesToRead;
     int bytesRemaining = global_query.size()-globalReadOffset;
     int i;
