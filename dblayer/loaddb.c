@@ -103,8 +103,8 @@ loadCSV()
     err = Table_Open(DB_NAME, sch, false, &tbl); // opening the table (creating if it doesn't exist)
     checkerr(err); // for table open errors
     // AM_CreateIndex(DB_NAME, 0, 'i', 4); // creating a new index for type int, size 4 and index no. 0
-    int indexFD = PF_OpenFile(INDEX_NAME); // opening file for passing the descriptor to index creation
-    checkerr(indexFD);
+    // int indexFD = PF_OpenFile(INDEX_NAME); // opening file for passing the descriptor to index creation
+    // checkerr(indexFD);
 
     char *tokens[MAX_TOKENS];
     char record[MAX_PAGE_SIZE];

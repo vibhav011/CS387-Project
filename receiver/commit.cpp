@@ -81,19 +81,19 @@ int execute_commit(vector<int>* ChangeIndices) {
             Table_Row *new_value = log_entry.new_value;
 
             switch (log_entry.change_type) {
-            case UPDATE: {
+            case _UPDATE: {
                 int ret_value = commit_delete(tbl, mapping_log[old_value->fields[0].int_val]);
                 if (ret_value != C_OK) return ret_value;
                 ret_value = commit_insert(tbl, new_value);
                 if (ret_value != C_OK) return ret_value;
                 break;
             }
-            case INSERT: {
+            case _INSERT: {
                 int ret_value = commit_insert(tbl, new_value);
                 if (ret_value != C_OK) return ret_value;
                 break;
             }
-            case DELETE: {
+            case _DELETE: {
                 int ret_value = commit_delete(tbl, mapping_log[old_value->fields[0].int_val]);
                 if (ret_value != C_OK) return ret_value;
                 break;
