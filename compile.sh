@@ -1,3 +1,9 @@
+cd ./dblayer 
+make
+cd ..
+cd ./pflayer
+make
+cd ..
 lex scan.l
 yacc -dv parser.y
 

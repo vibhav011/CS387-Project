@@ -2,6 +2,8 @@
 #include "../utils.h"
 #include "../dblayer/codec.h"
 #include <set>
+#include<iostream>
+using namespace std;
 
 extern map<string, int> table_name_to_id;
 extern vector<Table*> tables;              // objects of all tables
@@ -212,7 +214,7 @@ int Table_Single_Select_Join(void *callbackObj, RecId rid, byte *row, int len) {
 }
 
 int execute_select(Temp_Table *result, vector<string> table_names, vector<string> col_names, CondAST *cond_tree) {
-
+    cout<<"select?"<<endl;
     // For non-join selects
     if (table_names.size() == 1) {
         if (table_name_to_id.find(table_names[0]) == table_name_to_id.end()) {
@@ -225,8 +227,9 @@ int execute_select(Temp_Table *result, vector<string> table_names, vector<string
         callbackObj->tr1 = NULL;
         callbackObj->tr2 = NULL;
         callbackObj->ret_value = 0;
+        cout<<"calling table scan\n"<<endl;
         Table_Scan(tbl, callbackObj, Table_Single_Select);
-
+        cout<<"out?"<<endl;
         return callbackObj->ret_value;
     }
 
@@ -385,6 +388,7 @@ int execute_update(string table_name, vector<Update_Pair*>* update_list, CondAST
 
 int execute_create(string table_name, vector<ColumnDesc*> &column_desc_list, vector<string> constraint) {
     try {
+        cout<<"start of execute_create\n";
         Schema* schema = new Schema();
         schema->numColumns = column_desc_list.size();
         ColumnDesc** cols = new ColumnDesc*[schema->numColumns];
@@ -392,10 +396,12 @@ int execute_create(string table_name, vector<ColumnDesc*> &column_desc_list, vec
        
         for (int i = 0; i < schema->numColumns; i++)
         {
+            char dummy[] = "dummy";
+            schema->columns[i] = new ColumnDesc(dummy, _TEXT);
             *(schema->columns[i]) = *(column_desc_list)[i];
         }
         Table* tbl = new Table();
-
+        cout<<"came till table_open\n";
         int err = Table_Open((char*)"data.db", schema, false, &tbl);
         if(err<0) {
             return -1;

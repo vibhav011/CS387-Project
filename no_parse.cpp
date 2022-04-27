@@ -25,8 +25,9 @@ int main() {
     pk.push_back("Country");
     int create_exit = execute_create("data", cols, pk);
     cout<<"create exited with ret val: "<<create_exit<<endl;
-    ColAST* col_ast = new ColAST("Country");
+    ColAST* col_ast = new ColAST("data.Country");
     Constant* data = new Constant("Albania", _TEXT);
+    cout<<"here?"<<endl;
     ConstAST* const_ast = new ConstAST(data);
     RelAST* cond_tree = new RelAST(col_ast, const_ast, _EQ);
     int select_exit = execute_select(result, *table_names, *col_names, cond_tree);

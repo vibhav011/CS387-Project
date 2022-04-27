@@ -200,22 +200,27 @@ Table_Scan(Table *tbl, void *callbackObj, ReadFunc callbackfn) {
     // For each page obtained using PF_GetFirstPage and PF_GetNextPage
     //    for each record in that page,
     //          callbackfn(callbackObj, rid, record, recordLen)
-    
+    printf("%s\n", "start?");
     int *pagenum = (int *) malloc(sizeof(int));
     *pagenum = -1;
     char **pagebuf = (char **) malloc(sizeof(char *));
     int prevPage = -1;
 
     // Unfix the last page for PF_GetNextPage to work
+    printf("%s\n", "unfix page?");
+    fflush(stdout);
     PF_UnfixPage(tbl->fd, *tbl->lastPage, true);
     // Iterating over all pages and unfixing the previous ones
     bool to_break = false;
+    printf("%s\n", "while started");
+    fflush(stdout);
     while (PF_GetNextPage(tbl->fd, pagenum, pagebuf) == PFE_OK && !to_break) {
         Header *header = (Header *) *pagebuf;
         int nslots = header->numSlots;
         for (int i = 0; i < nslots && !to_break; i++) {
             int len = getLen(i, *pagebuf);
             int rid = (*pagenum << 16) + getNthSlotOffset(i, *pagebuf);
+            printf("%s\n", "callback okay?");
             if (callbackfn(callbackObj, rid, *pagebuf+header->slotOffsets[i], len) != 0) {
                 to_break = true;
             }
