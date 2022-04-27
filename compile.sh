@@ -4,7 +4,7 @@ cd ..
 cd ./pflayer
 make
 cd ..
-lex scan.l
+lex scanner.l
 yacc -dv parser.y
 
 g++ -c receiver/query.cpp
