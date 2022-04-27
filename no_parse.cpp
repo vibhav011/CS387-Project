@@ -5,6 +5,8 @@
 #include <iostream>
 using namespace std;
 
+extern vector<ChangeLog> change_logs; 
+
 int main() {
     Temp_Table* result = new Temp_Table();
     vector<string>* table_names = new vector<string> (1, "data");
@@ -38,6 +40,25 @@ int main() {
     col_val_list2.push_back("2930187");
     insert_exit = execute_insert("data", col_val_list2);
     cout<<"insert exited with ret val: "<<insert_exit<<endl;
+
+    Log_entry le = change_logs[0][0];
+    for (int i = 0; i < le.old_value->fields.size(); i++)
+    {
+        switch(result->schema->columns[i]->type) {
+            case VARCHAR:
+                cout<<le.old_value->fields[i].str_val<<endl;
+                break;
+            case INT:
+                cout<<le.old_value->fields[i].int_val<<endl;
+                break;
+            case DOUBLE:
+                cout<<le.old_value->fields[i].float_val<<endl;
+                break;
+        }
+        
+    }
+    
+    
 
     ColAST* col_ast = new ColAST("data.Country");
     Constant* data = new Constant("Albania", _TEXT);
