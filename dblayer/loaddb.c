@@ -21,8 +21,8 @@
 #define MAX_PAGE_SIZE 4000
 
 #define DB_NAME "data.db"
-#define INDEX_NAME "data.db.0"
-#define CSV_NAME "data.csv"
+// #define INDEX_NAME "data.db.0"
+#define CSV_NAME "data3.csv"
 
 /*
 Takes a schema, and an array of strings (fields), and uses the functionality
@@ -103,8 +103,8 @@ loadCSV()
     err = Table_Open(DB_NAME, sch, false, &tbl); // opening the table (creating if it doesn't exist)
     checkerr(err); // for table open errors
     // AM_CreateIndex(DB_NAME, 0, 'i', 4); // creating a new index for type int, size 4 and index no. 0
-    int indexFD = PF_OpenFile(INDEX_NAME); // opening file for passing the descriptor to index creation
-    checkerr(indexFD);
+    // int indexFD = PF_OpenFile(INDEX_NAME); // opening file for passing the descriptor to index creation
+    // checkerr(indexFD);
 
     char *tokens[MAX_TOKENS];
     char record[MAX_PAGE_SIZE];
@@ -135,7 +135,7 @@ loadCSV()
     }
     fclose(fp);
     Table_Close(tbl);
-    err = PF_CloseFile(indexFD);
+    // err = PF_CloseFile(indexFD);
     checkerr(err);
     return sch;
 }
