@@ -119,13 +119,14 @@ Table_Insert(Table *tbl, byte *record, int len, RecId *rid) {
 
         Header *header = (Header *) *tbl->pagebuf;
         header->numSlots = 0;
+        header->numDeletedSlots = 0;
         header->freeSlotOffset = PF_PAGE_SIZE;
     }
     
     Header *header = (Header *) *tbl->pagebuf;
     int nslots = getNumSlots(*tbl->pagebuf);
     // Calculating free space left in the page (after removing the header)
-    int freeSpace = header->freeSlotOffset - sizeof(int) - sizeof(short)*(2+nslots);
+    int freeSpace = header->freeSlotOffset - 2*sizeof(int) - sizeof(short)*(2+nslots);
 
     // If free space is not enough for the record, allocate a new page
     if (freeSpace < len) {
@@ -193,6 +194,51 @@ Table_Get(Table *tbl, RecId rid, byte *record, int maxlen) {
     free(pagebuf);
     
     return len; // return size of record
+}
+
+int
+Table_Delete(Table *tbl, RecId rid) {
+    int slot = rid & 0xFFFF;
+    int pageNum = rid >> 16;
+
+    // PF_GetThisPage(pageNum)
+    // In the page get the slot offset of the record, and
+    // memcpy bytes into the record supplied.
+    // Unfix the page
+    
+    char **pagebuf = (char **) malloc(sizeof(char *));
+    bool unfix = false;
+    *pagebuf = *tbl->pagebuf;
+
+    // If the page is not in the buffer, fix it (the last page is always in the buffer)
+    if (pageNum != *tbl->lastPage) {
+        if (PF_GetThisPage(tbl->fd, pageNum, pagebuf) != PFE_OK) {
+            PF_PrintError("Error getting page");
+            return -1;
+        }
+        unfix = true;
+    }
+    
+    // Getting the record
+    Header *header = (Header *) *pagebuf;
+    int slotOffset = getNthSlotOffset(slot, *pagebuf);
+    header->numDeletedSlots += 1;
+    if(header->numDeletedSlots == header->numSlots) {
+        if (unfix) {
+            PF_UnfixPage(tbl->fd, pageNum, false);
+        }
+        PF_DisposePage(tbl->fd, pageNum);
+    }
+
+    int* uid_pos = (int*)(*pagebuf+slotOffset);
+    *uid_pos = -1;
+
+    if (unfix) {
+        PF_UnfixPage(tbl->fd, pageNum, false);
+    }
+    free(pagebuf);
+    
+    return 0; // return size of record
 }
 
 void

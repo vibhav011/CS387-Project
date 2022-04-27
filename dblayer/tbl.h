@@ -70,6 +70,7 @@ typedef struct {
 
 typedef struct {
     int numSlots;                       // number of slots in page
+    int numDeletedSlots;                   // number of slots containing deleted records
     unsigned short freeSlotOffset;      // offset of next free slot
     unsigned short slotOffsets[];       // array of slot offsets
 } Header ;
@@ -84,6 +85,9 @@ Table_Insert(Table *t, byte *record, int len, RecId *rid);
 
 int
 Table_Get(Table *t, RecId rid, byte *record, int maxlen);
+
+int
+Table_Delete(Table *t, RecId rid);
 
 void
 Table_Close(Table *);

@@ -1,1 +1,2 @@
-table should have name field and data_in_disk flag as well
+do we have to create separate sub-functions for getting the record id at which data has to be inserted and actually inserting the data
+has mapping log been populated
