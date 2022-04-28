@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -99,8 +98,8 @@ Table_Open(char *dbname, Schema *schema, bool overwrite, Table **ptable)
         prevPage = *table->lastPage;
     }
 
-    *ptable = table;
 
+    *ptable = table;
     return 0;
 }
 

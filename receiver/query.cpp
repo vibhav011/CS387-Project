@@ -588,9 +588,13 @@ int execute_create(string table_name, vector<ColumnDesc*> &column_desc_list, vec
             return -1;
         }
 
+
         tbl->name = table_name;
+        cout<<"ankit"<<endl;
+        cout<<"sdf"<<endl;
         tbl->pk = constraint;
         table_name_to_id[table_name] = tables.size();
+        cout<<"ankit"<<endl;
         UIds.push_back(0);
         tables.push_back(tbl);
         ChangeLog chnglog;
