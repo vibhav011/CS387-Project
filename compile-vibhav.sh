@@ -1,5 +1,5 @@
-shopt -s expand_aliases
-source ~/.zprofile
+# shopt -s expand_aliases
+# source ~/.zprofile
 
 rm -rf data.db *.tbl a.out
 
@@ -9,8 +9,8 @@ cd ..
 cd ./pflayer
 make
 cd ..
-lex scanner.l
-yacc -dv parser.y
+flex --header-file=lex.yy.h scanner.l
+/usr/local/opt/bison@3.8/bin/bison -dv parser.y
 
 g++ -c receiver/query.cpp
 # g++ -c receiver/commit.cpp
