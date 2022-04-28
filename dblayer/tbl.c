@@ -69,7 +69,7 @@ Table_Open(char *dbname, Schema *schema, bool overwrite, Table **ptable)
     }
 
     // Initializing the table struct with default values
-    Table *table = (Table *) malloc(sizeof(Table));
+    Table *table = *ptable;
     table->schema = schema;
     table->fd = fd;
     table->lastPage = (int *)malloc(sizeof(int));
@@ -85,7 +85,7 @@ Table_Open(char *dbname, Schema *schema, bool overwrite, Table **ptable)
         prevPage = *table->lastPage;
     }
 
-    *ptable = table;
+    // *ptable = table;
 
     return 0;
 }
@@ -100,7 +100,6 @@ Table_Close(Table *tbl) {
     free(tbl->lastPage);
     free(tbl->pagebuf);
     delete tbl->schema;
-    free(tbl);
 }
 
 

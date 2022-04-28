@@ -12,3 +12,9 @@ text int float
 1 0 Sachin 26 20.3 Sachin 32 11.5               // 0 -> UPDATE
 3 1 Dhoni 30 1.1                                // 1 -> INSERT
 1 2 Sachin 32 11.5 2                            // 2 -> DELETE
+
+# Valgrind command
+valgrind --leak-check=full --track-origins=yes ./a.out > out
+
+# Points to note
+Table needs to be deleted after table_close

@@ -30,6 +30,7 @@ void clean_and_exit() {
             delete log->second.new_value;
         }
         Table_Close(tables[i]);
+        delete tables[i];
     }
     exit(0);
 }
@@ -66,16 +67,18 @@ int main() {
     int insert_exit = execute_insert("data", col_val_list1);
 
     // execute_delete("data", NULL);
+    execute_delete("data", NULL);
+    cout << "delete done" << endl;
     vector<string> col_val_list2;
     col_val_list2.push_back("Albania");
     col_val_list2.push_back("Tirana");
     col_val_list2.push_back("2930187");
     insert_exit = execute_insert("data", col_val_list2);
-    // execute_delete("data", NULL);
-    // cout << "delete done" << endl;
+    cout << "insert done" << endl;
     create_exit = execute_create("data1", cols, pk);
     cout << "create done" << endl;
-    
+    // clean_and_exit();
+    // return 0;
     col_val_list1.clear();
     col_val_list1.push_back("India");
     col_val_list1.push_back("New Delhi");
