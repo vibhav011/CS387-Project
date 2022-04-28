@@ -131,3 +131,43 @@ int commit_delete(Table *tbl, RecId rid) {
     int ret = Table_Delete(tbl, rid);
     return ret;
 }
+
+int execute_rollback(vector<int>* ChangeIndices) {
+    for (int i = 0; i < ChangeIndices->size(); i++) {
+        Table *tbl = tables[ChangeIndices->at(i)];
+        ChangeLog& change_log = change_logs[ChangeIndices->at(i)];
+        MappingLog& mapping_log = mapping_logs[ChangeIndices->at(i)];
+
+        for (ChangeLog::iterator it = change_log.begin(); it != change_log.end(); it++) {
+            int unique_id = it->first;
+            cout<<unique_id<<endl;
+            Log_Entry& log_entry = it->second;
+            Table_Row *old_value = log_entry.old_value;
+            Table_Row *new_value = log_entry.new_value;
+
+            switch (log_entry.change_type) {
+            case _UPDATE: {
+                int ret_value = commit_delete(tbl, mapping_log[new_value->fields[0].int_val]);
+                if (ret_value != C_OK) return ret_value;
+                ret_value = commit_insert(tbl, old_value);
+                if (ret_value != C_OK) return ret_value;
+                break;
+            }
+            case _INSERT: {
+                int ret_value = commit_delete(tbl, mapping_log[new_value->fields[0].int_val]);
+                if (ret_value != C_OK) return ret_value;
+                break;
+            }
+            case _DELETE: {
+                int ret_value = commit_insert(tbl, old_value);
+                if (ret_value != C_OK) return ret_value;
+                break;
+            }
+            default:
+                break;
+            }
+        }
+    }
+    return C_OK;
+}
+

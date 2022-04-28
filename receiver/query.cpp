@@ -292,7 +292,7 @@ int execute_select(Temp_Table *result, vector<string> table_names, vector<string
         tbl2_id = table_name_to_id[table_names[1]];
     }
     
-    vector<pair<string, int> > types(1, {table_names[0]+".unique_id", INT});
+    vector<pair<string, int> > types = vector<pair<string,int> > (1, make_pair(table_names[0]+".unique_id", INT));
 
     // Populate the types vector
     for (int i=0;i<col_names.size();i++) {

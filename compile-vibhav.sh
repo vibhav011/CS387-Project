@@ -1,5 +1,5 @@
-# shopt -s expand_aliases
-# source ~/.zprofile
+shopt -s expand_aliases
+source ~/.zprofile
 
 rm -rf data.db *.tbl a.out
 
@@ -18,5 +18,5 @@ g++ -c receiver/query.cpp
 # g++ -c y.tab.c
 g++ -c utils.cpp
 g++ -c ast.cc
-g++ no_parse.cpp ast.o query.o dblayer/tbl.o dblayer/codec.o pflayer/pf.o pflayer/buf.o pflayer/hash.o utils.o
+g++ no_parse-vibhav.cpp ast.o query.o dblayer/tbl.o dblayer/codec.o pflayer/pf.o pflayer/buf.o pflayer/hash.o utils.o
 # g++ daemon.cc y.tab.o query.o ast.o -o daemon -pthread
