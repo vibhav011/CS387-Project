@@ -65,7 +65,7 @@ int main() {
     vector<string> col_val_list1;
     col_val_list1.push_back("Afghanistan");
     col_val_list1.push_back("Kabul");
-    col_val_list1.push_back("35530081");
+    col_val_list1.push_back("3553008");
     int insert_exit = execute_insert("data", col_val_list1);
     cout<<"insert 1 done"<<endl;
     // execute_delete("data", NULL);
@@ -77,6 +77,8 @@ int main() {
     col_val_list2.push_back("2930187");
     insert_exit = execute_insert("data", col_val_list2);
     cout << "insert done" << endl;
+
+    /*
     create_exit = execute_create("data1", cols, pk);
     cout << "create done" << endl;
     // clean_and_exit();
@@ -94,53 +96,14 @@ int main() {
     col_val_list2.push_back("454657");
     insert_exit = execute_insert("data1", col_val_list2);
     cout<<"insert done"<<endl;
-
-    // Log_Entry le = change_logs[1][1];
-    // cout<<le.new_value->fields[0].int_val<<endl;
-    // cout<<*(le.new_value->fields[1].str_val)<<endl;
-    // cout<<*(le.new_value->fields[2].str_val)<<endl;
-    // cout<<le.new_value->fields[3].int_val<<endl;
-
-    // ColAST* col_ast = new ColAST("data.Country");
-    // Constant* data = new Constant("Albania", VARCHAR);
-    // cout<<"here?"<<endl;
-    // ConstAST* const_ast = new ConstAST(data);
-    // RelAST* cond_tree = new RelAST(col_ast, const_ast, _EQ);
-    // cout<<"calling seletc"<<endl;
-
-    vector<string> fetch_cols = vector<string> (1, "data.Country");
-    fetch_cols.push_back("data.Capital");
-    vector<string> temp = vector<string> (1, "data");
-    // temp.push_back("data1");
-    int select_exit = execute_select(result, temp, fetch_cols);
-
-    cout<<"============================================="<<endl;
-
-    result->prettyPrint();
-
-    cout<<"final result size "<< result->rows.size()<<endl;
-    cout<<"final rows are: "<<endl;
-    for (int i = 0; i < result->rows.size(); i++)
-    {
-        cout<<result->rows[i]->fields[0].str_val<<" ";
-        cout<<result->rows[i]->fields[1].str_val<<" ";
-        cout<<result->rows[i]->fields[2].int_val<<endl;
-    }
-    cout<<"select exited with: "<<select_exit<<endl;
-
+    */
 
     vector<int> *ci = new vector<int> (1, 0);
-    ci->push_back(1);
+    // ci->push_back(1);
     int commit_exit = execute_commit(ci);
     cout<<"commit exited with: "<<commit_exit<<endl;
-    // change_logs.empty();
-
-    Temp_Table* result2 = new Temp_Table(schema);
-    select_exit = execute_select(result2, temp, fetch_cols);
-    cout<<"final result2 size "<< result2->rows.size()<<endl;
 
     delete result;
-    delete result2;
     delete col_names;
     delete table_names;
     delete col1;

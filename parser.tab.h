@@ -34,8 +34,8 @@
 /* Undocumented macros, especially those whose name start with YY_,
    are private implementation details.  Do not rely on them.  */
 
-#ifndef YY_YY_Y_TAB_H_INCLUDED
-# define YY_YY_Y_TAB_H_INCLUDED
+#ifndef YY_YY_PARSER_TAB_H_INCLUDED
+# define YY_YY_PARSER_TAB_H_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
 # define YYDEBUG 0
@@ -43,6 +43,12 @@
 #if YYDEBUG
 extern int yydebug;
 #endif
+/* "%code requires" blocks.  */
+#line 15 "parser.y"
+
+  typedef void* yyscan_t;
+
+#line 52 "parser.tab.h"
 
 /* Token type.  */
 #ifndef YYTOKENTYPE
@@ -98,60 +104,12 @@ extern int yydebug;
     REDC = 304
   };
 #endif
-/* Tokens.  */
-#define DOT_NAME 258
-#define NAME 259
-#define TEXT_CONSTANT 260
-#define INT_CONSTANT 261
-#define FLOAT_CONSTANT 262
-#define INTEGER 263
-#define FLOAT 264
-#define TEXT 265
-#define AND 266
-#define OR 267
-#define NOT 268
-#define MULT 269
-#define PLUS 270
-#define MINUS 271
-#define DIV 272
-#define GE 273
-#define LT 274
-#define GT 275
-#define LE 276
-#define NE 277
-#define EQ 278
-#define SEMICOLON 279
-#define COMMIT 280
-#define ROLLBACK 281
-#define WITH 282
-#define COMMA 283
-#define AS 284
-#define ROUND_BRACKET_OPEN 285
-#define ROUND_BRACKET_CLOSE 286
-#define SELECT 287
-#define FROM 288
-#define WHERE 289
-#define CREATE 290
-#define TABLE 291
-#define RANGE 292
-#define PRIMARY 293
-#define KEY 294
-#define INSERT 295
-#define INTO 296
-#define VALUES 297
-#define ASSIGN 298
-#define UPDATE 299
-#define SET 300
-#define DELETE 301
-#define INFINITY 302
-#define BETWEEN 303
-#define REDC 304
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 19 "parser.y"
+#line 26 "parser.y"
 
     int int_val;
     string* str;
@@ -169,7 +127,7 @@ union YYSTYPE
     CondAST* logast;
     RelAST* relast;
 
-#line 173 "y.tab.h"
+#line 131 "parser.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -177,9 +135,22 @@ typedef union YYSTYPE YYSTYPE;
 # define YYSTYPE_IS_DECLARED 1
 #endif
 
+/* Location type.  */
+#if ! defined YYLTYPE && ! defined YYLTYPE_IS_DECLARED
+typedef struct YYLTYPE YYLTYPE;
+struct YYLTYPE
+{
+  int first_line;
+  int first_column;
+  int last_line;
+  int last_column;
+};
+# define YYLTYPE_IS_DECLARED 1
+# define YYLTYPE_IS_TRIVIAL 1
+#endif
 
-extern YYSTYPE yylval;
 
-int yyparse (int worker_id);
 
-#endif /* !YY_YY_Y_TAB_H_INCLUDED  */
+int yyparse (yyscan_t scanner);
+
+#endif /* !YY_YY_PARSER_TAB_H_INCLUDED  */

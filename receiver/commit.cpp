@@ -5,6 +5,11 @@
 #include "../pflayer/pf.h"
 #include "../dblayer/codec.h"
 #include "../utils.h"
+#include "helper.h"
+#include <sys/stat.h>
+#include <unistd.h>
+#include <cstdio>
+using namespace std;
 
 extern vector<ChangeLog> change_logs;
 extern vector<MappingLog> mapping_logs;
@@ -25,12 +30,15 @@ int commit_insert(Table *tbl, Table_Row *tr){
         case VARCHAR:
         {
             int len = (*tr->fields[i].str_val).length();
+            cout << "encoding " << len << endl;
+            cout << "idx " << i << endl;
             if(pos + len + 2 > MAX_PAGE_SIZE){
                 printf("insert error: no space left for filling fields in record\n");
                 return C_ERROR;
             }
             strcpy(cpy, (*tr->fields[i].str_val).c_str());
             bytes_added = EncodeCString(cpy, record+pos, 257);
+            cout << "bytes added " << bytes_added << endl;
             pos += bytes_added;
             break;
         }
@@ -63,7 +71,9 @@ int commit_insert(Table *tbl, Table_Row *tr){
     }
 
     RecId rid;
+    // break into phantom_table_insert followed by append_insert_to_file followed by real_table_insert
     int err = Table_Insert(tbl, record, pos, &rid);
+    cout << "err: " << err << endl;
     cout<<"inserted rec is at rid: "<<rid<<endl;
     if(err != 0) return C_ERROR;
 
@@ -73,6 +83,18 @@ int commit_insert(Table *tbl, Table_Row *tr){
 
 int execute_commit(vector<int>* ChangeIndices) {
     // TODO: Dump the change logs to disk
+    // int user_id = 0;
+    // string folder_name = "./"+to_string(user_id);
+    // mkdir(folder_name.c_str(), 0);
+    
+    // for (int i = 0; i < ChangeIndices->size(); i++)
+    // {
+    //     string clog_filename = folder_name+"/"+tables[ChangeIndices->at(i)]->name+".clog";
+    //     string mlog_filename = folder_name+"/"+tables[ChangeIndices->at(i)]->name+".mlog";
+    //     dump_clog(tables[ChangeIndices->at(i)], change_logs[ChangeIndices->at(i)], clog_filename);
+    //     dump_mlog(tables[ChangeIndices->at(i)], mapping_logs[ChangeIndices->at(i)], mlog_filename);
+    // }
+    
 
     for (int i = 0; i < ChangeIndices->size(); i++) {
         Table *tbl = tables[ChangeIndices->at(i)];
@@ -82,7 +104,9 @@ int execute_commit(vector<int>* ChangeIndices) {
             cout << tbl->schema->columns[j]->name << endl;
         }
         ChangeLog& change_log = change_logs[ChangeIndices->at(i)];
+        cout<<"after this"<<endl;
         MappingLog& mapping_log = mapping_logs[ChangeIndices->at(i)];
+        cout<<"yup"<<endl;
 
         for (ChangeLog::iterator it = change_log.begin(); it != change_log.end(); it++) {
             int unique_id = it->first;
@@ -93,6 +117,7 @@ int execute_commit(vector<int>* ChangeIndices) {
 
             switch (log_entry.change_type) {
             case _UPDATE: {
+                cout<<"calling commit update"<<endl;
                 int ret_value = commit_delete(tbl, mapping_log[old_value->fields[0].int_val]);
                 if (ret_value != C_OK) return ret_value;
                 ret_value = commit_insert(tbl, new_value);
@@ -100,20 +125,13 @@ int execute_commit(vector<int>* ChangeIndices) {
                 break;
             }
             case _INSERT: {
-                // for (int i = 0; i < tbl->schema->numColumns; i++) {
-                //     if (tbl->schema->columns[i]->type==VARCHAR){
-                //         cout << "str" << endl;
-                //         // cout << *log_entry.new_value->fields[i].str_val << endl;
-                //     }
-                //     else {
-                //         cout << log_entry.new_value->fields[i].int_val << endl;
-                //     }
-                // }
+                cout<<"calling commit insert"<<endl;
                 int ret_value = commit_insert(tbl, new_value);
                 if (ret_value != C_OK) return ret_value;
                 break;
             }
             case _DELETE: {
+                cout<<"calling commit delete"<<endl;
                 int ret_value = commit_delete(tbl, mapping_log[old_value->fields[0].int_val]);
                 if (ret_value != C_OK) return ret_value;
                 break;
@@ -122,8 +140,18 @@ int execute_commit(vector<int>* ChangeIndices) {
                 break;
             }
         }
+
+        Table_Close(tbl);
     }
     // TODO: Delete the change logs and mapping logs from disk
+    // for (int i = 0; i < ChangeIndices->size(); i++)
+    // {
+    //     string clog_filename = folder_name+"/"+tables[ChangeIndices->at(i)]->name+".clog";
+    //     string mlog_filename = folder_name+"/"+tables[ChangeIndices->at(i)]->name+".mlog";
+    //     remove(clog_filename.c_str());
+    //     remove(mlog_filename.c_str());
+    // }
+    // rmdir(folder_name.c_str());
     return C_OK;
 }
 
@@ -133,6 +161,7 @@ int commit_delete(Table *tbl, RecId rid) {
 }
 
 int execute_rollback(vector<int>* ChangeIndices) {
+
     for (int i = 0; i < ChangeIndices->size(); i++) {
         Table *tbl = tables[ChangeIndices->at(i)];
         ChangeLog& change_log = change_logs[ChangeIndices->at(i)];
@@ -167,6 +196,7 @@ int execute_rollback(vector<int>* ChangeIndices) {
                 break;
             }
         }
+        Table_Close(tbl);
     }
     return C_OK;
 }

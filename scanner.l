@@ -1,17 +1,15 @@
+%option noinput nounput noyywrap 8bit                                 
+%option yylineno
+%option reentrant bison-bridge bison-locations 
+
 %{
 #include "./receiver/query.h"
 #include "ast.h"
-#include "y.tab.h"
-extern void yyerror(int, string);
-extern string global_query;
+#include "parser.tab.h"
 
-void addtoken(string);
-int globalReadOffset;
+// void addtoken(string);
 int lineno = 1;
-int readInputForLexer( char *buffer, int *numBytesRead, int maxBytesToRead );
 
-#undef YY_INPUT
-#define YY_INPUT(b,r,s) readInputForLexer(b,&r,s)
 %}
 
 digit [0-9]
@@ -48,17 +46,17 @@ BETWEEN { return BETWEEN; }
 TABLE { return TABLE; }
 
 INT { 
-    yylval.int_val = INT;
+    yylval->int_val = _INT;
     return INTEGER; 
 }
 
 FLOAT { 
-    yylval.int_val = FLOAT;
+    yylval->int_val = _FLOAT;
     return FLOAT; 
 }
 
 TEXT { 
-    yylval.int_val = VARCHAR;
+    yylval->int_val = _TEXT;
     return TEXT; 
 }
 
@@ -75,45 +73,32 @@ DELETE { return DELETE; }
 INFINITY { return INFINITY; }
 
 {letter}({letter}|{digit})*\.{letter}({letter}|{digit})* { 
-    yylval.str = new string();
-    *yylval.str = yytext;
+    yylval->str = new string();
+    *(yylval->str) = yytext;
     return DOT_NAME; 
 }
 
 {letter}({letter}|{digit})* {
-    yylval.str = new string;
-    *yylval.str = yytext;
+    yylval->str = new string;
+    *(yylval->str) = yytext;
     return NAME; 
 }
 
 \"[^\"]\" { 
-    *yylval.str = yytext;
+    *(yylval->str) = yytext;
     return TEXT_CONSTANT; 
 }
 
 {digit}+ {
-    yylval.str = new string;
-    *yylval.str = yytext; 
+    yylval->str = new string;
+    *(yylval->str) = yytext; 
     return INT_CONSTANT; 
 }
 
 {digit}+\.{digit}+ { 
-    yylval.str = new string;
-    *yylval.str = yytext;
+    yylval->str = new string;
+    *(yylval->str) = yytext;
     return FLOAT_CONSTANT; 
 }
 
 %%
-
-int readInputForLexer( char *buffer, int *numBytesRead, int maxBytesToRead ) {
-    unsigned long numBytesToRead = maxBytesToRead;
-    int bytesRemaining = global_query.size()-globalReadOffset;
-    int i;
-    if ( numBytesToRead > bytesRemaining ) { numBytesToRead = bytesRemaining; }
-    for ( i = 0; i < numBytesToRead; i++ ) {
-        buffer[i] = global_query[globalReadOffset+i];
-    }
-    *numBytesRead = numBytesToRead;
-    globalReadOffset += numBytesToRead;
-    return 0;
-}

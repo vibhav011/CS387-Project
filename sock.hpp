@@ -9,8 +9,12 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <thread>
+#include <vector>
+#include "./receiver/query.h"
+#include "ast.h"
+#include "parser.tab.h"
+#include "lex.yy.h"
 
-typedef int (*request_handler_t) (std::string,int,int);
 
 #define MAX_BUFFLEN 1024
 #define SOCK_PATH "/tmp/server.sock"
@@ -33,16 +37,24 @@ public:
 #define MAX_PROCESSES 10
 
 struct Conn{
+    static int id;
     int inuse;
+    int worker_id;
     int client_fd;
     int stdout_fd;
-    int worker_id;
+    yyscan_t scanner;
+    char fname[20];
+    FILE *f;
     std::thread *conn_thread;
+
+    Conn();
 };
+
+typedef int (*request_handler_t) (std::string, Conn*);
 
 class Daemon{
     int sock_fd;
-    Conn conn[MAX_PROCESSES];
+    std::vector<Conn*> conn;
     request_handler_t query_handler;
 
 public:
