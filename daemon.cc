@@ -3,15 +3,10 @@
 #include <mutex>
 #include <filesystem>
 #include "sock.hpp"
-<<<<<<< HEAD
-#include "utils.h"
-#include "./receiver/query.h"
-=======
 #include <map>
 #include <string>
 #include "utils.h"
 #include "receiver/helper.h"
->>>>>>> 0ccd54bbe6a8a034f483279a3a68e01b8a6153ce
 
 using namespace std;
 
