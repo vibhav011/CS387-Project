@@ -72,7 +72,7 @@ Table_Open(char *dbname, Schema *schema, bool overwrite, Table **ptable)
     printf("data.db toh hai \n");
     
     // Initializing the table struct with default values
-    Table *table = (Table*) malloc(sizeof(Table));
+    Table *table = *ptable;
     printf("yahan2?\n");
     printf("%d\n",schema->numColumns);
     printf("%s\n", schema->columns[0]->name);
@@ -98,8 +98,6 @@ Table_Open(char *dbname, Schema *schema, bool overwrite, Table **ptable)
         PF_UnfixPage(fd, prevPage, false);
         prevPage = *table->lastPage;
     }
-
-    *ptable = table;
 
     return 0;
 }

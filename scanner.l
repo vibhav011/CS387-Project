@@ -46,17 +46,17 @@ BETWEEN { return BETWEEN; }
 TABLE { return TABLE; }
 
 INT { 
-    yylval->int_val = _INT;
+    yylval->int_val = INT;
     return INTEGER; 
 }
 
 FLOAT { 
-    yylval->int_val = _FLOAT;
+    yylval->int_val = FLOAT;
     return FLOAT; 
 }
 
 TEXT { 
-    yylval->int_val = _TEXT;
+    yylval->int_val = TEXT;
     return TEXT; 
 }
 
