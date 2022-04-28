@@ -1,6 +1,8 @@
 #ifndef _COMMIT_H_
 #define _COMMIT_H_
 #include "../utils.h"
+#include "../dblayer/tbl.h"
+#include <vector>
 
 int commit_insert(Table *tbl, Table_Row *tr);       // insert a new row into a table
                                                     // Returns C_OK on success, C_ERROR on failure
