@@ -1,10 +1,10 @@
 %{
+#include "./receiver/query.h"
 #include "ast.h"
 #include "utils.h"
-#include "./receiver/query.h"
 
-int yylex();
 int yyerror(int id, const char *);
+void checkerr(int err_code);
 
 extern vector<Temp_Table*> results;
 int const_type;
@@ -35,9 +35,9 @@ extern int readInputForLexer(char* buffer,unsigned long *numBytesRead,int maxByt
 }
 
 %token <str> DOT_NAME NAME TEXT_CONSTANT INT_CONSTANT FLOAT_CONSTANT
-%token <int_val> INTTOK FLOAT TEXT
+%token <int_val> INTEGER FLOAT TEXT
 %token AND OR NOT MULT PLUS MINUS DIV GE LT GT LE NE EQ
-%token SEMICOLON COMMIT ROLLBACK WITH COMMA AS ROUND_BRACKET_OPEN ROUND_BRACKET_CLOSE SELECT FROM WHERE CREATE TABLE RANGE PRIMARY KEY INSERTTOK INTO VALUES ASSIGN UPDATETOK SET DELETE INFINITY BETWEEN
+%token SEMICOLON COMMIT ROLLBACK WITH COMMA AS ROUND_BRACKET_OPEN ROUND_BRACKET_CLOSE SELECT FROM WHERE CREATE TABLE RANGE PRIMARY KEY INSERT INTO VALUES ASSIGN UPDATE SET DELETE INFINITY BETWEEN
 
 %left OR
 %left AND
@@ -267,7 +267,7 @@ column_desc_list
 column_desc
     : NAME type range 
     {
-        if(type == _TEXT)
+        if($2 == _TEXT)
             return -1;
         $$ = new ColumnDesc(&(*$1)[0], $2, $3->lower_bound, $3->upper_bound);
     }
@@ -278,7 +278,7 @@ column_desc
 ;
 
 type 
-    : INTTOK
+    : INTEGER
     | FLOAT
     | TEXT
 ;
@@ -295,7 +295,7 @@ constraint
 ;
 
 insert_query
-    : INSERTTOK INTO NAME VALUES ROUND_BRACKET_OPEN column_val_list ROUND_BRACKET_CLOSE 
+    : INSERT INTO NAME VALUES ROUND_BRACKET_OPEN column_val_list ROUND_BRACKET_CLOSE 
     {
         checkerr(execute_insert(*$3, *$6));
     }
@@ -317,11 +317,11 @@ column_val
 ;
 
 update_query
-    : UPDATETOK NAME SET update_list WHERE condition 
+    : UPDATE NAME SET update_list WHERE condition 
     {
         checkerr(execute_update(*$2, *$4, $6));
     }
-    | UPDATETOK NAME SET update_list 
+    | UPDATE NAME SET update_list 
     {
         checkerr(execute_update(*$2, *$4));
     }
@@ -366,4 +366,27 @@ int yyerror(int id, const char *err)
 {
     cerr<<err<<endl;
     return 1;
+}
+
+void checkerr(int err_code) {
+    switch(err_code) {
+        case C_OK:
+            cout<<"successfully terminated"<<endl;
+            break;
+        case C_TRUE:
+            cout<<"true output"<<endl;
+            break;
+        case C_FALSE:
+            cout<<"false output"<<endl;
+            break;
+        case C_ERROR:
+            cout<<"error"<<endl;
+            break;
+        case C_TABLE_NOT_FOUND:
+            cout<<"table not found"<<endl;
+            break;
+        case C_FIELD_NOT_FOUND:
+            cout<<"field not found"<<endl;
+            break;
+    }
 }

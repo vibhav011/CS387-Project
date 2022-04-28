@@ -68,12 +68,12 @@
 /* First part of user prologue.  */
 #line 1 "parser.y"
 
+#include "./receiver/query.h"
 #include "ast.h"
 #include "utils.h"
-#include "./receiver/query.h"
 
-int yylex();
 int yyerror(int id, const char *);
+void checkerr(int err_code);
 
 extern vector<Temp_Table*> results;
 int const_type;
@@ -135,7 +135,7 @@ extern int yydebug;
     TEXT_CONSTANT = 260,
     INT_CONSTANT = 261,
     FLOAT_CONSTANT = 262,
-    INTTOK = 263,
+    INTEGER = 263,
     FLOAT = 264,
     TEXT = 265,
     AND = 266,
@@ -167,11 +167,11 @@ extern int yydebug;
     RANGE = 292,
     PRIMARY = 293,
     KEY = 294,
-    INSERTTOK = 295,
+    INSERT = 295,
     INTO = 296,
     VALUES = 297,
     ASSIGN = 298,
-    UPDATETOK = 299,
+    UPDATE = 299,
     SET = 300,
     DELETE = 301,
     INFINITY = 302,
@@ -185,7 +185,7 @@ extern int yydebug;
 #define TEXT_CONSTANT 260
 #define INT_CONSTANT 261
 #define FLOAT_CONSTANT 262
-#define INTTOK 263
+#define INTEGER 263
 #define FLOAT 264
 #define TEXT 265
 #define AND 266
@@ -217,11 +217,11 @@ extern int yydebug;
 #define RANGE 292
 #define PRIMARY 293
 #define KEY 294
-#define INSERTTOK 295
+#define INSERT 295
 #define INTO 296
 #define VALUES 297
 #define ASSIGN 298
-#define UPDATETOK 299
+#define UPDATE 299
 #define SET 300
 #define DELETE 301
 #define INFINITY 302
@@ -646,13 +646,13 @@ static const yytype_int16 yyrline[] =
 static const char *const yytname[] =
 {
   "$end", "error", "$undefined", "DOT_NAME", "NAME", "TEXT_CONSTANT",
-  "INT_CONSTANT", "FLOAT_CONSTANT", "INTTOK", "FLOAT", "TEXT", "AND", "OR",
-  "NOT", "MULT", "PLUS", "MINUS", "DIV", "GE", "LT", "GT", "LE", "NE",
-  "EQ", "SEMICOLON", "COMMIT", "ROLLBACK", "WITH", "COMMA", "AS",
+  "INT_CONSTANT", "FLOAT_CONSTANT", "INTEGER", "FLOAT", "TEXT", "AND",
+  "OR", "NOT", "MULT", "PLUS", "MINUS", "DIV", "GE", "LT", "GT", "LE",
+  "NE", "EQ", "SEMICOLON", "COMMIT", "ROLLBACK", "WITH", "COMMA", "AS",
   "ROUND_BRACKET_OPEN", "ROUND_BRACKET_CLOSE", "SELECT", "FROM", "WHERE",
-  "CREATE", "TABLE", "RANGE", "PRIMARY", "KEY", "INSERTTOK", "INTO",
-  "VALUES", "ASSIGN", "UPDATETOK", "SET", "DELETE", "INFINITY", "BETWEEN",
-  "REDC", "$accept", "query", "with_query", "table_as_list", "table_as",
+  "CREATE", "TABLE", "RANGE", "PRIMARY", "KEY", "INSERT", "INTO", "VALUES",
+  "ASSIGN", "UPDATE", "SET", "DELETE", "INFINITY", "BETWEEN", "REDC",
+  "$accept", "query", "with_query", "table_as_list", "table_as",
   "table_desc", "select_query", "column_list", "column", "table_list",
   "table", "condition", "relex", "expression", "constant", "create_query",
   "column_desc_list", "column_desc", "type", "range", "constraint",
@@ -1804,7 +1804,7 @@ yyreduce:
   case 47:
 #line 269 "parser.y"
     {
-        if(type == _TEXT)
+        if((yyvsp[-1].int_val) == _TEXT)
             return -1;
         (yyval.col_desc) = new ColumnDesc(&(*(yyvsp[-2].str))[0], (yyvsp[-1].int_val), (yyvsp[0].range)->lower_bound, (yyvsp[0].range)->upper_bound);
     }
@@ -2161,4 +2161,27 @@ int yyerror(int id, const char *err)
 {
     cerr<<err<<endl;
     return 1;
+}
+
+void checkerr(int err_code) {
+    switch(err_code) {
+        case C_OK:
+            cout<<"successfully terminated"<<endl;
+            break;
+        case C_TRUE:
+            cout<<"true output"<<endl;
+            break;
+        case C_FALSE:
+            cout<<"false output"<<endl;
+            break;
+        case C_ERROR:
+            cout<<"error"<<endl;
+            break;
+        case C_TABLE_NOT_FOUND:
+            cout<<"table not found"<<endl;
+            break;
+        case C_FIELD_NOT_FOUND:
+            cout<<"field not found"<<endl;
+            break;
+    }
 }

@@ -1,7 +1,6 @@
 %{
-#include "ast.h"
-#include "utils.h"
 #include "./receiver/query.h"
+#include "ast.h"
 #include "y.tab.h"
 extern void yyerror(int, string);
 extern string global_query;
@@ -50,7 +49,7 @@ TABLE { return TABLE; }
 
 INT { 
     yylval.int_val = _INT;
-    return INTTOK; 
+    return INTEGER; 
 }
 
 FLOAT { 
@@ -66,11 +65,11 @@ TEXT {
 RANGE { return RANGE; }
 PRIMARY { return PRIMARY; }
 KEY { return KEY; }
-INSERT { return INSERTTOK; }
+INSERT { return INSERT; }
 INTO { return INTO; }
 VALUES { return VALUES; }
 "=" { return ASSIGN; }
-UPDATE { return UPDATETOK; }
+UPDATE { return UPDATE; }
 SET { return SET; }
 DELETE { return DELETE; }
 INFINITY { return INFINITY; }
