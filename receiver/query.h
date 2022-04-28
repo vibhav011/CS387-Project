@@ -108,7 +108,7 @@ int execute_create(string table_name, vector<ColumnDesc*> &column_desc_list, vec
 int execute_insert(string table_name, vector<string> column_val_list);
 int execute_delete(string table_name, CondAST *cond_tree=NULL);
 
-int query_process(Query_Obj *cObj, Table_Row *tr);
+int query_process(Query_Obj *cObj, Table_Row *tr, RecId rid);
 int log_scan(Query_Obj *cObj);
 
 #endif
