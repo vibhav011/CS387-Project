@@ -3,8 +3,6 @@
 #include <fstream>
 using namespace std;
 
-extern
-
 // dumping float_val for each entry, read float_val in read_log as well
 int dump_clog(Table *tbl, ChangeLog &change_log, string filename){
     fstream fs;
@@ -37,11 +35,25 @@ int dump_clog(Table *tbl, ChangeLog &change_log, string filename){
 }
 
 int dump_mlog(Table *tbl, MappingLog& mapping_log, string filename) {
+    fstream fs;
+    fs.open(filename, fstream::out);
+
+    int numcols = tbl->schema->numColumns;
+    fs << tbl->name << ' ' << numcols << endl;
+    for(int i=0; i<tbl->schema->numColumns; i++){
+        fs << tbl->schema->columns[i]->type << ' ';
+    }
+    fs << endl;
+
+    MappingLog:: iterator p;
+    for(p = mapping_log.begin(); p != mapping_log.end(); p++){     
+        cout << p->first << " " << p->second;
+    }
+    fs.close();
     return C_OK;
 }
 
 int read_clog(ChangeLog &change_log, string filename){
-
     ifstream indata; 
     int num; 
     indata.open(filename); 
@@ -101,5 +113,21 @@ int read_clog(ChangeLog &change_log, string filename){
 }
 
 int read_mlog(MappingLog& mapping_log, string filename) {
+    ifstream indata; 
+    int num; 
+    indata.open(filename); 
+    if(!indata) { 
+        cerr << "Error: log file could not be opened" << endl;
+        return -1;
+    }
+
+    while ( !indata.eof() ) {
+       int uid;
+       int rid;
+       indata >> uid;
+       indata >> rid;
+       mapping_log[uid] = rid;
+    }
+    indata.close();
     return C_OK;
 }
