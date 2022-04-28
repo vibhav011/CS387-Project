@@ -1,13 +1,521 @@
-Insert: 4
-start?
-unfix page?
-while started
-qobj dest alled
-del temp tbl
-=============================
-0
-Insert: 4
-start?
-unfix page?
-while started
-qobj dest alled
+make: Nothing to be done for 'all'.
+make: 'pflayer.a' is up to date.
+In file included from /usr/include/c++/9/bits/stl_algobase.h:71,
+                 from /usr/include/c++/9/bits/char_traits.h:39,
+                 from /usr/include/c++/9/string:40,
+                 from receiver/../dblayer/tbl.h:4,
+                 from receiver/query.h:3,
+                 from receiver/query.cpp:1:
+/usr/include/c++/9/bits/predefined_ops.h: In instantiation of ‘bool __gnu_cxx::__ops::_Iter_equals_val<_Value>::operator()(_Iterator) [with _Iterator = __gnu_cxx::__normal_iterator<Table**, std::vector<Table*> >; _Value = const std::__cxx11::basic_string<char>]’:
+/usr/include/c++/9/bits/stl_algo.h:120:14:   required from ‘_RandomAccessIterator std::__find_if(_RandomAccessIterator, _RandomAccessIterator, _Predicate, std::random_access_iterator_tag) [with _RandomAccessIterator = __gnu_cxx::__normal_iterator<Table**, std::vector<Table*> >; _Predicate = __gnu_cxx::__ops::_Iter_equals_val<const std::__cxx11::basic_string<char> >]’
+/usr/include/c++/9/bits/stl_algo.h:161:23:   required from ‘_Iterator std::__find_if(_Iterator, _Iterator, _Predicate) [with _Iterator = __gnu_cxx::__normal_iterator<Table**, std::vector<Table*> >; _Predicate = __gnu_cxx::__ops::_Iter_equals_val<const std::__cxx11::basic_string<char> >]’
+/usr/include/c++/9/bits/stl_algo.h:3944:28:   required from ‘_IIter std::find(_IIter, _IIter, const _Tp&) [with _IIter = __gnu_cxx::__normal_iterator<Table**, std::vector<Table*> >; _Tp = std::__cxx11::basic_string<char>]’
+receiver/query.cpp:311:78:   required from here
+/usr/include/c++/9/bits/predefined_ops.h:241:17: error: no match for ‘operator==’ (operand types are ‘Table*’ and ‘const std::__cxx11::basic_string<char>’)
+  241 |  { return *__it == _M_value; }
+      |           ~~~~~~^~~~~~~~~~~
+In file included from /usr/include/c++/9/bits/stl_algobase.h:67,
+                 from /usr/include/c++/9/bits/char_traits.h:39,
+                 from /usr/include/c++/9/string:40,
+                 from receiver/../dblayer/tbl.h:4,
+                 from receiver/query.h:3,
+                 from receiver/query.cpp:1:
+/usr/include/c++/9/bits/stl_iterator.h:883:5: note: candidate: ‘template<class _IteratorL, class _IteratorR, class _Container> bool __gnu_cxx::operator==(const __gnu_cxx::__normal_iterator<_IteratorL, _Container>&, const __gnu_cxx::__normal_iterator<_IteratorR, _Container>&)’
+  883 |     operator==(const __normal_iterator<_IteratorL, _Container>& __lhs,
+      |     ^~~~~~~~
+/usr/include/c++/9/bits/stl_iterator.h:883:5: note:   template argument deduction/substitution failed:
+In file included from /usr/include/c++/9/bits/stl_algobase.h:71,
+                 from /usr/include/c++/9/bits/char_traits.h:39,
+                 from /usr/include/c++/9/string:40,
+                 from receiver/../dblayer/tbl.h:4,
+                 from receiver/query.h:3,
+                 from receiver/query.cpp:1:
+/usr/include/c++/9/bits/predefined_ops.h:241:17: note:   mismatched types ‘const __gnu_cxx::__normal_iterator<_IteratorL, _Container>’ and ‘Table*’
+  241 |  { return *__it == _M_value; }
+      |           ~~~~~~^~~~~~~~~~~
+In file included from /usr/include/c++/9/bits/stl_algobase.h:67,
+                 from /usr/include/c++/9/bits/char_traits.h:39,
+                 from /usr/include/c++/9/string:40,
+                 from receiver/../dblayer/tbl.h:4,
+                 from receiver/query.h:3,
+                 from receiver/query.cpp:1:
+/usr/include/c++/9/bits/stl_iterator.h:890:5: note: candidate: ‘template<class _Iterator, class _Container> bool __gnu_cxx::operator==(const __gnu_cxx::__normal_iterator<_Iterator, _Container>&, const __gnu_cxx::__normal_iterator<_Iterator, _Container>&)’
+  890 |     operator==(const __normal_iterator<_Iterator, _Container>& __lhs,
+      |     ^~~~~~~~
+/usr/include/c++/9/bits/stl_iterator.h:890:5: note:   template argument deduction/substitution failed:
+In file included from /usr/include/c++/9/bits/stl_algobase.h:71,
+                 from /usr/include/c++/9/bits/char_traits.h:39,
+                 from /usr/include/c++/9/string:40,
+                 from receiver/../dblayer/tbl.h:4,
+                 from receiver/query.h:3,
+                 from receiver/query.cpp:1:
+/usr/include/c++/9/bits/predefined_ops.h:241:17: note:   mismatched types ‘const __gnu_cxx::__normal_iterator<_Iterator, _Container>’ and ‘Table*’
+  241 |  { return *__it == _M_value; }
+      |           ~~~~~~^~~~~~~~~~~
+In file included from /usr/include/c++/9/bits/stl_algobase.h:64,
+                 from /usr/include/c++/9/bits/char_traits.h:39,
+                 from /usr/include/c++/9/string:40,
+                 from receiver/../dblayer/tbl.h:4,
+                 from receiver/query.h:3,
+                 from receiver/query.cpp:1:
+/usr/include/c++/9/bits/stl_pair.h:448:5: note: candidate: ‘template<class _T1, class _T2> constexpr bool std::operator==(const std::pair<_T1, _T2>&, const std::pair<_T1, _T2>&)’
+  448 |     operator==(const pair<_T1, _T2>& __x, const pair<_T1, _T2>& __y)
+      |     ^~~~~~~~
+/usr/include/c++/9/bits/stl_pair.h:448:5: note:   template argument deduction/substitution failed:
+In file included from /usr/include/c++/9/bits/stl_algobase.h:71,
+                 from /usr/include/c++/9/bits/char_traits.h:39,
+                 from /usr/include/c++/9/string:40,
+                 from receiver/../dblayer/tbl.h:4,
+                 from receiver/query.h:3,
+                 from receiver/query.cpp:1:
+/usr/include/c++/9/bits/predefined_ops.h:241:17: note:   mismatched types ‘const std::pair<_T1, _T2>’ and ‘Table*’
+  241 |  { return *__it == _M_value; }
+      |           ~~~~~~^~~~~~~~~~~
+In file included from /usr/include/c++/9/bits/stl_algobase.h:67,
+                 from /usr/include/c++/9/bits/char_traits.h:39,
+                 from /usr/include/c++/9/string:40,
+                 from receiver/../dblayer/tbl.h:4,
+                 from receiver/query.h:3,
+                 from receiver/query.cpp:1:
+/usr/include/c++/9/bits/stl_iterator.h:325:5: note: candidate: ‘template<class _Iterator> bool std::operator==(const std::reverse_iterator<_Iterator>&, const std::reverse_iterator<_Iterator>&)’
+  325 |     operator==(const reverse_iterator<_Iterator>& __x,
+      |     ^~~~~~~~
+/usr/include/c++/9/bits/stl_iterator.h:325:5: note:   template argument deduction/substitution failed:
+In file included from /usr/include/c++/9/bits/stl_algobase.h:71,
+                 from /usr/include/c++/9/bits/char_traits.h:39,
+                 from /usr/include/c++/9/string:40,
+                 from receiver/../dblayer/tbl.h:4,
+                 from receiver/query.h:3,
+                 from receiver/query.cpp:1:
+/usr/include/c++/9/bits/predefined_ops.h:241:17: note:   mismatched types ‘const std::reverse_iterator<_Iterator>’ and ‘Table*’
+  241 |  { return *__it == _M_value; }
+      |           ~~~~~~^~~~~~~~~~~
+In file included from /usr/include/c++/9/bits/stl_algobase.h:67,
+                 from /usr/include/c++/9/bits/char_traits.h:39,
+                 from /usr/include/c++/9/string:40,
+                 from receiver/../dblayer/tbl.h:4,
+                 from receiver/query.h:3,
+                 from receiver/query.cpp:1:
+/usr/include/c++/9/bits/stl_iterator.h:363:5: note: candidate: ‘template<class _IteratorL, class _IteratorR> bool std::operator==(const std::reverse_iterator<_Iterator>&, const std::reverse_iterator<_IteratorR>&)’
+  363 |     operator==(const reverse_iterator<_IteratorL>& __x,
+      |     ^~~~~~~~
+/usr/include/c++/9/bits/stl_iterator.h:363:5: note:   template argument deduction/substitution failed:
+In file included from /usr/include/c++/9/bits/stl_algobase.h:71,
+                 from /usr/include/c++/9/bits/char_traits.h:39,
+                 from /usr/include/c++/9/string:40,
+                 from receiver/../dblayer/tbl.h:4,
+                 from receiver/query.h:3,
+                 from receiver/query.cpp:1:
+/usr/include/c++/9/bits/predefined_ops.h:241:17: note:   mismatched types ‘const std::reverse_iterator<_Iterator>’ and ‘Table*’
+  241 |  { return *__it == _M_value; }
+      |           ~~~~~~^~~~~~~~~~~
+In file included from /usr/include/c++/9/bits/stl_algobase.h:67,
+                 from /usr/include/c++/9/bits/char_traits.h:39,
+                 from /usr/include/c++/9/string:40,
+                 from receiver/../dblayer/tbl.h:4,
+                 from receiver/query.h:3,
+                 from receiver/query.cpp:1:
+/usr/include/c++/9/bits/stl_iterator.h:1136:5: note: candidate: ‘template<class _IteratorL, class _IteratorR> bool std::operator==(const std::move_iterator<_IteratorL>&, const std::move_iterator<_IteratorR>&)’
+ 1136 |     operator==(const move_iterator<_IteratorL>& __x,
+      |     ^~~~~~~~
+/usr/include/c++/9/bits/stl_iterator.h:1136:5: note:   template argument deduction/substitution failed:
+In file included from /usr/include/c++/9/bits/stl_algobase.h:71,
+                 from /usr/include/c++/9/bits/char_traits.h:39,
+                 from /usr/include/c++/9/string:40,
+                 from receiver/../dblayer/tbl.h:4,
+                 from receiver/query.h:3,
+                 from receiver/query.cpp:1:
+/usr/include/c++/9/bits/predefined_ops.h:241:17: note:   mismatched types ‘const std::move_iterator<_IteratorL>’ and ‘Table*’
+  241 |  { return *__it == _M_value; }
+      |           ~~~~~~^~~~~~~~~~~
+In file included from /usr/include/c++/9/bits/stl_algobase.h:67,
+                 from /usr/include/c++/9/bits/char_traits.h:39,
+                 from /usr/include/c++/9/string:40,
+                 from receiver/../dblayer/tbl.h:4,
+                 from receiver/query.h:3,
+                 from receiver/query.cpp:1:
+/usr/include/c++/9/bits/stl_iterator.h:1142:5: note: candidate: ‘template<class _Iterator> bool std::operator==(const std::move_iterator<_IteratorL>&, const std::move_iterator<_IteratorL>&)’
+ 1142 |     operator==(const move_iterator<_Iterator>& __x,
+      |     ^~~~~~~~
+/usr/include/c++/9/bits/stl_iterator.h:1142:5: note:   template argument deduction/substitution failed:
+In file included from /usr/include/c++/9/bits/stl_algobase.h:71,
+                 from /usr/include/c++/9/bits/char_traits.h:39,
+                 from /usr/include/c++/9/string:40,
+                 from receiver/../dblayer/tbl.h:4,
+                 from receiver/query.h:3,
+                 from receiver/query.cpp:1:
+/usr/include/c++/9/bits/predefined_ops.h:241:17: note:   mismatched types ‘const std::move_iterator<_IteratorL>’ and ‘Table*’
+  241 |  { return *__it == _M_value; }
+      |           ~~~~~~^~~~~~~~~~~
+In file included from /usr/include/c++/9/bits/char_traits.h:40,
+                 from /usr/include/c++/9/string:40,
+                 from receiver/../dblayer/tbl.h:4,
+                 from receiver/query.h:3,
+                 from receiver/query.cpp:1:
+/usr/include/c++/9/bits/postypes.h:222:5: note: candidate: ‘template<class _StateT> bool std::operator==(const std::fpos<_StateT>&, const std::fpos<_StateT>&)’
+  222 |     operator==(const fpos<_StateT>& __lhs, const fpos<_StateT>& __rhs)
+      |     ^~~~~~~~
+/usr/include/c++/9/bits/postypes.h:222:5: note:   template argument deduction/substitution failed:
+In file included from /usr/include/c++/9/bits/stl_algobase.h:71,
+                 from /usr/include/c++/9/bits/char_traits.h:39,
+                 from /usr/include/c++/9/string:40,
+                 from receiver/../dblayer/tbl.h:4,
+                 from receiver/query.h:3,
+                 from receiver/query.cpp:1:
+/usr/include/c++/9/bits/predefined_ops.h:241:17: note:   mismatched types ‘const std::fpos<_StateT>’ and ‘Table*’
+  241 |  { return *__it == _M_value; }
+      |           ~~~~~~^~~~~~~~~~~
+In file included from /usr/include/c++/9/string:41,
+                 from receiver/../dblayer/tbl.h:4,
+                 from receiver/query.h:3,
+                 from receiver/query.cpp:1:
+/usr/include/c++/9/bits/allocator.h:167:5: note: candidate: ‘template<class _T1, class _T2> bool std::operator==(const std::allocator<_CharT>&, const std::allocator<_T2>&)’
+  167 |     operator==(const allocator<_T1>&, const allocator<_T2>&)
+      |     ^~~~~~~~
+/usr/include/c++/9/bits/allocator.h:167:5: note:   template argument deduction/substitution failed:
+In file included from /usr/include/c++/9/bits/stl_algobase.h:71,
+                 from /usr/include/c++/9/bits/char_traits.h:39,
+                 from /usr/include/c++/9/string:40,
+                 from receiver/../dblayer/tbl.h:4,
+                 from receiver/query.h:3,
+                 from receiver/query.cpp:1:
+/usr/include/c++/9/bits/predefined_ops.h:241:17: note:   mismatched types ‘const std::allocator<_CharT>’ and ‘Table*’
+  241 |  { return *__it == _M_value; }
+      |           ~~~~~~^~~~~~~~~~~
+In file included from /usr/include/c++/9/string:55,
+                 from receiver/../dblayer/tbl.h:4,
+                 from receiver/query.h:3,
+                 from receiver/query.cpp:1:
+/usr/include/c++/9/bits/basic_string.h:6144:5: note: candidate: ‘template<class _CharT, class _Traits, class _Alloc> bool std::operator==(const std::__cxx11::basic_string<_CharT, _Traits, _Alloc>&, const std::__cxx11::basic_string<_CharT, _Traits, _Alloc>&)’
+ 6144 |     operator==(const basic_string<_CharT, _Traits, _Alloc>& __lhs,
+      |     ^~~~~~~~
+/usr/include/c++/9/bits/basic_string.h:6144:5: note:   template argument deduction/substitution failed:
+In file included from /usr/include/c++/9/bits/stl_algobase.h:71,
+                 from /usr/include/c++/9/bits/char_traits.h:39,
+                 from /usr/include/c++/9/string:40,
+                 from receiver/../dblayer/tbl.h:4,
+                 from receiver/query.h:3,
+                 from receiver/query.cpp:1:
+/usr/include/c++/9/bits/predefined_ops.h:241:17: note:   mismatched types ‘const std::__cxx11::basic_string<_CharT, _Traits, _Alloc>’ and ‘Table*’
+  241 |  { return *__it == _M_value; }
+      |           ~~~~~~^~~~~~~~~~~
+In file included from /usr/include/c++/9/string:55,
+                 from receiver/../dblayer/tbl.h:4,
+                 from receiver/query.h:3,
+                 from receiver/query.cpp:1:
+/usr/include/c++/9/bits/basic_string.h:6152:5: note: candidate: ‘template<class _CharT> typename __gnu_cxx::__enable_if<std::__is_char<_Tp>::__value, bool>::__type std::operator==(const std::__cxx11::basic_string<_CharT>&, const std::__cxx11::basic_string<_CharT>&)’
+ 6152 |     operator==(const basic_string<_CharT>& __lhs,
+      |     ^~~~~~~~
+/usr/include/c++/9/bits/basic_string.h:6152:5: note:   template argument deduction/substitution failed:
+In file included from /usr/include/c++/9/bits/stl_algobase.h:71,
+                 from /usr/include/c++/9/bits/char_traits.h:39,
+                 from /usr/include/c++/9/string:40,
+                 from receiver/../dblayer/tbl.h:4,
+                 from receiver/query.h:3,
+                 from receiver/query.cpp:1:
+/usr/include/c++/9/bits/predefined_ops.h:241:17: note:   mismatched types ‘const std::__cxx11::basic_string<_CharT>’ and ‘Table*’
+  241 |  { return *__it == _M_value; }
+      |           ~~~~~~^~~~~~~~~~~
+In file included from /usr/include/c++/9/string:55,
+                 from receiver/../dblayer/tbl.h:4,
+                 from receiver/query.h:3,
+                 from receiver/query.cpp:1:
+/usr/include/c++/9/bits/basic_string.h:6166:5: note: candidate: ‘template<class _CharT, class _Traits, class _Alloc> bool std::operator==(const _CharT*, const std::__cxx11::basic_string<_CharT, _Traits, _Alloc>&)’
+ 6166 |     operator==(const _CharT* __lhs,
+      |     ^~~~~~~~
+/usr/include/c++/9/bits/basic_string.h:6166:5: note:   template argument deduction/substitution failed:
+In file included from /usr/include/c++/9/bits/stl_algobase.h:71,
+                 from /usr/include/c++/9/bits/char_traits.h:39,
+                 from /usr/include/c++/9/string:40,
+                 from receiver/../dblayer/tbl.h:4,
+                 from receiver/query.h:3,
+                 from receiver/query.cpp:1:
+/usr/include/c++/9/bits/predefined_ops.h:241:17: note:   deduced conflicting types for parameter ‘_CharT’ (‘Table’ and ‘char’)
+  241 |  { return *__it == _M_value; }
+      |           ~~~~~~^~~~~~~~~~~
+In file included from /usr/include/c++/9/string:55,
+                 from receiver/../dblayer/tbl.h:4,
+                 from receiver/query.h:3,
+                 from receiver/query.cpp:1:
+/usr/include/c++/9/bits/basic_string.h:6178:5: note: candidate: ‘template<class _CharT, class _Traits, class _Alloc> bool std::operator==(const std::__cxx11::basic_string<_CharT, _Traits, _Alloc>&, const _CharT*)’
+ 6178 |     operator==(const basic_string<_CharT, _Traits, _Alloc>& __lhs,
+      |     ^~~~~~~~
+/usr/include/c++/9/bits/basic_string.h:6178:5: note:   template argument deduction/substitution failed:
+In file included from /usr/include/c++/9/bits/stl_algobase.h:71,
+                 from /usr/include/c++/9/bits/char_traits.h:39,
+                 from /usr/include/c++/9/string:40,
+                 from receiver/../dblayer/tbl.h:4,
+                 from receiver/query.h:3,
+                 from receiver/query.cpp:1:
+/usr/include/c++/9/bits/predefined_ops.h:241:17: note:   mismatched types ‘const std::__cxx11::basic_string<_CharT, _Traits, _Alloc>’ and ‘Table*’
+  241 |  { return *__it == _M_value; }
+      |           ~~~~~~^~~~~~~~~~~
+In file included from /usr/include/c++/9/vector:67,
+                 from receiver/../dblayer/tbl.h:6,
+                 from receiver/query.h:3,
+                 from receiver/query.cpp:1:
+/usr/include/c++/9/bits/stl_vector.h:1888:5: note: candidate: ‘template<class _Tp, class _Alloc> bool std::operator==(const std::vector<_Tp, _Alloc>&, const std::vector<_Tp, _Alloc>&)’
+ 1888 |     operator==(const vector<_Tp, _Alloc>& __x, const vector<_Tp, _Alloc>& __y)
+      |     ^~~~~~~~
+/usr/include/c++/9/bits/stl_vector.h:1888:5: note:   template argument deduction/substitution failed:
+In file included from /usr/include/c++/9/bits/stl_algobase.h:71,
+                 from /usr/include/c++/9/bits/char_traits.h:39,
+                 from /usr/include/c++/9/string:40,
+                 from receiver/../dblayer/tbl.h:4,
+                 from receiver/query.h:3,
+                 from receiver/query.cpp:1:
+/usr/include/c++/9/bits/predefined_ops.h:241:17: note:   mismatched types ‘const std::vector<_Tp, _Alloc>’ and ‘Table*’
+  241 |  { return *__it == _M_value; }
+      |           ~~~~~~^~~~~~~~~~~
+In file included from /usr/include/c++/9/tuple:39,
+                 from /usr/include/c++/9/bits/stl_map.h:63,
+                 from /usr/include/c++/9/map:61,
+                 from receiver/../dblayer/tbl.h:7,
+                 from receiver/query.h:3,
+                 from receiver/query.cpp:1:
+/usr/include/c++/9/array:252:5: note: candidate: ‘template<class _Tp, long unsigned int _Nm> bool std::operator==(const std::array<_Tp, _Nm>&, const std::array<_Tp, _Nm>&)’
+  252 |     operator==(const array<_Tp, _Nm>& __one, const array<_Tp, _Nm>& __two)
+      |     ^~~~~~~~
+/usr/include/c++/9/array:252:5: note:   template argument deduction/substitution failed:
+In file included from /usr/include/c++/9/bits/stl_algobase.h:71,
+                 from /usr/include/c++/9/bits/char_traits.h:39,
+                 from /usr/include/c++/9/string:40,
+                 from receiver/../dblayer/tbl.h:4,
+                 from receiver/query.h:3,
+                 from receiver/query.cpp:1:
+/usr/include/c++/9/bits/predefined_ops.h:241:17: note:   mismatched types ‘const std::array<_Tp, _Nm>’ and ‘Table*’
+  241 |  { return *__it == _M_value; }
+      |           ~~~~~~^~~~~~~~~~~
+In file included from /usr/include/c++/9/bits/stl_map.h:63,
+                 from /usr/include/c++/9/map:61,
+                 from receiver/../dblayer/tbl.h:7,
+                 from receiver/query.h:3,
+                 from receiver/query.cpp:1:
+/usr/include/c++/9/tuple:1419:5: note: candidate: ‘template<class ... _TElements, class ... _UElements> constexpr bool std::operator==(const std::tuple<_Tps ...>&, const std::tuple<_Args2 ...>&)’
+ 1419 |     operator==(const tuple<_TElements...>& __t,
+      |     ^~~~~~~~
+/usr/include/c++/9/tuple:1419:5: note:   template argument deduction/substitution failed:
+In file included from /usr/include/c++/9/bits/stl_algobase.h:71,
+                 from /usr/include/c++/9/bits/char_traits.h:39,
+                 from /usr/include/c++/9/string:40,
+                 from receiver/../dblayer/tbl.h:4,
+                 from receiver/query.h:3,
+                 from receiver/query.cpp:1:
+/usr/include/c++/9/bits/predefined_ops.h:241:17: note:   mismatched types ‘const std::tuple<_Tps ...>’ and ‘Table*’
+  241 |  { return *__it == _M_value; }
+      |           ~~~~~~^~~~~~~~~~~
+In file included from /usr/include/c++/9/map:61,
+                 from receiver/../dblayer/tbl.h:7,
+                 from receiver/query.h:3,
+                 from receiver/query.cpp:1:
+/usr/include/c++/9/bits/stl_map.h:1455:5: note: candidate: ‘template<class _Key, class _Tp, class _Compare, class _Alloc> bool std::operator==(const std::map<_Key, _Tp, _Compare, _Alloc>&, const std::map<_Key, _Tp, _Compare, _Alloc>&)’
+ 1455 |     operator==(const map<_Key, _Tp, _Compare, _Alloc>& __x,
+      |     ^~~~~~~~
+/usr/include/c++/9/bits/stl_map.h:1455:5: note:   template argument deduction/substitution failed:
+In file included from /usr/include/c++/9/bits/stl_algobase.h:71,
+                 from /usr/include/c++/9/bits/char_traits.h:39,
+                 from /usr/include/c++/9/string:40,
+                 from receiver/../dblayer/tbl.h:4,
+                 from receiver/query.h:3,
+                 from receiver/query.cpp:1:
+/usr/include/c++/9/bits/predefined_ops.h:241:17: note:   mismatched types ‘const std::map<_Key, _Tp, _Compare, _Alloc>’ and ‘Table*’
+  241 |  { return *__it == _M_value; }
+      |           ~~~~~~^~~~~~~~~~~
+In file included from /usr/include/c++/9/map:62,
+                 from receiver/../dblayer/tbl.h:7,
+                 from receiver/query.h:3,
+                 from receiver/query.cpp:1:
+/usr/include/c++/9/bits/stl_multimap.h:1119:5: note: candidate: ‘template<class _Key, class _Tp, class _Compare, class _Alloc> bool std::operator==(const std::multimap<_Key, _Tp, _Compare, _Alloc>&, const std::multimap<_Key, _Tp, _Compare, _Alloc>&)’
+ 1119 |     operator==(const multimap<_Key, _Tp, _Compare, _Alloc>& __x,
+      |     ^~~~~~~~
+/usr/include/c++/9/bits/stl_multimap.h:1119:5: note:   template argument deduction/substitution failed:
+In file included from /usr/include/c++/9/bits/stl_algobase.h:71,
+                 from /usr/include/c++/9/bits/char_traits.h:39,
+                 from /usr/include/c++/9/string:40,
+                 from receiver/../dblayer/tbl.h:4,
+                 from receiver/query.h:3,
+                 from receiver/query.cpp:1:
+/usr/include/c++/9/bits/predefined_ops.h:241:17: note:   mismatched types ‘const std::multimap<_Key, _Tp, _Compare, _Alloc>’ and ‘Table*’
+  241 |  { return *__it == _M_value; }
+      |           ~~~~~~^~~~~~~~~~~
+In file included from /usr/include/c++/9/bits/ios_base.h:46,
+                 from /usr/include/c++/9/ios:42,
+                 from /usr/include/c++/9/ostream:38,
+                 from /usr/include/c++/9/iostream:39,
+                 from receiver/../dblayer/tbl.h:8,
+                 from receiver/query.h:3,
+                 from receiver/query.cpp:1:
+/usr/include/c++/9/system_error:292:3: note: candidate: ‘bool std::operator==(const std::error_code&, const std::error_code&)’
+  292 |   operator==(const error_code& __lhs, const error_code& __rhs) noexcept
+      |   ^~~~~~~~
+/usr/include/c++/9/system_error:292:32: note:   no known conversion for argument 1 from ‘Table*’ to ‘const std::error_code&’
+  292 |   operator==(const error_code& __lhs, const error_code& __rhs) noexcept
+      |              ~~~~~~~~~~~~~~~~~~^~~~~
+/usr/include/c++/9/system_error:297:3: note: candidate: ‘bool std::operator==(const std::error_code&, const std::error_condition&)’
+  297 |   operator==(const error_code& __lhs, const error_condition& __rhs) noexcept
+      |   ^~~~~~~~
+/usr/include/c++/9/system_error:297:32: note:   no known conversion for argument 1 from ‘Table*’ to ‘const std::error_code&’
+  297 |   operator==(const error_code& __lhs, const error_condition& __rhs) noexcept
+      |              ~~~~~~~~~~~~~~~~~~^~~~~
+/usr/include/c++/9/system_error:304:3: note: candidate: ‘bool std::operator==(const std::error_condition&, const std::error_code&)’
+  304 |   operator==(const error_condition& __lhs, const error_code& __rhs) noexcept
+      |   ^~~~~~~~
+/usr/include/c++/9/system_error:304:37: note:   no known conversion for argument 1 from ‘Table*’ to ‘const std::error_condition&’
+  304 |   operator==(const error_condition& __lhs, const error_code& __rhs) noexcept
+      |              ~~~~~~~~~~~~~~~~~~~~~~~^~~~~
+/usr/include/c++/9/system_error:311:3: note: candidate: ‘bool std::operator==(const std::error_condition&, const std::error_condition&)’
+  311 |   operator==(const error_condition& __lhs,
+      |   ^~~~~~~~
+/usr/include/c++/9/system_error:311:37: note:   no known conversion for argument 1 from ‘Table*’ to ‘const std::error_condition&’
+  311 |   operator==(const error_condition& __lhs,
+      |              ~~~~~~~~~~~~~~~~~~~~~~~^~~~~
+In file included from /usr/include/c++/9/bits/locale_facets.h:48,
+                 from /usr/include/c++/9/bits/basic_ios.h:37,
+                 from /usr/include/c++/9/ios:44,
+                 from /usr/include/c++/9/ostream:38,
+                 from /usr/include/c++/9/iostream:39,
+                 from receiver/../dblayer/tbl.h:8,
+                 from receiver/query.h:3,
+                 from receiver/query.cpp:1:
+/usr/include/c++/9/bits/streambuf_iterator.h:208:5: note: candidate: ‘template<class _CharT, class _Traits> bool std::operator==(const std::istreambuf_iterator<_CharT, _Traits>&, const std::istreambuf_iterator<_CharT, _Traits>&)’
+  208 |     operator==(const istreambuf_iterator<_CharT, _Traits>& __a,
+      |     ^~~~~~~~
+/usr/include/c++/9/bits/streambuf_iterator.h:208:5: note:   template argument deduction/substitution failed:
+In file included from /usr/include/c++/9/bits/stl_algobase.h:71,
+                 from /usr/include/c++/9/bits/char_traits.h:39,
+                 from /usr/include/c++/9/string:40,
+                 from receiver/../dblayer/tbl.h:4,
+                 from receiver/query.h:3,
+                 from receiver/query.cpp:1:
+/usr/include/c++/9/bits/predefined_ops.h:241:17: note:   mismatched types ‘const std::istreambuf_iterator<_CharT, _Traits>’ and ‘Table*’
+  241 |  { return *__it == _M_value; }
+      |           ~~~~~~^~~~~~~~~~~
+In file included from /usr/include/c++/9/bits/locale_conv.h:41,
+                 from /usr/include/c++/9/locale:43,
+                 from /usr/include/c++/9/iomanip:43,
+                 from receiver/query.h:11,
+                 from receiver/query.cpp:1:
+/usr/include/c++/9/bits/unique_ptr.h:715:5: note: candidate: ‘template<class _Tp, class _Dp, class _Up, class _Ep> bool std::operator==(const std::unique_ptr<_Tp, _Dp>&, const std::unique_ptr<_Up, _Ep>&)’
+  715 |     operator==(const unique_ptr<_Tp, _Dp>& __x,
+      |     ^~~~~~~~
+/usr/include/c++/9/bits/unique_ptr.h:715:5: note:   template argument deduction/substitution failed:
+In file included from /usr/include/c++/9/bits/stl_algobase.h:71,
+                 from /usr/include/c++/9/bits/char_traits.h:39,
+                 from /usr/include/c++/9/string:40,
+                 from receiver/../dblayer/tbl.h:4,
+                 from receiver/query.h:3,
+                 from receiver/query.cpp:1:
+/usr/include/c++/9/bits/predefined_ops.h:241:17: note:   mismatched types ‘const std::unique_ptr<_Tp, _Dp>’ and ‘Table*’
+  241 |  { return *__it == _M_value; }
+      |           ~~~~~~^~~~~~~~~~~
+In file included from /usr/include/c++/9/bits/locale_conv.h:41,
+                 from /usr/include/c++/9/locale:43,
+                 from /usr/include/c++/9/iomanip:43,
+                 from receiver/query.h:11,
+                 from receiver/query.cpp:1:
+/usr/include/c++/9/bits/unique_ptr.h:721:5: note: candidate: ‘template<class _Tp, class _Dp> bool std::operator==(const std::unique_ptr<_Tp, _Dp>&, std::nullptr_t)’
+  721 |     operator==(const unique_ptr<_Tp, _Dp>& __x, nullptr_t) noexcept
+      |     ^~~~~~~~
+/usr/include/c++/9/bits/unique_ptr.h:721:5: note:   template argument deduction/substitution failed:
+In file included from /usr/include/c++/9/bits/stl_algobase.h:71,
+                 from /usr/include/c++/9/bits/char_traits.h:39,
+                 from /usr/include/c++/9/string:40,
+                 from receiver/../dblayer/tbl.h:4,
+                 from receiver/query.h:3,
+                 from receiver/query.cpp:1:
+/usr/include/c++/9/bits/predefined_ops.h:241:17: note:   mismatched types ‘const std::unique_ptr<_Tp, _Dp>’ and ‘Table*’
+  241 |  { return *__it == _M_value; }
+      |           ~~~~~~^~~~~~~~~~~
+In file included from /usr/include/c++/9/bits/locale_conv.h:41,
+                 from /usr/include/c++/9/locale:43,
+                 from /usr/include/c++/9/iomanip:43,
+                 from receiver/query.h:11,
+                 from receiver/query.cpp:1:
+/usr/include/c++/9/bits/unique_ptr.h:726:5: note: candidate: ‘template<class _Tp, class _Dp> bool std::operator==(std::nullptr_t, const std::unique_ptr<_Tp, _Dp>&)’
+  726 |     operator==(nullptr_t, const unique_ptr<_Tp, _Dp>& __x) noexcept
+      |     ^~~~~~~~
+/usr/include/c++/9/bits/unique_ptr.h:726:5: note:   template argument deduction/substitution failed:
+In file included from /usr/include/c++/9/bits/stl_algobase.h:71,
+                 from /usr/include/c++/9/bits/char_traits.h:39,
+                 from /usr/include/c++/9/string:40,
+                 from receiver/../dblayer/tbl.h:4,
+                 from receiver/query.h:3,
+                 from receiver/query.cpp:1:
+/usr/include/c++/9/bits/predefined_ops.h:241:17: note:   ‘const std::__cxx11::basic_string<char>’ is not derived from ‘const std::unique_ptr<_Tp, _Dp>’
+  241 |  { return *__it == _M_value; }
+      |           ~~~~~~^~~~~~~~~~~
+In file included from /usr/include/c++/9/iterator:66,
+                 from receiver/query.h:12,
+                 from receiver/query.cpp:1:
+/usr/include/c++/9/bits/stream_iterator.h:134:5: note: candidate: ‘template<class _Tp, class _CharT, class _Traits, class _Dist> bool std::operator==(const std::istream_iterator<_Tp, _CharT, _Traits, _Dist>&, const std::istream_iterator<_Tp, _CharT, _Traits, _Dist>&)’
+  134 |     operator==(const istream_iterator<_Tp, _CharT, _Traits, _Dist>& __x,
+      |     ^~~~~~~~
+/usr/include/c++/9/bits/stream_iterator.h:134:5: note:   template argument deduction/substitution failed:
+In file included from /usr/include/c++/9/bits/stl_algobase.h:71,
+                 from /usr/include/c++/9/bits/char_traits.h:39,
+                 from /usr/include/c++/9/string:40,
+                 from receiver/../dblayer/tbl.h:4,
+                 from receiver/query.h:3,
+                 from receiver/query.cpp:1:
+/usr/include/c++/9/bits/predefined_ops.h:241:17: note:   mismatched types ‘const std::istream_iterator<_Tp, _CharT, _Traits, _Dist>’ and ‘Table*’
+  241 |  { return *__it == _M_value; }
+      |           ~~~~~~^~~~~~~~~~~
+In file included from /usr/include/c++/9/set:61,
+                 from receiver/query.cpp:4:
+/usr/include/c++/9/bits/stl_set.h:979:5: note: candidate: ‘template<class _Key, class _Compare, class _Alloc> bool std::operator==(const std::set<_Key, _Compare, _Alloc>&, const std::set<_Key, _Compare, _Alloc>&)’
+  979 |     operator==(const set<_Key, _Compare, _Alloc>& __x,
+      |     ^~~~~~~~
+/usr/include/c++/9/bits/stl_set.h:979:5: note:   template argument deduction/substitution failed:
+In file included from /usr/include/c++/9/bits/stl_algobase.h:71,
+                 from /usr/include/c++/9/bits/char_traits.h:39,
+                 from /usr/include/c++/9/string:40,
+                 from receiver/../dblayer/tbl.h:4,
+                 from receiver/query.h:3,
+                 from receiver/query.cpp:1:
+/usr/include/c++/9/bits/predefined_ops.h:241:17: note:   mismatched types ‘const std::set<_Key, _Compare, _Alloc>’ and ‘Table*’
+  241 |  { return *__it == _M_value; }
+      |           ~~~~~~^~~~~~~~~~~
+In file included from /usr/include/c++/9/set:62,
+                 from receiver/query.cpp:4:
+/usr/include/c++/9/bits/stl_multiset.h:964:5: note: candidate: ‘template<class _Key, class _Compare, class _Alloc> bool std::operator==(const std::multiset<_Key, _Compare, _Alloc>&, const std::multiset<_Key, _Compare, _Alloc>&)’
+  964 |     operator==(const multiset<_Key, _Compare, _Alloc>& __x,
+      |     ^~~~~~~~
+/usr/include/c++/9/bits/stl_multiset.h:964:5: note:   template argument deduction/substitution failed:
+In file included from /usr/include/c++/9/bits/stl_algobase.h:71,
+                 from /usr/include/c++/9/bits/char_traits.h:39,
+                 from /usr/include/c++/9/string:40,
+                 from receiver/../dblayer/tbl.h:4,
+                 from receiver/query.h:3,
+                 from receiver/query.cpp:1:
+/usr/include/c++/9/bits/predefined_ops.h:241:17: note:   mismatched types ‘const std::multiset<_Key, _Compare, _Alloc>’ and ‘Table*’
+  241 |  { return *__it == _M_value; }
+      |           ~~~~~~^~~~~~~~~~~
+In file included from /usr/include/c++/9/string:41,
+                 from receiver/../dblayer/tbl.h:4,
+                 from receiver/query.h:3,
+                 from receiver/query.cpp:1:
+/usr/include/c++/9/bits/allocator.h:155:7: note: candidate: ‘bool std::operator==(const std::allocator<char>&, const std::allocator<char>&)’
+  155 |       operator==(const allocator&, const allocator&) _GLIBCXX_NOTHROW
+      |       ^~~~~~~~
+/usr/include/c++/9/bits/allocator.h:155:18: note:   no known conversion for argument 1 from ‘Table*’ to ‘const std::allocator<char>&’
+  155 |       operator==(const allocator&, const allocator&) _GLIBCXX_NOTHROW
+      |                  ^~~~~~~~~~~~~~~~
+In file included from /usr/include/x86_64-linux-gnu/c++/9/bits/c++allocator.h:33,
+                 from /usr/include/c++/9/bits/allocator.h:46,
+                 from /usr/include/c++/9/string:41,
+                 from receiver/../dblayer/tbl.h:4,
+                 from receiver/query.h:3,
+                 from receiver/query.cpp:1:
+/usr/include/c++/9/ext/new_allocator.h:166:2: note: candidate: ‘template<class _Up> bool __gnu_cxx::operator==(const __gnu_cxx::new_allocator<char>&, const __gnu_cxx::new_allocator<_Tp>&)’
+  166 |  operator==(const new_allocator&, const new_allocator<_Up>&)
+      |  ^~~~~~~~
+/usr/include/c++/9/ext/new_allocator.h:166:2: note:   template argument deduction/substitution failed:
+In file included from /usr/include/c++/9/bits/stl_algobase.h:71,
+                 from /usr/include/c++/9/bits/char_traits.h:39,
+                 from /usr/include/c++/9/string:40,
+                 from receiver/../dblayer/tbl.h:4,
+                 from receiver/query.h:3,
+                 from receiver/query.cpp:1:
+/usr/include/c++/9/bits/predefined_ops.h:241:17: note:   ‘const std::__cxx11::basic_string<char>’ is not derived from ‘const __gnu_cxx::new_allocator<_Tp>’
+  241 |  { return *__it == _M_value; }
+      |           ~~~~~~^~~~~~~~~~~

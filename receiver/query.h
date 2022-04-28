@@ -9,6 +9,8 @@
 #include <iostream>
 #include <cassert>
 #include <iomanip>
+#include <iterator>
+#include <algorithm>
 using namespace std;
 
 struct Temp_Table {
@@ -31,13 +33,18 @@ struct Temp_Table {
 
     void prettyPrint()
     {
+        if(this->schema == NULL)
+        {
+            cout<<"Empty table"<<endl;
+            return ;
+        }
         vector<int> types;
         cout<<"Number of columns: "<<this->schema->numColumns<<endl;
         cout<<"Number of rows: "<<this->rows.size()<<endl;
         for(int i=0;i<this->schema->numColumns;i++)
         {
             types.push_back(this->schema->columns[i]->type);
-            cout<<setw(15)<<this->schema->columns[i]->name;
+            cout<<setw(20)<<this->schema->columns[i]->name;
         }
         cout<<endl;
 
@@ -47,11 +54,11 @@ struct Temp_Table {
             for(int i=0;i<this->schema->numColumns;i++)
             {
                 if(types[i] == INT)
-                    cout<<setw(15)<<rows[ii]->getField(i).int_val;
+                    cout<<setw(20)<<rows[ii]->getField(i).int_val;
                 else if(types[i] == DOUBLE)
-                    cout<<setw(15)<<rows[ii]->getField(i).float_val;
+                    cout<<setw(20)<<rows[ii]->getField(i).float_val;
                 else
-                    cout<<setw(15)<<*(rows[ii]->getField(i).str_val);
+                    cout<<setw(20)<<*(rows[ii]->getField(i).str_val);
             }
             cout<<endl;
         }

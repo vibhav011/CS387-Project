@@ -190,22 +190,6 @@ int query_process(Query_Obj *cObj, Table_Row *tr)
             return C_OK;
         }
     }
-
-    // Expanding col_names if it is '*'
-    if (cObj->col_names[0] == "*") {
-        cObj->col_names.erase(cObj->col_names.begin());
-        for(int i=1;i<tbl1->schema->numColumns;i++) {
-            string s(tbl1->schema->columns[i]->name);
-            cObj->col_names.push_back(tbl1->name + "." + s);
-        }
-
-        if (tbl2 != NULL) {
-            for(int i=1;i<tbl2->schema->numColumns;i++) {
-                string s(tbl2->schema->columns[i]->name);
-                cObj->col_names.push_back(tbl2->name + "." + s);
-            }
-        }
-    }
     
     Table_Row *new_row = new Table_Row();
     Table_Row *use_row; 
@@ -280,24 +264,39 @@ int query_process(Query_Obj *cObj, Table_Row *tr)
 }
 
 int execute_select(Temp_Table *result, vector<string> table_names, vector<string> col_names, CondAST *cond_tree) {
-    if (table_name_to_id.find(table_names[0]) == table_name_to_id.end())
-        return C_TABLE_NOT_FOUND;
 
-    int tbl1_id = table_name_to_id[table_names[0]];
-    int tbl2_id = -1;
-    if (table_names.size() > 1) {
-        if (table_name_to_id.find(table_names[1]) == table_name_to_id.end())
+    for(string name: table_names)
+    {
+        if(table_name_to_id.find(name) == table_name_to_id.end())
             return C_TABLE_NOT_FOUND;
+    }
+
+    int tbl1_id = table_name_to_id[table_names[0]], tbl2_id = -1;
+    if(table_names.size() > 1)
         tbl2_id = table_name_to_id[table_names[1]];
+
+    if(find(col_names.begin(), col_names.end(), "*") != col_names.end())
+    {
+        col_names.clear();
+        Table *tbl = tables[tbl1_id];
+        for(int i=1;i<tbl->schema->numColumns;i++)
+            col_names.push_back(table_names[0]+"."+tbl->schema->columns[i]->name);
+        if(tbl2_id != -1)
+        {
+            tbl = tables[tbl2_id];
+            for(int i=1;i<tbl->schema->numColumns;i++)
+                col_names.push_back(table_names[1]+"."+tbl->schema->columns[i]->name);
+        }
     }
     
     if(tbl2_id != -1)
         col_names.insert(col_names.begin(), table_names[1]+".unique_id");
     col_names.insert(col_names.begin(), table_names[0]+".unique_id");
+
     vector<pair<string, int> > types;
 
     // Populate the types vector
-    for (int i=0;i<col_names.size();i++) {
+    for(int i=0;i<col_names.size();i++) {
         string table_col = col_names[i];
         int pos = table_col.find(".");
         string table_name, col_name;
@@ -308,26 +307,32 @@ int execute_select(Temp_Table *result, vector<string> table_names, vector<string
             table_name = table_col.substr(0, pos);
             col_name = table_col.substr(pos+1);
         }
+
         Table *tbl = tables[tbl1_id];
-        if (tbl2_id != -1)
-            if (table_names[1] == table_name)
+        int col_num = -1;
+        if(table_name != "")
+        {
+            int ind = find(table_names.begin(), table_names.end(), table_name) - table_names.begin();
+            if(ind == table_names.size())
+                return C_TABLE_NOT_FOUND;
+            else if(ind == 0)
+                tbl = tables[tbl1_id];
+            else
                 tbl = tables[tbl2_id];
-        
-        if(tbl == tables[tbl1_id] && table_names[0] != table_name && table_name != "")
-            return C_TABLE_NOT_FOUND;
-        
-        int col_num = tbl->schema->getColumnNum(col_name.c_str());
-
-        if (col_num == -1) {
-            if(table_name != "" || table_names.size() == 1)
-                return C_FIELD_NOT_FOUND;
-
-            tbl = tables[tbl2_id];
             col_num = tbl->schema->getColumnNum(col_name.c_str());
-
-            if (col_num == -1)
-                return C_FIELD_NOT_FOUND;
         }
+        else
+        {
+            col_num = tbl->schema->getColumnNum(col_name.c_str());
+            if(col_num == -1 && tbl2_id != -1)
+            {
+                tbl = tables[tbl2_id];
+                col_num = tbl->schema->getColumnNum(col_name.c_str());
+            }
+        }
+        
+        if(col_num == -1)
+            return C_FIELD_NOT_FOUND;
         types.push_back(make_pair(tbl->name+"."+col_name, tbl->schema->columns[col_num]->type));
     }
 
@@ -346,11 +351,11 @@ int execute_select(Temp_Table *result, vector<string> table_names, vector<string
         callbackObj->tr2 = NULL;
         callbackObj->ret_value = 0;
         callbackObj->temp_table->schema = schema;
-        cout<<callbackObj->temp_table->schema->numColumns<<endl;
         Table_Scan(tbl, callbackObj, Table_Single_Select);
         log_scan(callbackObj);
         int retval = callbackObj->ret_value;
         delete callbackObj;
+        cout<<result->schema->columns[1]->name<<endl;
         return retval;
     }
 
@@ -679,22 +684,24 @@ int execute_insert(string table_name, vector<string> column_val_list) {
 
 int execute_delete(string table_name, CondAST* cond_tree) {
     try {
-        if(table_name_to_id.find(table_name) == table_name_to_id.end()) return C_TABLE_NOT_FOUND;
+        if(table_name_to_id.find(table_name) == table_name_to_id.end()) 
+            return C_TABLE_NOT_FOUND;
+
         int table_id = table_name_to_id[table_name];
         Table* tbl = tables[table_id];
 
-        Temp_Table* result = new Temp_Table(tbl->schema);
+        Temp_Table* result = new Temp_Table();
         int ret = execute_select(result, vector<string> (1, table_name), vector<string> (1, "*"), cond_tree);
 
         for (int i = 0; i < result->rows.size(); i++)
         {
             ChangeLog &change_log = change_logs[table_id];
-            int unqiue_id = result->rows[i]->fields[0].int_val;
+            int unique_id = result->rows[i]->fields[0].int_val;
 
-            if (change_log.find(unqiue_id) != change_log.end()) {
-                delete change_log[unqiue_id].new_value;
-                change_log[unqiue_id].change_type = _DELETE;
-                change_log[unqiue_id].new_value = NULL;
+            if (change_log.find(unique_id) != change_log.end()) {
+                delete change_log[unique_id].new_value;
+                change_log[unique_id].new_value = NULL;
+                change_log[unique_id].change_type = _DELETE;
             }
             else {
                 Log_Entry* log_entry = new Log_Entry();
@@ -702,7 +709,7 @@ int execute_delete(string table_name, CondAST* cond_tree) {
                 *(log_entry->old_value) = *(result->rows[i]);
                 log_entry->new_value = NULL;
                 log_entry->change_type = _DELETE;
-                change_log[unqiue_id] = *log_entry;
+                change_log[unique_id] = *log_entry;
                 delete log_entry;
             }
         }
