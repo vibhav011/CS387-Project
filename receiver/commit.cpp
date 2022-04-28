@@ -83,17 +83,17 @@ int commit_insert(Table *tbl, Table_Row *tr){
 
 int execute_commit(vector<int>* ChangeIndices) {
     // TODO: Dump the change logs to disk
-    int user_id = 0;
-    string folder_name = "./"+to_string(user_id);
-    mkdir(folder_name.c_str(), 0);
+    // int user_id = 0;
+    // string folder_name = "./"+to_string(user_id);
+    // mkdir(folder_name.c_str(), 0);
     
-    for (int i = 0; i < ChangeIndices->size(); i++)
-    {
-        string clog_filename = folder_name+"/"+tables[ChangeIndices->at(i)]->name+".clog";
-        string mlog_filename = folder_name+"/"+tables[ChangeIndices->at(i)]->name+".mlog";
-        dump_clog(tables[ChangeIndices->at(i)], change_logs[ChangeIndices->at(i)], clog_filename);
-        dump_mlog(tables[ChangeIndices->at(i)], mapping_logs[ChangeIndices->at(i)], mlog_filename);
-    }
+    // for (int i = 0; i < ChangeIndices->size(); i++)
+    // {
+    //     string clog_filename = folder_name+"/"+tables[ChangeIndices->at(i)]->name+".clog";
+    //     string mlog_filename = folder_name+"/"+tables[ChangeIndices->at(i)]->name+".mlog";
+    //     dump_clog(tables[ChangeIndices->at(i)], change_logs[ChangeIndices->at(i)], clog_filename);
+    //     dump_mlog(tables[ChangeIndices->at(i)], mapping_logs[ChangeIndices->at(i)], mlog_filename);
+    // }
     
 
     for (int i = 0; i < ChangeIndices->size(); i++) {
@@ -139,14 +139,14 @@ int execute_commit(vector<int>* ChangeIndices) {
         Table_Close(tbl);
     }
     // TODO: Delete the change logs and mapping logs from disk
-    for (int i = 0; i < ChangeIndices->size(); i++)
-    {
-        string clog_filename = folder_name+"/"+tables[ChangeIndices->at(i)]->name+".clog";
-        string mlog_filename = folder_name+"/"+tables[ChangeIndices->at(i)]->name+".mlog";
-        remove(clog_filename.c_str());
-        remove(mlog_filename.c_str());
-    }
-    rmdir(folder_name.c_str());
+    // for (int i = 0; i < ChangeIndices->size(); i++)
+    // {
+    //     string clog_filename = folder_name+"/"+tables[ChangeIndices->at(i)]->name+".clog";
+    //     string mlog_filename = folder_name+"/"+tables[ChangeIndices->at(i)]->name+".mlog";
+    //     remove(clog_filename.c_str());
+    //     remove(mlog_filename.c_str());
+    // }
+    // rmdir(folder_name.c_str());
     return C_OK;
 }
 

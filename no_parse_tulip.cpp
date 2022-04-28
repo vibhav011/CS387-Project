@@ -69,7 +69,7 @@ int main() {
     int insert_exit = execute_insert("data", col_val_list1);
     cout<<"insert 1 done"<<endl;
     // execute_delete("data", NULL);
-    execute_delete("data", NULL);
+    // execute_delete("data", NULL);
     cout << "delete done" << endl;
     vector<string> col_val_list2;
     col_val_list2.push_back("Albania");

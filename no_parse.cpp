@@ -26,7 +26,7 @@ int main() {
     execute_insert("data", col_val_list1);
     cout<<"Inserted first row in data"<<endl;
 
-    execute_delete("data", NULL);
+    // execute_delete("data", NULL);
 
     vector<string> col_val_list2 = {"Albania", "Tirana", "2930187"};
     execute_insert("data", col_val_list2);
