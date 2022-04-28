@@ -1,7 +1,7 @@
 # shopt -s expand_aliases
 # source ~/.zprofile
 
-rm -rf data.db *.tbl a.out
+# rm -rf data.db *.tbl a.out
 
 cd ./dblayer 
 make

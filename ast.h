@@ -18,10 +18,6 @@ using namespace std;
 # define _NE 10
 # define _EQ 11
 
-# define _TEXT 1
-# define _INT 2
-# define _FLOAT 4
-
 class Constant 
 {
     public:
@@ -39,15 +35,15 @@ class Range
 
     Range(Constant lower, Constant upper)
     {
-        if(lower.dt == _INT)
+        if(lower.dt == INT)
         {
-            this->lower_bound.int_val = atoi(lower.val.c_str());
-            this->upper_bound.float_val = atoi(upper.val.c_str());
+            this->lower_bound.int_val = stoi(lower.val);
+            this->upper_bound.float_val = stoi(upper.val);
         }
-        else if(upper.dt == _FLOAT)
+        else if(upper.dt == DOUBLE)
         {
-            this->lower_bound.float_val = atof(lower.val.c_str());
-            this->upper_bound.float_val = atof(upper.val.c_str());
+            this->lower_bound.float_val = stof(lower.val);
+            this->upper_bound.float_val = stof(upper.val);
         }
         else
         {
@@ -70,7 +66,7 @@ class ExprAST: public AST
 
     public:
     virtual ~ExprAST(){};
-    virtual string getVal(Table_Row *row1, Table_Row *row2){return "";};
+    virtual string getVal(Table_Row *row1, Schema *s1, Table_Row *row2 = NULL, Schema *s2 = NULL){return "";};
     int getType();
 };  
 
@@ -80,17 +76,18 @@ class ConstAST: public ExprAST
 
     public:
     ConstAST(Constant *data);
-    string getVal(Table_Row *row1, Table_Row *row2);
+    string getVal(Table_Row *row1, Schema *s1, Table_Row *row2 = NULL, Schema *s2 = NULL);
 };
 
 class ColAST: public ExprAST
 {
-    string col;
+    string col_name;
     string table_name;
 
     public:
     ColAST(string name);
-    string getVal(Table_Row* row1, Table_Row *row2);
+    string getVal(Table_Row *row1, Schema *s1, Table_Row *row2 = NULL, Schema *s2 = NULL);
+    string fetch_value(Table_Row *row, Schema *s);
 };
 
 class UnaryArithAST: public ExprAST
@@ -98,7 +95,7 @@ class UnaryArithAST: public ExprAST
     ExprAST *child;
     public:
     UnaryArithAST(ExprAST *child);
-    string getVal(Table_Row *row1, Table_Row *row2);
+    string getVal(Table_Row *row1, Schema *s1, Table_Row *row2 = NULL, Schema *s2 = NULL);
 };
 
 class BinArithAST: public ExprAST
@@ -108,7 +105,9 @@ class BinArithAST: public ExprAST
 
     public:
     BinArithAST(ExprAST *lhs, ExprAST *rhs, int op);
-    string getVal(Table_Row *row1, Table_Row *row2);
+    string getVal(Table_Row *row1, Schema *s1, Table_Row *row2 = NULL, Schema *s2 = NULL);
+    template <class T>
+    string compute(T v1, T v2);
 };
 
 class CondAST: public AST
@@ -116,7 +115,7 @@ class CondAST: public AST
     public:
     // CondAST(){};
     virtual ~CondAST(){cout<<"condast dest called"<<endl;};
-    virtual bool check_row(Table_Row *row1, Table_Row *row2=NULL){return true;};
+    virtual int check_row(Table_Row *row1, Schema *s1, Table_Row *row2 = NULL, Schema *s2 = NULL){return true;};
 }; 
 
 class RelAST: public CondAST
@@ -127,7 +126,9 @@ class RelAST: public CondAST
     public:
     RelAST(ExprAST *lhs, ExprAST *rhs, int op);
     ~RelAST(){};
-    bool check_row(Table_Row *row1, Table_Row *row2=NULL);
+    int check_row(Table_Row *row1, Schema *s1, Table_Row *row2 = NULL, Schema *s2 = NULL);
+    template <class T>
+    int compare(T v1, T v2);
 };
 
 class BinLogAST: public CondAST
@@ -137,7 +138,7 @@ class BinLogAST: public CondAST
 
     public:
     BinLogAST(CondAST *lhs, CondAST *rhs, int op);
-    bool check_row(Table_Row *row1, Table_Row *row2=NULL);
+    int check_row(Table_Row *row1, Schema *s1, Table_Row *row2 = NULL, Schema *s2 = NULL);
 };
 
 class UnaryLogAST: public CondAST
@@ -146,7 +147,7 @@ class UnaryLogAST: public CondAST
     
     public:
     UnaryLogAST(CondAST *child);
-    bool check_row(Table_Row *row1, Table_Row *row2=NULL);
+    int check_row(Table_Row *row1, Schema *s1, Table_Row *row2 = NULL, Schema *s2 = NULL);
 };
 
 #endif
