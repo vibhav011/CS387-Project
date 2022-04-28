@@ -19,5 +19,5 @@ g++ -c receiver/helper.cpp
 # g++ -c y.tab.c
 g++ -c utils.cpp
 g++ -c ast.cc
-g++ no_parse_tulip.cpp helper.o commit.o ast.o query.o dblayer/tbl.o dblayer/codec.o pflayer/pf.o pflayer/buf.o pflayer/hash.o utils.o
+g++ no_parse.cpp helper.o commit.o ast.o query.o dblayer/tbl.o dblayer/codec.o pflayer/pf.o pflayer/buf.o pflayer/hash.o utils.o
 # g++ daemon.cc y.tab.o query.o ast.o -o daemon -pthread

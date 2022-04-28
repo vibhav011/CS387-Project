@@ -1,5 +1,6 @@
 #include "./dblayer/tbl.h"
 #include "./receiver/query.h"
+#include "./receiver/commit.h"
 #include "utils.h"
 #include "ast.h"
 #include <iostream>
@@ -50,6 +51,13 @@ int main() {
 
     vector<string> fetch_cols = {"Capital", "Pop", "Country"};
     vector<string> fetch_tables = {"data"};
+    execute_select(result, fetch_tables, fetch_cols, cond_tree);
+    result->prettyPrint();
+
+    vector<int> v = {0};
+    execute_commit(&v);
+    cout<<"Executed commit on data"<<endl;
+    
     execute_select(result, fetch_tables, fetch_cols, cond_tree);
     result->prettyPrint();
 }

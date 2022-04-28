@@ -33,8 +33,6 @@ struct Temp_Table {
 
     void prettyPrint()
     {   
-        
-        cout << "inside pretty print" << endl;
         if(this->schema == NULL)
         {
             cout<<"Empty table"<<endl;

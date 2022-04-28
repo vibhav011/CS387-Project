@@ -30,15 +30,12 @@ int commit_insert(Table *tbl, Table_Row *tr){
         case VARCHAR:
         {
             int len = (*tr->fields[i].str_val).length();
-            cout << "encoding " << len << endl;
-            cout << "idx " << i << endl;
             if(pos + len + 2 > MAX_PAGE_SIZE){
                 printf("insert error: no space left for filling fields in record\n");
                 return C_ERROR;
             }
             strcpy(cpy, (*tr->fields[i].str_val).c_str());
             bytes_added = EncodeCString(cpy, record+pos, 257);
-            cout << "bytes added " << bytes_added << endl;
             pos += bytes_added;
             break;
         }
@@ -73,8 +70,6 @@ int commit_insert(Table *tbl, Table_Row *tr){
     RecId rid;
     // break into phantom_table_insert followed by append_insert_to_file followed by real_table_insert
     int err = Table_Insert(tbl, record, pos, &rid);
-    cout << "err: " << err << endl;
-    cout<<"inserted rec is at rid: "<<rid<<endl;
     if(err != 0) return C_ERROR;
 
     return C_OK;
@@ -95,29 +90,19 @@ int execute_commit(vector<int>* ChangeIndices) {
     //     dump_mlog(tables[ChangeIndices->at(i)], mapping_logs[ChangeIndices->at(i)], mlog_filename);
     // }
     
-
     for (int i = 0; i < ChangeIndices->size(); i++) {
         Table *tbl = tables[ChangeIndices->at(i)];
-        for (int j = 0; j < tbl->schema->numColumns; j++) {
-            if (tbl->schema->columns[j]->type == VARCHAR) cout << "VARCHAR" << endl;
-            else cout << "INT" << endl;
-            cout << tbl->schema->columns[j]->name << endl;
-        }
         ChangeLog& change_log = change_logs[ChangeIndices->at(i)];
-        cout<<"after this"<<endl;
         MappingLog& mapping_log = mapping_logs[ChangeIndices->at(i)];
-        cout<<"yup"<<endl;
 
         for (ChangeLog::iterator it = change_log.begin(); it != change_log.end(); it++) {
             int unique_id = it->first;
-            cout<<unique_id<<endl;
             Log_Entry& log_entry = it->second;
             Table_Row *old_value = log_entry.old_value;
             Table_Row *new_value = log_entry.new_value;
 
             switch (log_entry.change_type) {
             case _UPDATE: {
-                cout<<"calling commit update"<<endl;
                 int ret_value = commit_delete(tbl, mapping_log[old_value->fields[0].int_val]);
                 if (ret_value != C_OK) return ret_value;
                 ret_value = commit_insert(tbl, new_value);
@@ -125,13 +110,11 @@ int execute_commit(vector<int>* ChangeIndices) {
                 break;
             }
             case _INSERT: {
-                cout<<"calling commit insert"<<endl;
                 int ret_value = commit_insert(tbl, new_value);
                 if (ret_value != C_OK) return ret_value;
                 break;
             }
             case _DELETE: {
-                cout<<"calling commit delete"<<endl;
                 int ret_value = commit_delete(tbl, mapping_log[old_value->fields[0].int_val]);
                 if (ret_value != C_OK) return ret_value;
                 break;
@@ -152,12 +135,6 @@ int execute_commit(vector<int>* ChangeIndices) {
     //     remove(mlog_filename.c_str());
     // }
     // rmdir(folder_name.c_str());
-        Table *tbl = tables[ChangeIndices->at(0)];
-    for (int j = 0; j < tbl->schema->numColumns; j++) {
-            if (tbl->schema->columns[j]->type == VARCHAR) cout << "VARCHAR" << endl;
-            else cout << "INT" << endl;
-            cout << tbl->schema->columns[j]->name << endl;
-        }
     return C_OK;
 }
 
@@ -175,7 +152,6 @@ int execute_rollback(vector<int>* ChangeIndices) {
 
         for (ChangeLog::iterator it = change_log.begin(); it != change_log.end(); it++) {
             int unique_id = it->first;
-            cout<<unique_id<<endl;
             Log_Entry& log_entry = it->second;
             Table_Row *old_value = log_entry.old_value;
             Table_Row *new_value = log_entry.new_value;

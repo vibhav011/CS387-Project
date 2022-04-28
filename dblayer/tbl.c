@@ -58,46 +58,34 @@ Table_Open(char *dbname, Schema *schema, bool overwrite, Table **ptable)
     // Open the file (create and open if it doesn't exist)
     if ((fd = PF_OpenFile(dbname)) < 0) {
         if ((errVal = PF_CreateFile(dbname)) != PFE_OK) {
-            printf("umm\n");
             PF_PrintError("Error creating file");
             return errVal;
         }
-        printf("tulip added: %s\n", dbname);
         if ((fd = PF_OpenFile(dbname)) < 0) {
             PF_PrintError("Error opening file");
             return fd;
         }
     }
-    printf("data.db toh hai \n");
     
     // Initializing the table struct with default values
     Table *table = *ptable;
-    printf("yahan2?\n");
-    printf("%d\n",schema->numColumns);
-    printf("%s\n", schema->columns[0]->name);
     table->schema = schema;
-    printf("schema?\n");
-    fflush(stdout);
     table->fd = fd;
     table->lastPage = (int *)malloc(sizeof(int));
     *table->lastPage = -1;
     table->numPages = 0;
-    printf("bfr page buf?\n");
 
     table->pagebuf = (char **) malloc(sizeof(char *));
 
     // Counting number of pages and fixing the last page into pagebuf
     int prevPage = -1;
-    printf("bfr yl?\n");
 
     while (PF_GetNextPage(fd, table->lastPage, table->pagebuf) == PFE_OK) {
-        printf("while started?\n");
-
         table->numPages++;
         PF_UnfixPage(fd, prevPage, false);
         prevPage = *table->lastPage;
     }
-    *ptable = table;
+    // // *ptable = table;
     return 0;
 }
 
@@ -116,7 +104,6 @@ Table_Close(Table *tbl) {
 
 int
 Table_Insert(Table *tbl, Byte *record, int len, RecId *rid) {
-    cout << "Tab insrt" << endl;
     // Allocate a fresh page if len is not enough for remaining space
     // Get the next free slot on page, and copy record in the free
     // space
@@ -134,8 +121,6 @@ Table_Insert(Table *tbl, Byte *record, int len, RecId *rid) {
         header->numDeletedSlots = 0;
         header->freeSlotOffset = PF_PAGE_SIZE;
     }
-
-    cout << "tb lp " << *tbl->lastPage << endl;
     
     Header *header = (Header *) *tbl->pagebuf;
     int nslots = getNumSlots(*tbl->pagebuf);
@@ -263,13 +248,9 @@ Table_Scan(Table *tbl, void *callbackObj, ReadFunc callbackfn) {
 
     // Unfix the last page for PF_GetNextPage to work
     int err = PF_UnfixPage(tbl->fd, *tbl->lastPage, true);
-    cout << "unfix err: " << err << endl;
-    cout << "lp: " << *tbl->lastPage << endl; 
     // Iterating over all pages and unfixing the previous ones
     bool to_break = false;
-    printf("yahan toh?\n");
     while (PF_GetNextPage(tbl->fd, pagenum, pagebuf) == PFE_OK && !to_break) {
-        printf("ek baar?\n");
         Header *header = (Header *) *pagebuf;
         int nslots = header->numSlots;
         for (int i = 0; i < nslots && !to_break; i++) {
@@ -285,5 +266,3 @@ Table_Scan(Table *tbl, void *callbackObj, ReadFunc callbackfn) {
     free(pagebuf);
     free(pagenum);
 }
-
-
