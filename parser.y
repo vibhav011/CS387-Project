@@ -43,7 +43,7 @@ int const_type;
 
 %token <str> DOT_NAME NAME TEXT_CONSTANT INT_CONSTANT FLOAT_CONSTANT
 %token <int_val> INTEGER FLOAT TEXT
-%token AND OR NOT MULT PLUS MINUS DIV GE LT GT LE NE EQ
+%token AND OR NOT MULT PLUS MINUS DIV GE LT GT LE NE EQ STAR
 %token SEMICOLON COMMIT ROLLBACK WITH COMMA AS ROUND_BRACKET_OPEN ROUND_BRACKET_CLOSE SELECT FROM WHERE CREATE TABLE RANGE PRIMARY KEY INSERT INTO VALUES ASSIGN UPDATE SET DELETE INFINITY BETWEEN
 
 %left OR
@@ -142,11 +142,20 @@ table_desc
 ;
 
 select_query
-    : SELECT column_list FROM table_list 
+    : SELECT STAR FROM table_list
     {
-        for(auto table: *$4)
-            cout<<table<<"a";
-        cout<<endl;
+        Temp_Table *temp = new Temp_Table();
+        checkerr(execute_select(temp, *$4, {"*"}));
+        $$ = temp;
+    }
+    | SELECT STAR FROM table_list WHERE condition
+    {
+        Temp_Table *temp = new Temp_Table();
+        checkerr(execute_select(temp, *$4, {"*"}, $6));
+        $$ = temp;
+    }
+    | SELECT column_list FROM table_list 
+    {
         Temp_Table *temp = new Temp_Table();
         checkerr(execute_select(temp, *$4, *$2));
         $$ = temp;

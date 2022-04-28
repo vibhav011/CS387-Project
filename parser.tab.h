@@ -76,32 +76,33 @@ extern int yydebug;
     LE = 276,
     NE = 277,
     EQ = 278,
-    SEMICOLON = 279,
-    COMMIT = 280,
-    ROLLBACK = 281,
-    WITH = 282,
-    COMMA = 283,
-    AS = 284,
-    ROUND_BRACKET_OPEN = 285,
-    ROUND_BRACKET_CLOSE = 286,
-    SELECT = 287,
-    FROM = 288,
-    WHERE = 289,
-    CREATE = 290,
-    TABLE = 291,
-    RANGE = 292,
-    PRIMARY = 293,
-    KEY = 294,
-    INSERT = 295,
-    INTO = 296,
-    VALUES = 297,
-    ASSIGN = 298,
-    UPDATE = 299,
-    SET = 300,
-    DELETE = 301,
-    INFINITY = 302,
-    BETWEEN = 303,
-    REDC = 304
+    STAR = 279,
+    SEMICOLON = 280,
+    COMMIT = 281,
+    ROLLBACK = 282,
+    WITH = 283,
+    COMMA = 284,
+    AS = 285,
+    ROUND_BRACKET_OPEN = 286,
+    ROUND_BRACKET_CLOSE = 287,
+    SELECT = 288,
+    FROM = 289,
+    WHERE = 290,
+    CREATE = 291,
+    TABLE = 292,
+    RANGE = 293,
+    PRIMARY = 294,
+    KEY = 295,
+    INSERT = 296,
+    INTO = 297,
+    VALUES = 298,
+    ASSIGN = 299,
+    UPDATE = 300,
+    SET = 301,
+    DELETE = 302,
+    INFINITY = 303,
+    BETWEEN = 304,
+    REDC = 305
   };
 #endif
 
@@ -127,7 +128,7 @@ union YYSTYPE
     CondAST* logast;
     RelAST* relast;
 
-#line 131 "parser.tab.h"
+#line 132 "parser.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
