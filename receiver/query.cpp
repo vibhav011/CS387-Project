@@ -95,7 +95,8 @@ int Table_Single_Select(void *callbackObj, RecId rid, Byte *row, int len) {
             *tr = *change_log[unique_id].new_value;
         }
     }
-    int ret = query_process(cObj, tr);
+    cObj->ret_value = rid+100;
+    int ret = query_process(cObj, tr, rid);
     delete tr;
     return ret;
 }
@@ -143,7 +144,7 @@ int log_scan(Query_Obj *cObj)
             continue;
         Table_Row *tr = new Table_Row();
         *tr = *(entry->second.new_value);
-        int err = query_process(cObj, tr);
+        int err = query_process(cObj, tr, -1);
         delete tr;
         if(err != 0)
             return err;
@@ -171,7 +172,7 @@ int log_scan_join(Query_Obj *cObj)
     return C_OK;
 }
 
-int query_process(Query_Obj *cObj, Table_Row *tr)
+int query_process(Query_Obj *cObj, Table_Row *tr, RecId rid)
 {
     Table *tbl1 = tables[cObj->tbl1_id];
     Table *tbl2 = NULL;
@@ -265,11 +266,15 @@ int query_process(Query_Obj *cObj, Table_Row *tr)
         }
     }
     cObj->temp_table->rows.push_back(new_row);
-    return C_OK;
+    if(rid != -1) return rid;
+    else return C_OK;
 }
 
 int execute_select(Temp_Table *result, vector<string> table_names, vector<string> col_names, CondAST *cond_tree) {
-
+    cout<<"in sel"<<endl;
+    cout<<table_names.size()<<endl;
+    cout<<col_names[0]<<endl;
+    
     for (int i = 0; i < table_names.size(); i++)
     {
         if(table_name_to_id.find(table_names[i]) == table_name_to_id.end())
@@ -280,8 +285,10 @@ int execute_select(Temp_Table *result, vector<string> table_names, vector<string
     if(table_names.size() > 1)
         tbl2_id = table_name_to_id[table_names[1]];
 
+
     if(find(col_names.begin(), col_names.end(), "*") != col_names.end())
     {
+        cout<<"ankit"<<endl;
         col_names.clear();
         Table *tbl = tables[tbl1_id];
         for(int i=1;i<tbl->schema->numColumns;i++)
@@ -293,6 +300,8 @@ int execute_select(Temp_Table *result, vector<string> table_names, vector<string
                 col_names.push_back(table_names[1]+"."+tbl->schema->columns[i]->name);
         }
     }
+    
+    cout<<tbl1_id<<" "<<col_names.size()<<"\n";
     
     if(tbl2_id != -1)
         col_names.insert(col_names.begin(), table_names[1]+".unique_id");
@@ -336,8 +345,10 @@ int execute_select(Temp_Table *result, vector<string> table_names, vector<string
             }
         }
         
-        if(col_num == -1)
+        if(col_num == -1){
+            cout<<"ye?"<<endl;
             return C_FIELD_NOT_FOUND;
+        }
         types.push_back(make_pair(tbl->name+"."+col_name, tbl->schema->columns[col_num]->type));
     }
 
@@ -349,6 +360,7 @@ int execute_select(Temp_Table *result, vector<string> table_names, vector<string
 
     // For non-join selects
     if (table_names.size() == 1) {
+        cout<<"idhar?"<<endl;
         Table* tbl = tables[tbl1_id];
 
         Query_Obj* callbackObj = new Query_Obj(col_names, cond_tree, result, tbl1_id, -1);
@@ -359,6 +371,7 @@ int execute_select(Temp_Table *result, vector<string> table_names, vector<string
         Table_Scan(tbl, callbackObj, Table_Single_Select);
         log_scan(callbackObj);
         int retval = callbackObj->ret_value;
+        cout<< "from select : " << retval <<endl;
         delete callbackObj;
         return retval;
     }
@@ -580,9 +593,9 @@ int execute_create(string table_name, vector<ColumnDesc*> &column_desc_list, vec
         for(int i=1;i<schema->numColumns;i++)
             schema->columns[i] = new ColumnDesc(column_desc_list[i-1]->name, column_desc_list[i-1]->type);
 
-        Table* tbl;
+        Table* tbl = new Table();
         cout<<"table open with db name : "<<&(table_name+".db")[0]<<endl;
-        int err = Table_Open(&(table_name+".db")[0], schema, true, &tbl);
+        int err = Table_Open(&(table_name+".db")[0], schema, false, &tbl);
         if(err<0) {
             free(tbl);
             return -1;

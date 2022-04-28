@@ -152,6 +152,12 @@ int execute_commit(vector<int>* ChangeIndices) {
     //     remove(mlog_filename.c_str());
     // }
     // rmdir(folder_name.c_str());
+        Table *tbl = tables[ChangeIndices->at(0)];
+    for (int j = 0; j < tbl->schema->numColumns; j++) {
+            if (tbl->schema->columns[j]->type == VARCHAR) cout << "VARCHAR" << endl;
+            else cout << "INT" << endl;
+            cout << tbl->schema->columns[j]->name << endl;
+        }
     return C_OK;
 }
 

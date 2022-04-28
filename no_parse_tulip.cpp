@@ -52,7 +52,6 @@ int main() {
 
     ColumnDesc* colsPtr[] = {col1, col2, col3};
     Schema* schema = new Schema(3, colsPtr);
-    Temp_Table* result = new Temp_Table(schema);
 
     vector<ColumnDesc*> cols;
     cols.push_back(col1);
@@ -98,11 +97,23 @@ int main() {
     cout<<"insert done"<<endl;
     */
 
+    Temp_Table* result = new Temp_Table(schema);
+    table_names->clear();
+    table_names->push_back("data");
+    int select_exit = execute_select(result, *table_names, vector<string>(1, "*"));
+    cout<<"select exited with "<<select_exit<<endl;
+
     vector<int> *ci = new vector<int> (1, 0);
     // ci->push_back(1);
     int commit_exit = execute_commit(ci);
+    return 0;
     cout<<"commit exited with: "<<commit_exit<<endl;
-
+    delete result;
+    result = new Temp_Table(schema);
+    table_names->clear();
+    table_names->push_back("data");
+    select_exit = execute_select(result, *table_names, vector<string> (1, "*"));
+    cout<<"select exited with "<<select_exit<<endl;
     delete result;
     delete col_names;
     delete table_names;

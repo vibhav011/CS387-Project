@@ -32,13 +32,14 @@ struct Temp_Table {
     }
 
     void prettyPrint()
-    {
+    {   
+        
+        cout << "inside pretty print" << endl;
         if(this->schema == NULL)
         {
             cout<<"Empty table"<<endl;
             return ;
         }
-        cout << "inside pretty print" << endl;
         vector<int> types;
         cout<<"Number of columns: "<<this->schema->numColumns<<endl;
         cout<<"Number of rows: "<<this->rows.size()<<endl;
@@ -109,7 +110,7 @@ int execute_create(string table_name, vector<ColumnDesc*> &column_desc_list, vec
 int execute_insert(string table_name, vector<string> column_val_list);
 int execute_delete(string table_name, CondAST *cond_tree=NULL);
 
-int query_process(Query_Obj *cObj, Table_Row *tr);
+int query_process(Query_Obj *cObj, Table_Row *tr, RecId rid);
 int log_scan(Query_Obj *cObj);
 
 #endif
