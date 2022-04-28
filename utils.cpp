@@ -50,9 +50,3 @@ Log_Entry::Log_Entry()
     this->old_value = NULL;
     this->new_value = NULL;
 }
-
-Log_Entry::~Log_Entry()
-{
-    delete this->old_value;
-    delete this->new_value;
-}

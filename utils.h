@@ -34,7 +34,6 @@ class Log_Entry
     Change_type change_type;
 
     Log_Entry();
-    ~Log_Entry();
 };
 
 enum {C_OK, C_TRUE, C_FALSE, C_ERROR, C_TABLE_NOT_FOUND, C_FIELD_NOT_FOUND} error_codes;
