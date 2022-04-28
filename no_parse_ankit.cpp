@@ -5,6 +5,8 @@
 #include <iostream>
 using namespace std;
 
+extern vector<ChangeLog> change_logs;
+
 int main() {
     vector<string> tabel_names = {"data", "data1"};
     vector<string> col_names = {"Country", "Capital", "Population"};
@@ -27,6 +29,8 @@ int main() {
     execute_insert("data", col_val_list2);
     cout<<"Inserted second row in data"<<endl;
 
+    // execute_delete("data", NULL);
+
     execute_create("data1", cols, pk);
     cout<<"Created table: data1"<<endl;
     
@@ -38,16 +42,10 @@ int main() {
     execute_insert("data1", col_val_list4);
     cout<<"Inserted second row in data1"<<endl;
 
-    vector<string> fetch_cols = {"data.Country", "data.Capital"};
-    vector<string> fetch_tables = {"data"};
+    vector<string> fetch_cols = {"data.Country", "data1.Capital"};
+    vector<string> fetch_tables = {"data", "data1"};
     int select_exit = execute_select(result, fetch_tables, fetch_cols);
-    cout<<"Selection done"<<endl;
-    return 0;
-
-    // result->prettyPrint();
-
-    // cout<<"final result size "<< result->rows.size()<<endl;
-    // cout<<"select exited with: "<<select_exit<<endl;
+    result->prettyPrint();
     // delete result;
     // delete col_names;
     // delete table_names;

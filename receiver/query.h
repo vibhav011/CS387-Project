@@ -43,15 +43,15 @@ struct Temp_Table {
 
         for(int ii = 0; ii < this->rows.size(); ii++)
         {
-            assert(rows[ii]->num_fields == this->schema->numColumns);
+            assert(rows[ii]->fields.size() == this->schema->numColumns);
             for(int i=0;i<this->schema->numColumns;i++)
             {
                 if(types[i] == INT)
-                    cout<<setw(10)<<rows[ii]->getField(i).int_val;
+                    cout<<setw(15)<<rows[ii]->getField(i).int_val;
                 else if(types[i] == DOUBLE)
-                    cout<<setw(10)<<rows[ii]->getField(i).float_val;
+                    cout<<setw(15)<<rows[ii]->getField(i).float_val;
                 else
-                    cout<<setw(10)<<*(rows[ii]->getField(i).str_val);
+                    cout<<setw(15)<<*(rows[ii]->getField(i).str_val);
             }
             cout<<endl;
         }

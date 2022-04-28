@@ -193,21 +193,20 @@ int query_process(Query_Obj *cObj, Table_Row *tr)
 
     // Expanding col_names if it is '*'
     if (cObj->col_names[0] == "*") {
-        cObj->col_names.pop_back();
-        for(int i=0;i<tbl1->schema->numColumns;i++) {
+        cObj->col_names.erase(cObj->col_names.begin());
+        for(int i=1;i<tbl1->schema->numColumns;i++) {
             string s(tbl1->schema->columns[i]->name);
             cObj->col_names.push_back(tbl1->name + "." + s);
         }
 
         if (tbl2 != NULL) {
-            for(int i=0;i<tbl2->schema->numColumns;i++) {
+            for(int i=1;i<tbl2->schema->numColumns;i++) {
                 string s(tbl2->schema->columns[i]->name);
                 cObj->col_names.push_back(tbl2->name + "." + s);
             }
         }
     }
     
-    cObj->col_names.insert(cObj->col_names.begin(), tbl1->name+".unique_id");
     Table_Row *new_row = new Table_Row();
     Table_Row *use_row; 
     Schema *scm;
@@ -292,7 +291,10 @@ int execute_select(Temp_Table *result, vector<string> table_names, vector<string
         tbl2_id = table_name_to_id[table_names[1]];
     }
     
-    vector<pair<string, int> > types = vector<pair<string,int> > (1, make_pair(table_names[0]+".unique_id", INT));
+    if(tbl2_id != -1)
+        col_names.insert(col_names.begin(), table_names[1]+".unique_id");
+    col_names.insert(col_names.begin(), table_names[0]+".unique_id");
+    vector<pair<string, int> > types;
 
     // Populate the types vector
     for (int i=0;i<col_names.size();i++) {
@@ -326,7 +328,7 @@ int execute_select(Temp_Table *result, vector<string> table_names, vector<string
             if (col_num == -1)
                 return C_FIELD_NOT_FOUND;
         }
-        types.push_back(make_pair(tbl->name+"."+col_name, tbl->schema->columns[i]->type));
+        types.push_back(make_pair(tbl->name+"."+col_name, tbl->schema->columns[col_num]->type));
     }
 
     ColumnDesc** cols = new ColumnDesc*[types.size()];
@@ -344,6 +346,7 @@ int execute_select(Temp_Table *result, vector<string> table_names, vector<string
         callbackObj->tr2 = NULL;
         callbackObj->ret_value = 0;
         callbackObj->temp_table->schema = schema;
+        cout<<callbackObj->temp_table->schema->numColumns<<endl;
         Table_Scan(tbl, callbackObj, Table_Single_Select);
         log_scan(callbackObj);
         int retval = callbackObj->ret_value;

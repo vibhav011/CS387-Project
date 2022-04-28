@@ -21,8 +21,6 @@ class Table_Row
 {
     public:
     vector<Entry> fields;
-    int num_fields;
-    Table_Row();
     Entry getField(int ind);
     void addField(Entry entry);
 };
