@@ -14,18 +14,26 @@ typedef union {
     string* str_val;
     double float_val;
 } Entry;
+typedef enum {_UPDATE, _INSERT, _DELETE} Change_type;
 
-struct Table_Row {
+class Table_Row
+{
     vector<Entry> fields;
-    Entry getField(int i) {
-        return fields[i];
-    }
+    
+    public:
+    int num_fields;
+    Table_Row();
+    Entry getField(int ind);
 };
 
-typedef enum {_UPDATE, _INSERT, _DELETE} Change_type;
-struct Log_entry {
-    Table_Row *old_value, *new_value;       // NULL indicates value does not exist
+class Log_Entry
+{
+    public:
+    Table_Row *old_value, *new_value;
     Change_type change_type;
+
+    Log_Entry();
+    ~Log_Entry();
 };
 
 enum {C_OK, C_TRUE, C_FALSE, C_ERROR, C_TABLE_NOT_FOUND, C_FIELD_NOT_FOUND} error_codes;
@@ -33,7 +41,7 @@ enum {C_OK, C_TRUE, C_FALSE, C_ERROR, C_TABLE_NOT_FOUND, C_FIELD_NOT_FOUND} erro
 /////////////////////////////
 // Shared global variables //
 /////////////////////////////
-typedef map<int, Log_entry> ChangeLog;
+typedef map<int, Log_Entry> ChangeLog;
 typedef map<int, int> MappingLog;
 
 #endif

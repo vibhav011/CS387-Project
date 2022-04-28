@@ -63,7 +63,7 @@ void printRow(void *callbackObj, RecId rid, Byte *row, int len)
 
 }
 
-#define DB_NAME "data.db"
+#define DB_NAME (char*)"data.db"
 #define INDEX_NAME "data.db.0"
 
 /*
@@ -87,7 +87,7 @@ void index_scan(Table *tbl, Schema *schema, int indexFD, int op, int value)
 
 int main(int argc, char **argv)
 {
-    char *schemaTxt = "Country:varchar,Capital:varchar,Population:int";
+    char *schemaTxt = (char*)"Country:varchar,Capital:varchar,Population:int";
     Schema *schema = parseSchema(schemaTxt);
     Table *tbl;
 

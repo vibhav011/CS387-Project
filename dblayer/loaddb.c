@@ -20,7 +20,7 @@
 
 #define MAX_PAGE_SIZE 4000
 
-#define DB_NAME "data.db"
+#define DB_NAME (char*)"data.db"
 // #define INDEX_NAME "data.db.0"
 #define CSV_NAME "data3.csv"
 
@@ -111,7 +111,7 @@ loadCSV()
     
     while ((line = fgets(buf, MAX_LINE_LEN, fp)) != NULL)
     {   
-        int n = split(line, ",", tokens);
+        int n = split(line, (char*)",", tokens);
         assert(n == sch->numColumns);
         int len = encode(sch, tokens, record, sizeof(record));
         RecId rid;
