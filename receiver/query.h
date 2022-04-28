@@ -36,17 +36,18 @@ struct Temp_Table {
             cout<<setw(15)<<this->schema->columns[i]->name;
         }
         cout<<endl;
-        for(auto row: this->rows)
+
+        for(int ii = 0; ii < this->rows.size(); ii++)
         {
-            assert(row->num_fields == this->schema->numColumns);
+            assert(rows[ii]->num_fields == this->schema->numColumns);
             for(int i=0;i<this->schema->numColumns;i++)
             {
                 if(types[i] == INT)
-                    cout<<setw(10)<<row->getField(i).int_val;
+                    cout<<setw(10)<<rows[ii]->getField(i).int_val;
                 else if(types[i] == DOUBLE)
-                    cout<<setw(10)<<row->getField(i).float_val;
+                    cout<<setw(10)<<rows[ii]->getField(i).float_val;
                 else
-                    cout<<setw(10)<<*(row->getField(i).str_val);
+                    cout<<setw(10)<<*(rows[ii]->getField(i).str_val);
             }
             cout<<endl;
         }
