@@ -1,7 +1,13 @@
 #include <signal.h>
 #include <string.h>
 #include <mutex>
+#include <filesystem>
 #include "sock.hpp"
+#include <map>
+#include <string>
+#include "utils.h"
+#include "receiver/helper.h"
+
 using namespace std;
 
 Daemon::Daemon(const char *sock_path, request_handler_t func){
@@ -219,7 +225,75 @@ void install_sig_handler(){
     sigaction(SIGINT, &act, 0);
 }
 
+void recover_from_folder(string folder_name) {
+    map<string, ChangeLog> change_logs;
+    map<string, MappingLog> mapping_logs;
+    for (const auto& dirEntry : std::filesystem::directory_iterator(folder_name)) {
+        if (!dirEntry.is_directory()) {
+            string s = dirEntry.path().filename();
+            if (s.size() > 5) {
+                if (s.substr(s.size() - 5) == ".clog") {
+                    string clog_path = dirEntry.path().string();
+                    string table_name = s.substr(0, s.size() - 5);
+                    read_log(change_logs[table_name], clog_path);
+                }
+                else if (s.substr(s.size() - 5) == ".mlog") {
+                    string mlog_path = dirEntry.path().string();
+                    string table_name = s.substr(0, s.size() - 5);
+                    // TODO: implement following functions and uncomment
+                    // read_mlog(mapping_logs[table_name], mlog_path);
+                }
+            }
+        }
+    }
+    for (auto it = change_logs.begin(); it != change_logs.end(); it++) {
+        string table_name = it->first;
+        ChangeLog change_log = it->second;
+
+        if (mapping_logs.find(table_name) == mapping_logs.end())
+            continue;
+
+        MappingLog mapping_log = mapping_logs[table_name];
+        // TODO: implement following functions and uncomment
+        // execute_rollback_single(tables[table_name_to_id[table_name]], change_log, mapping_log);
+    }
+}
+
+void setup_and_recover() {
+    vector<int> log_folders;
+    for (const auto& dirEntry : std::filesystem::directory_iterator("./data")) {
+        if (dirEntry.is_directory()) {
+            string s = dirEntry.path().filename();
+            if (s.size() > 4) {
+                if (s.substr(s.size() - 4) == ".log") {
+                    log_folders.push_back(s);
+                }
+            }
+        }
+        else {
+            string s = dirEntry.path().filename();
+            if (s.size() > 4) {
+                if (s.substr(s.size() - 4) == ".tbl") {
+                    string tbl_name = s.substr(0, s.size() - 4);
+                    Table *table = new Table();
+                    Table_Open(s.c_str(), schema, false, &table);
+                    tables.push_back(table);
+                    //TODO: populate other vecotrs/maps
+                }
+            }
+        }
+    }
+
+    for (string s: log_folders) {
+        recover_from_folder(s);
+        std::filesystem::remove(dirEntry.path());
+    }
+
+}
+
 int main(){
+    setup_and_recover();
+
     Daemon *d = new Daemon(SOCK_PATH, myhandler);
     install_sig_handler();
 
