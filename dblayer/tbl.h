@@ -49,6 +49,11 @@ struct Schema {
     int numColumns;
     ColumnDesc **columns; // array of column descriptors
 
+    Schema(int numColumns, ColumnDesc** columns)
+    {
+        this->numColumns = numColumns;
+        this->columns = columns;
+    }
     ~Schema()
     {
         for (int i = 0; i < numColumns; i++)

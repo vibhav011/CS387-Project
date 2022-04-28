@@ -11,7 +11,8 @@ extern vector<Table*> tables;
 void clean_and_exit() {
     for (int i = 0; i < tables.size(); i++) {
         ChangeLog& log_map = change_logs[i];
-        for (auto log = log_map.begin(); log != log_map.end(); log++) {
+        map<int, Log_entry>:: iterator log;
+        for (log = log_map.begin(); log != log_map.end(); log++) {
             if (log->second.old_value != NULL) {
                 for (int j = 0; j < tables[i]->schema->numColumns; j++) {
                     if (tables[i]->schema->columns[j]->type == VARCHAR) {
@@ -49,7 +50,7 @@ int main() {
     ColumnDesc* col3 = new ColumnDesc(nm3, INT);
 
     ColumnDesc* colsPtr[] = {col1, col2, col3};
-    Schema* schema = new Schema{3, colsPtr};
+    Schema* schema = new Schema(3, colsPtr);
     Temp_Table* result = new Temp_Table(schema);
 
     vector<ColumnDesc*> cols;
@@ -105,8 +106,11 @@ int main() {
     // RelAST* cond_tree = new RelAST(col_ast, const_ast, _EQ);
     // cout<<"calling seletc"<<endl;
 
-    vector<string> fetch_cols = {"data.Country", "data1.Capital"};
-    int select_exit = execute_select(result, {"data", "data1"}, fetch_cols);
+    vector<string> fetch_cols = vector<string> (1, "data.Country");
+    fetch_cols.push_back("data1.Capital");
+    vector<string> temp = vector<string> (1, "data");
+    temp.push_back("data1");
+    int select_exit = execute_select(result, temp, fetch_cols);
     cout<<"final result size "<< result->rows.size()<<endl;
     cout<<"select exited with: "<<select_exit<<endl;
     delete result;

@@ -141,7 +141,8 @@ int Table_Single_Select_Join(void *callbackObj, RecId rid, Byte *row, int len) {
 int log_scan(Query_Obj *cObj)
 {
     ChangeLog &logs = change_logs[cObj->tbl1_id];
-    for(auto entry = logs.begin(); entry != logs.end(); entry++)
+    map<int, Log_entry>:: iterator entry = logs.begin();
+    for(entry = logs.begin(); entry != logs.end(); entry++)
     {
         if(entry->second.change_type != _INSERT)
             continue;
@@ -158,7 +159,8 @@ int log_scan(Query_Obj *cObj)
 int log_scan_join(Query_Obj *cObj)
 {
     ChangeLog &logs = change_logs[cObj->tbl2_id];
-    for(auto entry = logs.begin(); entry != logs.end(); entry++)
+    map<int, Log_entry>:: iterator entry = logs.begin();
+    for(entry = logs.begin(); entry != logs.end(); entry++)
 
     {
         if(entry->second.change_type != _INSERT)
@@ -376,7 +378,7 @@ bool passes_pk_constraints(string table_name, Table_Row* row) {
     Table* tbl  = tables[table_id];
 
     Temp_Table* result = new Temp_Table(tbl->schema);
-    int ret = execute_select(result, {table_name}, tbl->pk);
+    int ret = execute_select(result, vector<string> (1, table_name), tbl->pk);
 
     if(ret != C_OK)
         return false;
@@ -424,7 +426,7 @@ int execute_update(string table_name, vector<Update_Pair*>* update_list, CondAST
         Table* tbl  = tables[table_id];
         
         Temp_Table* result = new Temp_Table(tbl->schema);
-        int ret = execute_select(result, {table_name}, {"*"}, NULL);
+        int ret = execute_select(result, vector<string> (1, table_name), vector<string> (1, "*"), NULL);
         
         for(int i=0; i<result->rows.size(); i++){
             Table_Row* old_value = result->rows[i];
@@ -515,10 +517,8 @@ int execute_update(string table_name, vector<Update_Pair*>* update_list, CondAST
 
 int execute_create(string table_name, vector<ColumnDesc*> &column_desc_list, vector<string> constraint) {
     try {
-        Schema* schema = new Schema();
-        schema->numColumns = column_desc_list.size()+1;
-        ColumnDesc** cols = new ColumnDesc*[schema->numColumns];
-        schema->columns = cols;
+        ColumnDesc** cols = new ColumnDesc*[column_desc_list.size()+1];
+        Schema* schema = new Schema(column_desc_list.size()+1, cols);
        
         schema->columns[0] = new ColumnDesc((char *)"unique_id", _INT);
         for(int i=1;i<schema->numColumns;i++)
@@ -627,7 +627,7 @@ int execute_delete(string table_name, CondAST* cond_tree) {
         Table* tbl = tables[table_id];
 
         Temp_Table* result = new Temp_Table(tbl->schema);
-        int ret = execute_select(result, {table_name}, {"*"}, cond_tree);
+        int ret = execute_select(result, vector<string> (1, table_name), vector<string> (1, "*"), cond_tree);
 
         for (int i = 0; i < result->rows.size(); i++)
         {
