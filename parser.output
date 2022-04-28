@@ -241,7 +241,7 @@ Nonterminals, with rules where they appear
 
 State 0
 
-    0 $accept: . query $end
+    0 $accept: • query $end
 
     COMMIT    shift, and go to state 1
     ROLLBACK  shift, and go to state 2
@@ -263,21 +263,21 @@ State 0
 
 State 1
 
-    7 query: COMMIT . SEMICOLON
+    7 query: COMMIT • SEMICOLON
 
     SEMICOLON  shift, and go to state 16
 
 
 State 2
 
-    8 query: ROLLBACK . SEMICOLON
+    8 query: ROLLBACK • SEMICOLON
 
     SEMICOLON  shift, and go to state 17
 
 
 State 3
 
-    9 with_query: WITH . table_as_list
+    9 with_query: WITH • table_as_list
 
     NAME  shift, and go to state 18
 
@@ -288,8 +288,8 @@ State 3
 
 State 4
 
-   14 select_query: SELECT . column_list FROM table_list
-   15             | SELECT . column_list FROM table_list WHERE condition
+   14 select_query: SELECT • column_list FROM table_list
+   15             | SELECT • column_list FROM table_list WHERE condition
 
     DOT_NAME  shift, and go to state 22
     NAME      shift, and go to state 23
@@ -300,116 +300,116 @@ State 4
 
 State 5
 
-   42 create_query: CREATE . TABLE NAME ROUND_BRACKET_OPEN column_desc_list COMMA constraint ROUND_BRACKET_CLOSE
-   43             | CREATE . TABLE NAME ROUND_BRACKET_OPEN column_desc_list ROUND_BRACKET_CLOSE
+   42 create_query: CREATE • TABLE NAME ROUND_BRACKET_OPEN column_desc_list COMMA constraint ROUND_BRACKET_CLOSE
+   43             | CREATE • TABLE NAME ROUND_BRACKET_OPEN column_desc_list ROUND_BRACKET_CLOSE
 
     TABLE  shift, and go to state 26
 
 
 State 6
 
-   53 insert_query: INSERT . INTO NAME VALUES ROUND_BRACKET_OPEN column_val_list ROUND_BRACKET_CLOSE
+   53 insert_query: INSERT • INTO NAME VALUES ROUND_BRACKET_OPEN column_val_list ROUND_BRACKET_CLOSE
 
     INTO  shift, and go to state 27
 
 
 State 7
 
-   57 update_query: UPDATE . NAME SET update_list WHERE condition
-   58             | UPDATE . NAME SET update_list
+   57 update_query: UPDATE • NAME SET update_list WHERE condition
+   58             | UPDATE • NAME SET update_list
 
     NAME  shift, and go to state 28
 
 
 State 8
 
-   63 delete_query: DELETE . FROM NAME condition
-   64             | DELETE . FROM NAME
+   63 delete_query: DELETE • FROM NAME condition
+   64             | DELETE • FROM NAME
 
     FROM  shift, and go to state 29
 
 
 State 9
 
-    0 $accept: query . $end
+    0 $accept: query • $end
 
     $end  shift, and go to state 30
 
 
 State 10
 
-    1 query: with_query . SEMICOLON query SEMICOLON
+    1 query: with_query • SEMICOLON query SEMICOLON
 
     SEMICOLON  shift, and go to state 31
 
 
 State 11
 
-    2 query: select_query . SEMICOLON
+    2 query: select_query • SEMICOLON
 
     SEMICOLON  shift, and go to state 32
 
 
 State 12
 
-    3 query: create_query . SEMICOLON
+    3 query: create_query • SEMICOLON
 
     SEMICOLON  shift, and go to state 33
 
 
 State 13
 
-    4 query: insert_query . SEMICOLON
+    4 query: insert_query • SEMICOLON
 
     SEMICOLON  shift, and go to state 34
 
 
 State 14
 
-    5 query: update_query . SEMICOLON
+    5 query: update_query • SEMICOLON
 
     SEMICOLON  shift, and go to state 35
 
 
 State 15
 
-    6 query: delete_query . SEMICOLON
+    6 query: delete_query • SEMICOLON
 
     SEMICOLON  shift, and go to state 36
 
 
 State 16
 
-    7 query: COMMIT SEMICOLON .
+    7 query: COMMIT SEMICOLON •
 
     $default  reduce using rule 7 (query)
 
 
 State 17
 
-    8 query: ROLLBACK SEMICOLON .
+    8 query: ROLLBACK SEMICOLON •
 
     $default  reduce using rule 8 (query)
 
 
 State 18
 
-   13 table_desc: NAME . ROUND_BRACKET_OPEN column_list ROUND_BRACKET_CLOSE
+   13 table_desc: NAME • ROUND_BRACKET_OPEN column_list ROUND_BRACKET_CLOSE
 
     ROUND_BRACKET_OPEN  shift, and go to state 37
 
 
 State 19
 
-    9 with_query: WITH table_as_list .
+    9 with_query: WITH table_as_list •
 
     $default  reduce using rule 9 (with_query)
 
 
 State 20
 
-   10 table_as_list: table_as . COMMA table_as
-   11              | table_as .
+   10 table_as_list: table_as • COMMA table_as
+   11              | table_as •
 
     COMMA  shift, and go to state 38
 
@@ -418,30 +418,30 @@ State 20
 
 State 21
 
-   12 table_as: table_desc . AS select_query
+   12 table_as: table_desc • AS select_query
 
     AS  shift, and go to state 39
 
 
 State 22
 
-   18 column: DOT_NAME .
+   18 column: DOT_NAME •
 
     $default  reduce using rule 18 (column)
 
 
 State 23
 
-   19 column: NAME .
+   19 column: NAME •
 
     $default  reduce using rule 19 (column)
 
 
 State 24
 
-   14 select_query: SELECT column_list . FROM table_list
-   15             | SELECT column_list . FROM table_list WHERE condition
-   16 column_list: column_list . COMMA column
+   14 select_query: SELECT column_list • FROM table_list
+   15             | SELECT column_list • FROM table_list WHERE condition
+   16 column_list: column_list • COMMA column
 
     COMMA  shift, and go to state 40
     FROM   shift, and go to state 41
@@ -449,52 +449,52 @@ State 24
 
 State 25
 
-   17 column_list: column .
+   17 column_list: column •
 
     $default  reduce using rule 17 (column_list)
 
 
 State 26
 
-   42 create_query: CREATE TABLE . NAME ROUND_BRACKET_OPEN column_desc_list COMMA constraint ROUND_BRACKET_CLOSE
-   43             | CREATE TABLE . NAME ROUND_BRACKET_OPEN column_desc_list ROUND_BRACKET_CLOSE
+   42 create_query: CREATE TABLE • NAME ROUND_BRACKET_OPEN column_desc_list COMMA constraint ROUND_BRACKET_CLOSE
+   43             | CREATE TABLE • NAME ROUND_BRACKET_OPEN column_desc_list ROUND_BRACKET_CLOSE
 
     NAME  shift, and go to state 42
 
 
 State 27
 
-   53 insert_query: INSERT INTO . NAME VALUES ROUND_BRACKET_OPEN column_val_list ROUND_BRACKET_CLOSE
+   53 insert_query: INSERT INTO • NAME VALUES ROUND_BRACKET_OPEN column_val_list ROUND_BRACKET_CLOSE
 
     NAME  shift, and go to state 43
 
 
 State 28
 
-   57 update_query: UPDATE NAME . SET update_list WHERE condition
-   58             | UPDATE NAME . SET update_list
+   57 update_query: UPDATE NAME • SET update_list WHERE condition
+   58             | UPDATE NAME • SET update_list
 
     SET  shift, and go to state 44
 
 
 State 29
 
-   63 delete_query: DELETE FROM . NAME condition
-   64             | DELETE FROM . NAME
+   63 delete_query: DELETE FROM • NAME condition
+   64             | DELETE FROM • NAME
 
     NAME  shift, and go to state 45
 
 
 State 30
 
-    0 $accept: query $end .
+    0 $accept: query $end •
 
     $default  accept
 
 
 State 31
 
-    1 query: with_query SEMICOLON . query SEMICOLON
+    1 query: with_query SEMICOLON • query SEMICOLON
 
     COMMIT    shift, and go to state 1
     ROLLBACK  shift, and go to state 2
@@ -516,42 +516,42 @@ State 31
 
 State 32
 
-    2 query: select_query SEMICOLON .
+    2 query: select_query SEMICOLON •
 
     $default  reduce using rule 2 (query)
 
 
 State 33
 
-    3 query: create_query SEMICOLON .
+    3 query: create_query SEMICOLON •
 
     $default  reduce using rule 3 (query)
 
 
 State 34
 
-    4 query: insert_query SEMICOLON .
+    4 query: insert_query SEMICOLON •
 
     $default  reduce using rule 4 (query)
 
 
 State 35
 
-    5 query: update_query SEMICOLON .
+    5 query: update_query SEMICOLON •
 
     $default  reduce using rule 5 (query)
 
 
 State 36
 
-    6 query: delete_query SEMICOLON .
+    6 query: delete_query SEMICOLON •
 
     $default  reduce using rule 6 (query)
 
 
 State 37
 
-   13 table_desc: NAME ROUND_BRACKET_OPEN . column_list ROUND_BRACKET_CLOSE
+   13 table_desc: NAME ROUND_BRACKET_OPEN • column_list ROUND_BRACKET_CLOSE
 
     DOT_NAME  shift, and go to state 22
     NAME      shift, and go to state 23
@@ -562,7 +562,7 @@ State 37
 
 State 38
 
-   10 table_as_list: table_as COMMA . table_as
+   10 table_as_list: table_as COMMA • table_as
 
     NAME  shift, and go to state 18
 
@@ -572,7 +572,7 @@ State 38
 
 State 39
 
-   12 table_as: table_desc AS . select_query
+   12 table_as: table_desc AS • select_query
 
     SELECT  shift, and go to state 4
 
@@ -581,7 +581,7 @@ State 39
 
 State 40
 
-   16 column_list: column_list COMMA . column
+   16 column_list: column_list COMMA • column
 
     DOT_NAME  shift, and go to state 22
     NAME      shift, and go to state 23
@@ -591,8 +591,8 @@ State 40
 
 State 41
 
-   14 select_query: SELECT column_list FROM . table_list
-   15             | SELECT column_list FROM . table_list WHERE condition
+   14 select_query: SELECT column_list FROM • table_list
+   15             | SELECT column_list FROM • table_list WHERE condition
 
     NAME  shift, and go to state 51
 
@@ -602,23 +602,23 @@ State 41
 
 State 42
 
-   42 create_query: CREATE TABLE NAME . ROUND_BRACKET_OPEN column_desc_list COMMA constraint ROUND_BRACKET_CLOSE
-   43             | CREATE TABLE NAME . ROUND_BRACKET_OPEN column_desc_list ROUND_BRACKET_CLOSE
+   42 create_query: CREATE TABLE NAME • ROUND_BRACKET_OPEN column_desc_list COMMA constraint ROUND_BRACKET_CLOSE
+   43             | CREATE TABLE NAME • ROUND_BRACKET_OPEN column_desc_list ROUND_BRACKET_CLOSE
 
     ROUND_BRACKET_OPEN  shift, and go to state 54
 
 
 State 43
 
-   53 insert_query: INSERT INTO NAME . VALUES ROUND_BRACKET_OPEN column_val_list ROUND_BRACKET_CLOSE
+   53 insert_query: INSERT INTO NAME • VALUES ROUND_BRACKET_OPEN column_val_list ROUND_BRACKET_CLOSE
 
     VALUES  shift, and go to state 55
 
 
 State 44
 
-   57 update_query: UPDATE NAME SET . update_list WHERE condition
-   58             | UPDATE NAME SET . update_list
+   57 update_query: UPDATE NAME SET • update_list WHERE condition
+   58             | UPDATE NAME SET • update_list
 
     NAME  shift, and go to state 56
 
@@ -628,8 +628,8 @@ State 44
 
 State 45
 
-   63 delete_query: DELETE FROM NAME . condition
-   64             | DELETE FROM NAME .
+   63 delete_query: DELETE FROM NAME • condition
+   64             | DELETE FROM NAME •
 
     DOT_NAME        shift, and go to state 59
     TEXT_CONSTANT   shift, and go to state 60
@@ -647,15 +647,15 @@ State 45
 
 State 46
 
-    1 query: with_query SEMICOLON query . SEMICOLON
+    1 query: with_query SEMICOLON query • SEMICOLON
 
     SEMICOLON  shift, and go to state 68
 
 
 State 47
 
-   13 table_desc: NAME ROUND_BRACKET_OPEN column_list . ROUND_BRACKET_CLOSE
-   16 column_list: column_list . COMMA column
+   13 table_desc: NAME ROUND_BRACKET_OPEN column_list • ROUND_BRACKET_CLOSE
+   16 column_list: column_list • COMMA column
 
     COMMA                shift, and go to state 40
     ROUND_BRACKET_CLOSE  shift, and go to state 69
@@ -663,36 +663,36 @@ State 47
 
 State 48
 
-   10 table_as_list: table_as COMMA table_as .
+   10 table_as_list: table_as COMMA table_as •
 
     $default  reduce using rule 10 (table_as_list)
 
 
 State 49
 
-   12 table_as: table_desc AS select_query .
+   12 table_as: table_desc AS select_query •
 
     $default  reduce using rule 12 (table_as)
 
 
 State 50
 
-   16 column_list: column_list COMMA column .
+   16 column_list: column_list COMMA column •
 
     $default  reduce using rule 16 (column_list)
 
 
 State 51
 
-   22 table: NAME .
+   22 table: NAME •
 
     $default  reduce using rule 22 (table)
 
 
 State 52
 
-   14 select_query: SELECT column_list FROM table_list .
-   15             | SELECT column_list FROM table_list . WHERE condition
+   14 select_query: SELECT column_list FROM table_list •
+   15             | SELECT column_list FROM table_list • WHERE condition
 
     WHERE  shift, and go to state 70
 
@@ -701,8 +701,8 @@ State 52
 
 State 53
 
-   20 table_list: table . COMMA table
-   21           | table .
+   20 table_list: table • COMMA table
+   21           | table •
 
     COMMA  shift, and go to state 71
 
@@ -711,8 +711,8 @@ State 53
 
 State 54
 
-   42 create_query: CREATE TABLE NAME ROUND_BRACKET_OPEN . column_desc_list COMMA constraint ROUND_BRACKET_CLOSE
-   43             | CREATE TABLE NAME ROUND_BRACKET_OPEN . column_desc_list ROUND_BRACKET_CLOSE
+   42 create_query: CREATE TABLE NAME ROUND_BRACKET_OPEN • column_desc_list COMMA constraint ROUND_BRACKET_CLOSE
+   43             | CREATE TABLE NAME ROUND_BRACKET_OPEN • column_desc_list ROUND_BRACKET_CLOSE
 
     NAME  shift, and go to state 72
 
@@ -722,24 +722,24 @@ State 54
 
 State 55
 
-   53 insert_query: INSERT INTO NAME VALUES . ROUND_BRACKET_OPEN column_val_list ROUND_BRACKET_CLOSE
+   53 insert_query: INSERT INTO NAME VALUES • ROUND_BRACKET_OPEN column_val_list ROUND_BRACKET_CLOSE
 
     ROUND_BRACKET_OPEN  shift, and go to state 75
 
 
 State 56
 
-   61 update: NAME . ASSIGN NAME
-   62       | NAME . ASSIGN constant
+   61 update: NAME • ASSIGN NAME
+   62       | NAME • ASSIGN constant
 
     ASSIGN  shift, and go to state 76
 
 
 State 57
 
-   57 update_query: UPDATE NAME SET update_list . WHERE condition
-   58             | UPDATE NAME SET update_list .
-   59 update_list: update_list . COMMA update
+   57 update_query: UPDATE NAME SET update_list • WHERE condition
+   58             | UPDATE NAME SET update_list •
+   59 update_list: update_list • COMMA update
 
     COMMA  shift, and go to state 77
     WHERE  shift, and go to state 78
@@ -749,42 +749,42 @@ State 57
 
 State 58
 
-   60 update_list: update .
+   60 update_list: update •
 
     $default  reduce using rule 60 (update_list)
 
 
 State 59
 
-   38 expression: DOT_NAME .
+   38 expression: DOT_NAME •
 
     $default  reduce using rule 38 (expression)
 
 
 State 60
 
-   39 constant: TEXT_CONSTANT .
+   39 constant: TEXT_CONSTANT •
 
     $default  reduce using rule 39 (constant)
 
 
 State 61
 
-   40 constant: INT_CONSTANT .
+   40 constant: INT_CONSTANT •
 
     $default  reduce using rule 40 (constant)
 
 
 State 62
 
-   41 constant: FLOAT_CONSTANT .
+   41 constant: FLOAT_CONSTANT •
 
     $default  reduce using rule 41 (constant)
 
 
 State 63
 
-   25 condition: NOT . condition
+   25 condition: NOT • condition
 
     DOT_NAME        shift, and go to state 59
     TEXT_CONSTANT   shift, and go to state 60
@@ -800,9 +800,9 @@ State 63
 
 State 64
 
-   23 condition: condition . AND condition
-   24          | condition . OR condition
-   63 delete_query: DELETE FROM NAME condition .
+   23 condition: condition • AND condition
+   24          | condition • OR condition
+   63 delete_query: DELETE FROM NAME condition •
 
     AND  shift, and go to state 80
     OR   shift, and go to state 81
@@ -812,23 +812,23 @@ State 64
 
 State 65
 
-   26 condition: relex .
+   26 condition: relex •
 
     $default  reduce using rule 26 (condition)
 
 
 State 66
 
-   27 relex: expression . GE expression
-   28      | expression . LT expression
-   29      | expression . GT expression
-   30      | expression . LE expression
-   31      | expression . NE expression
-   32      | expression . EQ expression
-   33 expression: expression . MULT expression
-   34           | expression . PLUS expression
-   35           | expression . MINUS expression
-   36           | expression . DIV expression
+   27 relex: expression • GE expression
+   28      | expression • LT expression
+   29      | expression • GT expression
+   30      | expression • LE expression
+   31      | expression • NE expression
+   32      | expression • EQ expression
+   33 expression: expression • MULT expression
+   34           | expression • PLUS expression
+   35           | expression • MINUS expression
+   36           | expression • DIV expression
 
     MULT   shift, and go to state 82
     PLUS   shift, and go to state 83
@@ -844,28 +844,28 @@ State 66
 
 State 67
 
-   37 expression: constant .
+   37 expression: constant •
 
     $default  reduce using rule 37 (expression)
 
 
 State 68
 
-    1 query: with_query SEMICOLON query SEMICOLON .
+    1 query: with_query SEMICOLON query SEMICOLON •
 
     $default  reduce using rule 1 (query)
 
 
 State 69
 
-   13 table_desc: NAME ROUND_BRACKET_OPEN column_list ROUND_BRACKET_CLOSE .
+   13 table_desc: NAME ROUND_BRACKET_OPEN column_list ROUND_BRACKET_CLOSE •
 
     $default  reduce using rule 13 (table_desc)
 
 
 State 70
 
-   15 select_query: SELECT column_list FROM table_list WHERE . condition
+   15 select_query: SELECT column_list FROM table_list WHERE • condition
 
     DOT_NAME        shift, and go to state 59
     TEXT_CONSTANT   shift, and go to state 60
@@ -881,7 +881,7 @@ State 70
 
 State 71
 
-   20 table_list: table COMMA . table
+   20 table_list: table COMMA • table
 
     NAME  shift, and go to state 51
 
@@ -890,8 +890,8 @@ State 71
 
 State 72
 
-   46 column_desc: NAME . type range
-   47            | NAME . type
+   46 column_desc: NAME • type range
+   47            | NAME • type
 
     INTEGER  shift, and go to state 94
     FLOAT    shift, and go to state 95
@@ -902,9 +902,9 @@ State 72
 
 State 73
 
-   42 create_query: CREATE TABLE NAME ROUND_BRACKET_OPEN column_desc_list . COMMA constraint ROUND_BRACKET_CLOSE
-   43             | CREATE TABLE NAME ROUND_BRACKET_OPEN column_desc_list . ROUND_BRACKET_CLOSE
-   44 column_desc_list: column_desc_list . COMMA column_desc
+   42 create_query: CREATE TABLE NAME ROUND_BRACKET_OPEN column_desc_list • COMMA constraint ROUND_BRACKET_CLOSE
+   43             | CREATE TABLE NAME ROUND_BRACKET_OPEN column_desc_list • ROUND_BRACKET_CLOSE
+   44 column_desc_list: column_desc_list • COMMA column_desc
 
     COMMA                shift, and go to state 98
     ROUND_BRACKET_CLOSE  shift, and go to state 99
@@ -912,14 +912,14 @@ State 73
 
 State 74
 
-   45 column_desc_list: column_desc .
+   45 column_desc_list: column_desc •
 
     $default  reduce using rule 45 (column_desc_list)
 
 
 State 75
 
-   53 insert_query: INSERT INTO NAME VALUES ROUND_BRACKET_OPEN . column_val_list ROUND_BRACKET_CLOSE
+   53 insert_query: INSERT INTO NAME VALUES ROUND_BRACKET_OPEN • column_val_list ROUND_BRACKET_CLOSE
 
     TEXT_CONSTANT  shift, and go to state 100
 
@@ -929,8 +929,8 @@ State 75
 
 State 76
 
-   61 update: NAME ASSIGN . NAME
-   62       | NAME ASSIGN . constant
+   61 update: NAME ASSIGN • NAME
+   62       | NAME ASSIGN • constant
 
     NAME            shift, and go to state 103
     TEXT_CONSTANT   shift, and go to state 60
@@ -942,7 +942,7 @@ State 76
 
 State 77
 
-   59 update_list: update_list COMMA . update
+   59 update_list: update_list COMMA • update
 
     NAME  shift, and go to state 56
 
@@ -951,7 +951,7 @@ State 77
 
 State 78
 
-   57 update_query: UPDATE NAME SET update_list WHERE . condition
+   57 update_query: UPDATE NAME SET update_list WHERE • condition
 
     DOT_NAME        shift, and go to state 59
     TEXT_CONSTANT   shift, and go to state 60
@@ -967,16 +967,16 @@ State 78
 
 State 79
 
-   23 condition: condition . AND condition
-   24          | condition . OR condition
-   25          | NOT condition .
+   23 condition: condition • AND condition
+   24          | condition • OR condition
+   25          | NOT condition •
 
     $default  reduce using rule 25 (condition)
 
 
 State 80
 
-   23 condition: condition AND . condition
+   23 condition: condition AND • condition
 
     DOT_NAME        shift, and go to state 59
     TEXT_CONSTANT   shift, and go to state 60
@@ -992,7 +992,7 @@ State 80
 
 State 81
 
-   24 condition: condition OR . condition
+   24 condition: condition OR • condition
 
     DOT_NAME        shift, and go to state 59
     TEXT_CONSTANT   shift, and go to state 60
@@ -1008,7 +1008,7 @@ State 81
 
 State 82
 
-   33 expression: expression MULT . expression
+   33 expression: expression MULT • expression
 
     DOT_NAME        shift, and go to state 59
     TEXT_CONSTANT   shift, and go to state 60
@@ -1021,7 +1021,7 @@ State 82
 
 State 83
 
-   34 expression: expression PLUS . expression
+   34 expression: expression PLUS • expression
 
     DOT_NAME        shift, and go to state 59
     TEXT_CONSTANT   shift, and go to state 60
@@ -1034,7 +1034,7 @@ State 83
 
 State 84
 
-   35 expression: expression MINUS . expression
+   35 expression: expression MINUS • expression
 
     DOT_NAME        shift, and go to state 59
     TEXT_CONSTANT   shift, and go to state 60
@@ -1047,7 +1047,7 @@ State 84
 
 State 85
 
-   36 expression: expression DIV . expression
+   36 expression: expression DIV • expression
 
     DOT_NAME        shift, and go to state 59
     TEXT_CONSTANT   shift, and go to state 60
@@ -1060,7 +1060,7 @@ State 85
 
 State 86
 
-   27 relex: expression GE . expression
+   27 relex: expression GE • expression
 
     DOT_NAME        shift, and go to state 59
     TEXT_CONSTANT   shift, and go to state 60
@@ -1073,7 +1073,7 @@ State 86
 
 State 87
 
-   28 relex: expression LT . expression
+   28 relex: expression LT • expression
 
     DOT_NAME        shift, and go to state 59
     TEXT_CONSTANT   shift, and go to state 60
@@ -1086,7 +1086,7 @@ State 87
 
 State 88
 
-   29 relex: expression GT . expression
+   29 relex: expression GT • expression
 
     DOT_NAME        shift, and go to state 59
     TEXT_CONSTANT   shift, and go to state 60
@@ -1099,7 +1099,7 @@ State 88
 
 State 89
 
-   30 relex: expression LE . expression
+   30 relex: expression LE • expression
 
     DOT_NAME        shift, and go to state 59
     TEXT_CONSTANT   shift, and go to state 60
@@ -1112,7 +1112,7 @@ State 89
 
 State 90
 
-   31 relex: expression NE . expression
+   31 relex: expression NE • expression
 
     DOT_NAME        shift, and go to state 59
     TEXT_CONSTANT   shift, and go to state 60
@@ -1125,7 +1125,7 @@ State 90
 
 State 91
 
-   32 relex: expression EQ . expression
+   32 relex: expression EQ • expression
 
     DOT_NAME        shift, and go to state 59
     TEXT_CONSTANT   shift, and go to state 60
@@ -1138,9 +1138,9 @@ State 91
 
 State 92
 
-   15 select_query: SELECT column_list FROM table_list WHERE condition .
-   23 condition: condition . AND condition
-   24          | condition . OR condition
+   15 select_query: SELECT column_list FROM table_list WHERE condition •
+   23 condition: condition • AND condition
+   24          | condition • OR condition
 
     AND  shift, and go to state 80
     OR   shift, and go to state 81
@@ -1150,36 +1150,36 @@ State 92
 
 State 93
 
-   20 table_list: table COMMA table .
+   20 table_list: table COMMA table •
 
     $default  reduce using rule 20 (table_list)
 
 
 State 94
 
-   48 type: INTEGER .
+   48 type: INTEGER •
 
     $default  reduce using rule 48 (type)
 
 
 State 95
 
-   49 type: FLOAT .
+   49 type: FLOAT •
 
     $default  reduce using rule 49 (type)
 
 
 State 96
 
-   50 type: TEXT .
+   50 type: TEXT •
 
     $default  reduce using rule 50 (type)
 
 
 State 97
 
-   46 column_desc: NAME type . range
-   47            | NAME type .
+   46 column_desc: NAME type • range
+   47            | NAME type •
 
     RANGE  shift, and go to state 119
 
@@ -1190,8 +1190,8 @@ State 97
 
 State 98
 
-   42 create_query: CREATE TABLE NAME ROUND_BRACKET_OPEN column_desc_list COMMA . constraint ROUND_BRACKET_CLOSE
-   44 column_desc_list: column_desc_list COMMA . column_desc
+   42 create_query: CREATE TABLE NAME ROUND_BRACKET_OPEN column_desc_list COMMA • constraint ROUND_BRACKET_CLOSE
+   44 column_desc_list: column_desc_list COMMA • column_desc
 
     NAME     shift, and go to state 72
     PRIMARY  shift, and go to state 121
@@ -1202,22 +1202,22 @@ State 98
 
 State 99
 
-   43 create_query: CREATE TABLE NAME ROUND_BRACKET_OPEN column_desc_list ROUND_BRACKET_CLOSE .
+   43 create_query: CREATE TABLE NAME ROUND_BRACKET_OPEN column_desc_list ROUND_BRACKET_CLOSE •
 
     $default  reduce using rule 43 (create_query)
 
 
 State 100
 
-   56 column_val: TEXT_CONSTANT .
+   56 column_val: TEXT_CONSTANT •
 
     $default  reduce using rule 56 (column_val)
 
 
 State 101
 
-   53 insert_query: INSERT INTO NAME VALUES ROUND_BRACKET_OPEN column_val_list . ROUND_BRACKET_CLOSE
-   54 column_val_list: column_val_list . COMMA column_val
+   53 insert_query: INSERT INTO NAME VALUES ROUND_BRACKET_OPEN column_val_list • ROUND_BRACKET_CLOSE
+   54 column_val_list: column_val_list • COMMA column_val
 
     COMMA                shift, and go to state 124
     ROUND_BRACKET_CLOSE  shift, and go to state 125
@@ -1225,37 +1225,37 @@ State 101
 
 State 102
 
-   55 column_val_list: column_val .
+   55 column_val_list: column_val •
 
     $default  reduce using rule 55 (column_val_list)
 
 
 State 103
 
-   61 update: NAME ASSIGN NAME .
+   61 update: NAME ASSIGN NAME •
 
     $default  reduce using rule 61 (update)
 
 
 State 104
 
-   62 update: NAME ASSIGN constant .
+   62 update: NAME ASSIGN constant •
 
     $default  reduce using rule 62 (update)
 
 
 State 105
 
-   59 update_list: update_list COMMA update .
+   59 update_list: update_list COMMA update •
 
     $default  reduce using rule 59 (update_list)
 
 
 State 106
 
-   23 condition: condition . AND condition
-   24          | condition . OR condition
-   57 update_query: UPDATE NAME SET update_list WHERE condition .
+   23 condition: condition • AND condition
+   24          | condition • OR condition
+   57 update_query: UPDATE NAME SET update_list WHERE condition •
 
     AND  shift, and go to state 80
     OR   shift, and go to state 81
@@ -1265,18 +1265,18 @@ State 106
 
 State 107
 
-   23 condition: condition . AND condition
-   23          | condition AND condition .
-   24          | condition . OR condition
+   23 condition: condition • AND condition
+   23          | condition AND condition •
+   24          | condition • OR condition
 
     $default  reduce using rule 23 (condition)
 
 
 State 108
 
-   23 condition: condition . AND condition
-   24          | condition . OR condition
-   24          | condition OR condition .
+   23 condition: condition • AND condition
+   24          | condition • OR condition
+   24          | condition OR condition •
 
     AND  shift, and go to state 80
 
@@ -1285,22 +1285,22 @@ State 108
 
 State 109
 
-   33 expression: expression . MULT expression
-   33           | expression MULT expression .
-   34           | expression . PLUS expression
-   35           | expression . MINUS expression
-   36           | expression . DIV expression
+   33 expression: expression • MULT expression
+   33           | expression MULT expression •
+   34           | expression • PLUS expression
+   35           | expression • MINUS expression
+   36           | expression • DIV expression
 
     $default  reduce using rule 33 (expression)
 
 
 State 110
 
-   33 expression: expression . MULT expression
-   34           | expression . PLUS expression
-   34           | expression PLUS expression .
-   35           | expression . MINUS expression
-   36           | expression . DIV expression
+   33 expression: expression • MULT expression
+   34           | expression • PLUS expression
+   34           | expression PLUS expression •
+   35           | expression • MINUS expression
+   36           | expression • DIV expression
 
     MULT  shift, and go to state 82
     DIV   shift, and go to state 85
@@ -1310,11 +1310,11 @@ State 110
 
 State 111
 
-   33 expression: expression . MULT expression
-   34           | expression . PLUS expression
-   35           | expression . MINUS expression
-   35           | expression MINUS expression .
-   36           | expression . DIV expression
+   33 expression: expression • MULT expression
+   34           | expression • PLUS expression
+   35           | expression • MINUS expression
+   35           | expression MINUS expression •
+   36           | expression • DIV expression
 
     MULT  shift, and go to state 82
     DIV   shift, and go to state 85
@@ -1324,22 +1324,22 @@ State 111
 
 State 112
 
-   33 expression: expression . MULT expression
-   34           | expression . PLUS expression
-   35           | expression . MINUS expression
-   36           | expression . DIV expression
-   36           | expression DIV expression .
+   33 expression: expression • MULT expression
+   34           | expression • PLUS expression
+   35           | expression • MINUS expression
+   36           | expression • DIV expression
+   36           | expression DIV expression •
 
     $default  reduce using rule 36 (expression)
 
 
 State 113
 
-   27 relex: expression GE expression .
-   33 expression: expression . MULT expression
-   34           | expression . PLUS expression
-   35           | expression . MINUS expression
-   36           | expression . DIV expression
+   27 relex: expression GE expression •
+   33 expression: expression • MULT expression
+   34           | expression • PLUS expression
+   35           | expression • MINUS expression
+   36           | expression • DIV expression
 
     MULT   shift, and go to state 82
     PLUS   shift, and go to state 83
@@ -1351,11 +1351,11 @@ State 113
 
 State 114
 
-   28 relex: expression LT expression .
-   33 expression: expression . MULT expression
-   34           | expression . PLUS expression
-   35           | expression . MINUS expression
-   36           | expression . DIV expression
+   28 relex: expression LT expression •
+   33 expression: expression • MULT expression
+   34           | expression • PLUS expression
+   35           | expression • MINUS expression
+   36           | expression • DIV expression
 
     MULT   shift, and go to state 82
     PLUS   shift, and go to state 83
@@ -1367,11 +1367,11 @@ State 114
 
 State 115
 
-   29 relex: expression GT expression .
-   33 expression: expression . MULT expression
-   34           | expression . PLUS expression
-   35           | expression . MINUS expression
-   36           | expression . DIV expression
+   29 relex: expression GT expression •
+   33 expression: expression • MULT expression
+   34           | expression • PLUS expression
+   35           | expression • MINUS expression
+   36           | expression • DIV expression
 
     MULT   shift, and go to state 82
     PLUS   shift, and go to state 83
@@ -1383,11 +1383,11 @@ State 115
 
 State 116
 
-   30 relex: expression LE expression .
-   33 expression: expression . MULT expression
-   34           | expression . PLUS expression
-   35           | expression . MINUS expression
-   36           | expression . DIV expression
+   30 relex: expression LE expression •
+   33 expression: expression • MULT expression
+   34           | expression • PLUS expression
+   35           | expression • MINUS expression
+   36           | expression • DIV expression
 
     MULT   shift, and go to state 82
     PLUS   shift, and go to state 83
@@ -1399,11 +1399,11 @@ State 116
 
 State 117
 
-   31 relex: expression NE expression .
-   33 expression: expression . MULT expression
-   34           | expression . PLUS expression
-   35           | expression . MINUS expression
-   36           | expression . DIV expression
+   31 relex: expression NE expression •
+   33 expression: expression • MULT expression
+   34           | expression • PLUS expression
+   35           | expression • MINUS expression
+   36           | expression • DIV expression
 
     MULT   shift, and go to state 82
     PLUS   shift, and go to state 83
@@ -1415,11 +1415,11 @@ State 117
 
 State 118
 
-   32 relex: expression EQ expression .
-   33 expression: expression . MULT expression
-   34           | expression . PLUS expression
-   35           | expression . MINUS expression
-   36           | expression . DIV expression
+   32 relex: expression EQ expression •
+   33 expression: expression • MULT expression
+   34           | expression • PLUS expression
+   35           | expression • MINUS expression
+   36           | expression • DIV expression
 
     MULT   shift, and go to state 82
     PLUS   shift, and go to state 83
@@ -1431,42 +1431,42 @@ State 118
 
 State 119
 
-   51 range: RANGE . ROUND_BRACKET_OPEN BETWEEN constant AND constant ROUND_BRACKET_CLOSE
+   51 range: RANGE • ROUND_BRACKET_OPEN BETWEEN constant AND constant ROUND_BRACKET_CLOSE
 
     ROUND_BRACKET_OPEN  shift, and go to state 126
 
 
 State 120
 
-   46 column_desc: NAME type range .
+   46 column_desc: NAME type range •
 
     $default  reduce using rule 46 (column_desc)
 
 
 State 121
 
-   52 constraint: PRIMARY . KEY ROUND_BRACKET_OPEN column_list ROUND_BRACKET_CLOSE
+   52 constraint: PRIMARY • KEY ROUND_BRACKET_OPEN column_list ROUND_BRACKET_CLOSE
 
     KEY  shift, and go to state 127
 
 
 State 122
 
-   44 column_desc_list: column_desc_list COMMA column_desc .
+   44 column_desc_list: column_desc_list COMMA column_desc •
 
     $default  reduce using rule 44 (column_desc_list)
 
 
 State 123
 
-   42 create_query: CREATE TABLE NAME ROUND_BRACKET_OPEN column_desc_list COMMA constraint . ROUND_BRACKET_CLOSE
+   42 create_query: CREATE TABLE NAME ROUND_BRACKET_OPEN column_desc_list COMMA constraint • ROUND_BRACKET_CLOSE
 
     ROUND_BRACKET_CLOSE  shift, and go to state 128
 
 
 State 124
 
-   54 column_val_list: column_val_list COMMA . column_val
+   54 column_val_list: column_val_list COMMA • column_val
 
     TEXT_CONSTANT  shift, and go to state 100
 
@@ -1475,42 +1475,42 @@ State 124
 
 State 125
 
-   53 insert_query: INSERT INTO NAME VALUES ROUND_BRACKET_OPEN column_val_list ROUND_BRACKET_CLOSE .
+   53 insert_query: INSERT INTO NAME VALUES ROUND_BRACKET_OPEN column_val_list ROUND_BRACKET_CLOSE •
 
     $default  reduce using rule 53 (insert_query)
 
 
 State 126
 
-   51 range: RANGE ROUND_BRACKET_OPEN . BETWEEN constant AND constant ROUND_BRACKET_CLOSE
+   51 range: RANGE ROUND_BRACKET_OPEN • BETWEEN constant AND constant ROUND_BRACKET_CLOSE
 
     BETWEEN  shift, and go to state 130
 
 
 State 127
 
-   52 constraint: PRIMARY KEY . ROUND_BRACKET_OPEN column_list ROUND_BRACKET_CLOSE
+   52 constraint: PRIMARY KEY • ROUND_BRACKET_OPEN column_list ROUND_BRACKET_CLOSE
 
     ROUND_BRACKET_OPEN  shift, and go to state 131
 
 
 State 128
 
-   42 create_query: CREATE TABLE NAME ROUND_BRACKET_OPEN column_desc_list COMMA constraint ROUND_BRACKET_CLOSE .
+   42 create_query: CREATE TABLE NAME ROUND_BRACKET_OPEN column_desc_list COMMA constraint ROUND_BRACKET_CLOSE •
 
     $default  reduce using rule 42 (create_query)
 
 
 State 129
 
-   54 column_val_list: column_val_list COMMA column_val .
+   54 column_val_list: column_val_list COMMA column_val •
 
     $default  reduce using rule 54 (column_val_list)
 
 
 State 130
 
-   51 range: RANGE ROUND_BRACKET_OPEN BETWEEN . constant AND constant ROUND_BRACKET_CLOSE
+   51 range: RANGE ROUND_BRACKET_OPEN BETWEEN • constant AND constant ROUND_BRACKET_CLOSE
 
     TEXT_CONSTANT   shift, and go to state 60
     INT_CONSTANT    shift, and go to state 61
@@ -1521,7 +1521,7 @@ State 130
 
 State 131
 
-   52 constraint: PRIMARY KEY ROUND_BRACKET_OPEN . column_list ROUND_BRACKET_CLOSE
+   52 constraint: PRIMARY KEY ROUND_BRACKET_OPEN • column_list ROUND_BRACKET_CLOSE
 
     DOT_NAME  shift, and go to state 22
     NAME      shift, and go to state 23
@@ -1532,15 +1532,15 @@ State 131
 
 State 132
 
-   51 range: RANGE ROUND_BRACKET_OPEN BETWEEN constant . AND constant ROUND_BRACKET_CLOSE
+   51 range: RANGE ROUND_BRACKET_OPEN BETWEEN constant • AND constant ROUND_BRACKET_CLOSE
 
     AND  shift, and go to state 134
 
 
 State 133
 
-   16 column_list: column_list . COMMA column
-   52 constraint: PRIMARY KEY ROUND_BRACKET_OPEN column_list . ROUND_BRACKET_CLOSE
+   16 column_list: column_list • COMMA column
+   52 constraint: PRIMARY KEY ROUND_BRACKET_OPEN column_list • ROUND_BRACKET_CLOSE
 
     COMMA                shift, and go to state 40
     ROUND_BRACKET_CLOSE  shift, and go to state 135
@@ -1548,7 +1548,7 @@ State 133
 
 State 134
 
-   51 range: RANGE ROUND_BRACKET_OPEN BETWEEN constant AND . constant ROUND_BRACKET_CLOSE
+   51 range: RANGE ROUND_BRACKET_OPEN BETWEEN constant AND • constant ROUND_BRACKET_CLOSE
 
     TEXT_CONSTANT   shift, and go to state 60
     INT_CONSTANT    shift, and go to state 61
@@ -1559,20 +1559,20 @@ State 134
 
 State 135
 
-   52 constraint: PRIMARY KEY ROUND_BRACKET_OPEN column_list ROUND_BRACKET_CLOSE .
+   52 constraint: PRIMARY KEY ROUND_BRACKET_OPEN column_list ROUND_BRACKET_CLOSE •
 
     $default  reduce using rule 52 (constraint)
 
 
 State 136
 
-   51 range: RANGE ROUND_BRACKET_OPEN BETWEEN constant AND constant . ROUND_BRACKET_CLOSE
+   51 range: RANGE ROUND_BRACKET_OPEN BETWEEN constant AND constant • ROUND_BRACKET_CLOSE
 
     ROUND_BRACKET_CLOSE  shift, and go to state 137
 
 
 State 137
 
-   51 range: RANGE ROUND_BRACKET_OPEN BETWEEN constant AND constant ROUND_BRACKET_CLOSE .
+   51 range: RANGE ROUND_BRACKET_OPEN BETWEEN constant AND constant ROUND_BRACKET_CLOSE •
 
     $default  reduce using rule 51 (range)

@@ -108,7 +108,8 @@ int main() {
     // RelAST* cond_tree = new RelAST(col_ast, const_ast, _EQ);
     // cout<<"calling seletc"<<endl;
 
-    vector<string> fetch_cols = {"data.Country", "data.Population"};
+    vector<string> fetch_cols(1, "data.Country");
+    fetch_cols.push_back("data.Population");
     // fetch_cols.push_back("data1.Capital");
     vector<string> temp = vector<string> (1, "data");
     // temp.push_back("data1");

@@ -1,8 +1,8 @@
-/* A Bison parser, made by GNU Bison 3.5.1.  */
+/* A Bison parser, made by GNU Bison 3.8.2.  */
 
 /* Bison interface for Yacc-like parsers in C
 
-   Copyright (C) 1984, 1989-1990, 2000-2015, 2018-2020 Free Software Foundation,
+   Copyright (C) 1984, 1989-1990, 2000-2015, 2018-2021 Free Software Foundation,
    Inc.
 
    This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 /* As a special exception, you may create a larger work that contains
    part or all of the Bison parser skeleton and distribute that work
@@ -31,8 +31,9 @@
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
-/* Undocumented macros, especially those whose name start with YY_,
-   are private implementation details.  Do not rely on them.  */
+/* DO NOT RELY ON FEATURES THAT ARE NOT DOCUMENTED in the manual,
+   especially those whose name start with YY_ or yy_.  They are
+   private implementation details that can be changed or removed.  */
 
 #ifndef YY_YY_PARSER_TAB_H_INCLUDED
 # define YY_YY_PARSER_TAB_H_INCLUDED
@@ -48,61 +49,66 @@ extern int yydebug;
 
   typedef void* yyscan_t;
 
-#line 52 "parser.tab.h"
+#line 53 "parser.tab.h"
 
-/* Token type.  */
+/* Token kinds.  */
 #ifndef YYTOKENTYPE
 # define YYTOKENTYPE
   enum yytokentype
   {
-    DOT_NAME = 258,
-    NAME = 259,
-    TEXT_CONSTANT = 260,
-    INT_CONSTANT = 261,
-    FLOAT_CONSTANT = 262,
-    INTEGER = 263,
-    FLOAT = 264,
-    TEXT = 265,
-    AND = 266,
-    OR = 267,
-    NOT = 268,
-    MULT = 269,
-    PLUS = 270,
-    MINUS = 271,
-    DIV = 272,
-    GE = 273,
-    LT = 274,
-    GT = 275,
-    LE = 276,
-    NE = 277,
-    EQ = 278,
-    SEMICOLON = 279,
-    COMMIT = 280,
-    ROLLBACK = 281,
-    WITH = 282,
-    COMMA = 283,
-    AS = 284,
-    ROUND_BRACKET_OPEN = 285,
-    ROUND_BRACKET_CLOSE = 286,
-    SELECT = 287,
-    FROM = 288,
-    WHERE = 289,
-    CREATE = 290,
-    TABLE = 291,
-    RANGE = 292,
-    PRIMARY = 293,
-    KEY = 294,
-    INSERT = 295,
-    INTO = 296,
-    VALUES = 297,
-    ASSIGN = 298,
-    UPDATE = 299,
-    SET = 300,
-    DELETE = 301,
-    INFINITY = 302,
-    BETWEEN = 303,
-    REDC = 304
+    YYEMPTY = -2,
+    YYEOF = 0,                     /* "end of file"  */
+    YYerror = 256,                 /* error  */
+    YYUNDEF = 257,                 /* "invalid token"  */
+    DOT_NAME = 258,                /* DOT_NAME  */
+    NAME = 259,                    /* NAME  */
+    TEXT_CONSTANT = 260,           /* TEXT_CONSTANT  */
+    INT_CONSTANT = 261,            /* INT_CONSTANT  */
+    FLOAT_CONSTANT = 262,          /* FLOAT_CONSTANT  */
+    INTEGER = 263,                 /* INTEGER  */
+    FLOAT = 264,                   /* FLOAT  */
+    TEXT = 265,                    /* TEXT  */
+    AND = 266,                     /* AND  */
+    OR = 267,                      /* OR  */
+    NOT = 268,                     /* NOT  */
+    MULT = 269,                    /* MULT  */
+    PLUS = 270,                    /* PLUS  */
+    MINUS = 271,                   /* MINUS  */
+    DIV = 272,                     /* DIV  */
+    GE = 273,                      /* GE  */
+    LT = 274,                      /* LT  */
+    GT = 275,                      /* GT  */
+    LE = 276,                      /* LE  */
+    NE = 277,                      /* NE  */
+    EQ = 278,                      /* EQ  */
+    SEMICOLON = 279,               /* SEMICOLON  */
+    COMMIT = 280,                  /* COMMIT  */
+    ROLLBACK = 281,                /* ROLLBACK  */
+    WITH = 282,                    /* WITH  */
+    COMMA = 283,                   /* COMMA  */
+    AS = 284,                      /* AS  */
+    ROUND_BRACKET_OPEN = 285,      /* ROUND_BRACKET_OPEN  */
+    ROUND_BRACKET_CLOSE = 286,     /* ROUND_BRACKET_CLOSE  */
+    SELECT = 287,                  /* SELECT  */
+    FROM = 288,                    /* FROM  */
+    WHERE = 289,                   /* WHERE  */
+    CREATE = 290,                  /* CREATE  */
+    TABLE = 291,                   /* TABLE  */
+    RANGE = 292,                   /* RANGE  */
+    PRIMARY = 293,                 /* PRIMARY  */
+    KEY = 294,                     /* KEY  */
+    INSERT = 295,                  /* INSERT  */
+    INTO = 296,                    /* INTO  */
+    VALUES = 297,                  /* VALUES  */
+    ASSIGN = 298,                  /* ASSIGN  */
+    UPDATE = 299,                  /* UPDATE  */
+    SET = 300,                     /* SET  */
+    DELETE = 301,                  /* DELETE  */
+    INFINITY = 302,                /* INFINITY  */
+    BETWEEN = 303,                 /* BETWEEN  */
+    REDC = 304                     /* REDC  */
   };
+  typedef enum yytokentype yytoken_kind_t;
 #endif
 
 /* Value type.  */
@@ -127,7 +133,7 @@ union YYSTYPE
     CondAST* logast;
     RelAST* relast;
 
-#line 131 "parser.tab.h"
+#line 137 "parser.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -151,6 +157,8 @@ struct YYLTYPE
 
 
 
+
 int yyparse (yyscan_t scanner);
+
 
 #endif /* !YY_YY_PARSER_TAB_H_INCLUDED  */
