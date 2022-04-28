@@ -63,7 +63,7 @@ int printRow(void *callbackObj, RecId rid, Byte *row, int len)
     return 0;
 }
 
-#define DB_NAME (char*)"data.db"
+#define DB_NAME (char*)"data2.db"
 #define INDEX_NAME "data.db.0"
 
 /*
@@ -94,27 +94,19 @@ int main(int argc, char **argv)
     PF_Init();          // Initialize the pflayer
     int err, fd;
     // checking if database exists
-    printf("yahan0?\n");
     fd = PF_OpenFile(DB_NAME);
-    printf("yahan1?\n");
 
     if(fd < 0) {
         printf(DB_NAME);
         printf("\ndatabase does not exist \n");
         return -1;
     }
-    printf("yahan2?\n");
     PF_CloseFile(fd);
-    printf("yahan3?\n");
     
     // opening database table if it exists
-    printf("%s", schema->columns[0]->name);
     err = Table_Open(DB_NAME, schema, false, &tbl);
-    printf("yahan4?\n");
-    cout << *tbl->lastPage << endl;
 
     checkerr(err);
-    printf("yahan5?\n");
     Table_Scan(tbl, schema, printRow);
 
     // if (argc == 2 && *(argv[1]) == 's')

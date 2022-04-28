@@ -77,16 +77,33 @@ query
     : with_query SEMICOLON query SEMICOLON
     | select_query SEMICOLON
     {   
-        cout << "here" << endl;
-        cout << *(int *)yyget_extra(scanner) << endl;
         results[*(int *)yyget_extra(scanner)] = $1;
     }
     | create_query SEMICOLON
+    {
+        cout << "here" << endl;
+        results[*(int *)yyget_extra(scanner)] = new Temp_Table();
+    }
     | insert_query SEMICOLON
+    {
+        results[*(int *)yyget_extra(scanner)] = new Temp_Table();
+    }
     | update_query SEMICOLON
+    {
+        results[*(int *)yyget_extra(scanner)] = new Temp_Table();
+    }
     | delete_query SEMICOLON
+    {
+        results[*(int *)yyget_extra(scanner)] = new Temp_Table();
+    }
     | COMMIT SEMICOLON
+    {
+        results[*(int *)yyget_extra(scanner)] = new Temp_Table();
+    }
     | ROLLBACK SEMICOLON
+    {
+        results[*(int *)yyget_extra(scanner)] = new Temp_Table();
+    }
 ;
 
 with_query
@@ -127,6 +144,9 @@ table_desc
 select_query
     : SELECT column_list FROM table_list 
     {
+        for(auto table: *$4)
+            cout<<table<<"a";
+        cout<<endl;
         Temp_Table *temp = new Temp_Table();
         checkerr(execute_select(temp, *$4, *$2));
         $$ = temp;
@@ -259,6 +279,7 @@ create_query
     }
     | CREATE TABLE NAME ROUND_BRACKET_OPEN column_desc_list ROUND_BRACKET_CLOSE 
     {
+        cout<<"sdfsdbgfd"<<endl;
         checkerr(execute_create(*$3, *$5));
     }
 ;
@@ -283,6 +304,7 @@ column_desc
     }
     | NAME type 
     {
+        cout<<"dgerdfhtf"<<endl;
         $$ = new ColumnDesc(&(*$1)[0], $2);
     }
 ;
@@ -307,6 +329,8 @@ constraint
 insert_query
     : INSERT INTO NAME VALUES ROUND_BRACKET_OPEN column_val_list ROUND_BRACKET_CLOSE 
     {
+        cout<<"scfkjbhsdkj"<<endl;
+        cout<<(*$3)<<endl;
         checkerr(execute_insert(*$3, *$6));
     }
 ;
@@ -374,7 +398,7 @@ delete_query
 
 void yyerror(YYLTYPE* yyllocp, yyscan_t unused, const char* msg)
 {
-    // cerr<<err<<endl;
+    cerr<<msg<<endl;
     return;
 }
 

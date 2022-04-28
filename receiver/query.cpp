@@ -609,6 +609,7 @@ int execute_create(string table_name, vector<ColumnDesc*> &column_desc_list, vec
 int execute_insert(string table_name, vector<string> column_val_list) {
     try {
 
+        cout<<table_name<<" "<<column_val_list.size()<<endl;
         if(table_name_to_id.find(table_name) == table_name_to_id.end()) 
             return C_TABLE_NOT_FOUND;
 

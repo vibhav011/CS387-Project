@@ -23,8 +23,8 @@ ROLLBACK { return ROLLBACK; }
 WITH { return WITH; }
 , { return COMMA; }
 AS { return AS; }
-"(" { return ROUND_BRACKET_OPEN; }
-")" { return ROUND_BRACKET_CLOSE; }
+"(" { cout<<"left\n";return ROUND_BRACKET_OPEN; }
+")" { cout<<"right\n";return ROUND_BRACKET_CLOSE; }
 SELECT { return SELECT; }
 FROM { return FROM; }
 WHERE { return WHERE; }
@@ -50,12 +50,12 @@ INT {
     return INTEGER; 
 }
 
-FLOAT { 
+DOUBLE { 
     yylval->int_val = DOUBLE;
     return FLOAT; 
 }
 
-TEXT { 
+VARCHAR { 
     yylval->int_val = VARCHAR;
     return TEXT; 
 }
@@ -79,12 +79,14 @@ INFINITY { return INFINITY; }
 }
 
 {letter}({letter}|{digit})* {
+    cout<<"name"<<endl;
     yylval->str = new string;
     *(yylval->str) = yytext;
     return NAME; 
 }
 
-\"[^\"]\" { 
+\"[^\"]+\" { 
+    cout<<"text"<<endl;
     *(yylval->str) = yytext;
     return TEXT_CONSTANT; 
 }
@@ -100,5 +102,7 @@ INFINITY { return INFINITY; }
     *(yylval->str) = yytext;
     return FLOAT_CONSTANT; 
 }
+
+. {}
 
 %%

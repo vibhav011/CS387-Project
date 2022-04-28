@@ -10,7 +10,7 @@ extern vector<Table*> tables;
 extern vector<ChangeLog> change_logs;
 
 int main() {
-    vector<string> tabel_names = {"data", "data1"};
+    vector<string> table_names = {"data", "data1"};
     vector<string> col_names = {"Country", "Capital", "Pop"};
     
     ColumnDesc* col1 = new ColumnDesc((char*)"Country", VARCHAR);
@@ -49,15 +49,15 @@ int main() {
     ConstAST* const_ast = new ConstAST(data);
     RelAST* cond_tree = new RelAST(col_ast, const_ast, _GT);
 
-    vector<string> fetch_cols = {"Capital", "Pop", "Country"};
+    vector<string> fetch_cols = {"Country"};
     vector<string> fetch_tables = {"data"};
-    execute_select(result, fetch_tables, fetch_cols, cond_tree);
+    execute_select(result, fetch_tables, fetch_cols);
     result->prettyPrint();
 
     vector<int> v = {0};
     execute_commit(&v);
     cout<<"Executed commit on data"<<endl;
-    
+
     execute_select(result, fetch_tables, fetch_cols, cond_tree);
     result->prettyPrint();
 }

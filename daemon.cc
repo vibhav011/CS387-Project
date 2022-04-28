@@ -220,8 +220,12 @@ int myhandler(string query, Conn *conn){
     yyparse(conn->scanner);
     cout << query << endl;
     fclose(conn->f);
+    cout<<query<<endl;
 
     results[conn->worker_id]->prettyPrint();
+    cout<<"ankit"<<endl;
+    delete results[conn->worker_id];
+    results[conn->worker_id] = NULL;
     
     write(conn->stdout_fd, "this is another output\n", 23);
 

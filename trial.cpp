@@ -2,7 +2,7 @@
 using namespace std;
 int main()
 {
-    string s = "ankit";
-    cout<<s.find("x")<<endl;
+    string s = "342";
+    cout<<stoi("342")<<endl;
     return 0;
 }
