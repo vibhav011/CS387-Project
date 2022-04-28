@@ -150,8 +150,6 @@ Table_Insert(Table *tbl, Byte *record, int len, RecId *rid) {
     return 0;
 }
 
-#define checkerr(err) {if (err < 0) {PF_PrintError("err"); exit(EXIT_FAILURE);}}
-
 /*
   Given an rid, fill in the record (but at most maxlen bytes).
   Returns the number of bytes copied.

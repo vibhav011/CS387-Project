@@ -47,7 +47,7 @@ Schema *
 parseSchema(char *buf) {
     buf = strdup(buf);
     char *tokens[MAX_TOKENS];
-    int n = split(buf, ",", tokens);
+    int n = split(buf, (char*)",", tokens);
     Schema *sch = (Schema*)malloc(sizeof(Schema));
     sch->columns = (ColumnDesc**)malloc(n * sizeof(ColumnDesc *));
     // strtok is terrible; it depends on global state.
@@ -56,7 +56,7 @@ parseSchema(char *buf) {
     char *descTokens[MAX_TOKENS];
     sch->numColumns = n;
     for (int i = 0; i < n; i++) {
-	int c = split(tokens[i],":", descTokens);
+	int c = split(tokens[i], (char*)":", descTokens);
 	assert(c == 2);
 	ColumnDesc *cd = (ColumnDesc *) malloc(sizeof(ColumnDesc));
 	cd->name = strdup(descTokens[0]);
