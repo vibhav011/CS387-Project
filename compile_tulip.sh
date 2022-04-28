@@ -1,5 +1,5 @@
-# shopt -s expand_aliases
-# source ~/.zprofile
+shopt -s expand_aliases
+source ~/.zprofile
 
 rm -rf data.db *.tbl a.out
 
@@ -20,4 +20,6 @@ g++ -c utils.cpp
 g++ -c ast.cc
 g++ -c receiver/commit.cpp
 g++ no_parse_tulip.cpp ast.o query.o commit.o dblayer/tbl.o dblayer/codec.o pflayer/pf.o pflayer/buf.o pflayer/hash.o utils.o
+# cp ./data.db ./dblayer/
+# ./dblayer/dumpdb
 # g++ daemon.cc y.tab.o query.o ast.o -o daemon -pthread

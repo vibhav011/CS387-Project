@@ -6,7 +6,7 @@ using namespace std;
 extern
 
 // dumping float_val for each entry, read float_val in read_log as well
-int dump_log(Table *tbl, ChangeLog &change_log, string filename){
+int dump_clog(Table *tbl, ChangeLog &change_log, string filename){
     fstream fs;
     fs.open(filename, fstream::out);
 
@@ -34,7 +34,11 @@ int dump_log(Table *tbl, ChangeLog &change_log, string filename){
     fs.close();
 }
 
-int read_log(ChangeLog &change_log, string filename){
+int dump_mlog(Table *tbl, MappingLog& mapping_log, string filename) {
+    return C_OK;
+}
+
+int read_clog(ChangeLog &change_log, string filename){
 
     ifstream indata; 
     int num; 
@@ -92,4 +96,8 @@ int read_log(ChangeLog &change_log, string filename){
     }
     indata.close();
     
+}
+
+int read_mlog(MappingLog& mapping_log, string filename) {
+    return C_OK;
 }

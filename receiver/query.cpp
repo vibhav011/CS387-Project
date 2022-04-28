@@ -567,7 +567,8 @@ int execute_create(string table_name, vector<ColumnDesc*> &column_desc_list, vec
             schema->columns[i] = new ColumnDesc(column_desc_list[i-1]->name, column_desc_list[i-1]->type);
 
         Table* tbl = new Table();
-        int err = Table_Open(&(table_name+".tbl")[0], schema, false, &tbl);
+        cout<<"table open with db name : "<<&(table_name+".db")[0]<<endl;
+        int err = Table_Open(&(table_name+".db")[0], schema, false, &tbl);
         if(err<0) {
             delete tbl;
             return -1;
