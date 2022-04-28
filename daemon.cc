@@ -2,12 +2,28 @@
 #include <string.h>
 #include <mutex>
 #include "sock.hpp"
+#include "utils.h"
+#include "./receiver/query.h"
+
 using namespace std;
 
+int Conn::id = 0;
+vector<Temp_Table*> results;
+
+
+Conn::Conn(){
+    this->worker_id = id++;
+    sprintf(this->fname, "/tmp/toydb.%d", this->worker_id);
+
+    yylex_init_extra(&this->worker_id, &this->scanner);
+}
+
 Daemon::Daemon(const char *sock_path, request_handler_t func){
+    this->conn = vector<Conn*>(MAX_PROCESSES);
+
     for(int i=0; i<MAX_PROCESSES; i++){
-        this->conn[i].conn_thread = NULL;
-        this->conn[i].worker_id = i;
+        this->conn[i] = new Conn(); 
+        this->conn[i]->conn_thread = NULL; 
     }
 
     struct sockaddr_un addr;
@@ -44,13 +60,15 @@ Daemon::Daemon(const char *sock_path, request_handler_t func){
         close(this->sock_fd);
         exit(1);
     }
+
+    results = vector<Temp_Table*>(MAX_PROCESSES);
 }
 
 Daemon::~Daemon(){
     close(this->sock_fd);
     for(int i=0; i<MAX_PROCESSES; i++){
-        if(this->conn[i].inuse || this->conn[i].conn_thread!=NULL) this->conn[i].conn_thread->join();
-        delete this->conn[i].conn_thread;
+        if(this->conn[i]->inuse || this->conn[i]->conn_thread!=NULL) this->conn[i]->conn_thread->join();
+        delete this->conn[i]->conn_thread;
     }
 }
 
@@ -118,7 +136,7 @@ int Daemon::accept_conn(){
 
     /* Find free slot in the connections array */
     for (i = 0; i < MAX_PROCESSES; i++){
-        if(!this->conn[i].inuse) break;
+        if(!this->conn[i]->inuse) break;
     }
 
     if(i>=MAX_PROCESSES){
@@ -127,11 +145,11 @@ int Daemon::accept_conn(){
         return -1;
     }
     // cout << "here" << endl;
-    if(this->conn[i].conn_thread != NULL) this->conn[i].conn_thread->join();
+    if(this->conn[i]->conn_thread != NULL) this->conn[i]->conn_thread->join();
 
-    this->conn[i].inuse = 1;
-    this->conn[i].client_fd = cl;
-    int err = this->recv_stdout(&this->conn[i]);
+    this->conn[i]->inuse = 1;
+    this->conn[i]->client_fd = cl;
+    int err = this->recv_stdout(this->conn[i]);
 
     if(err < 0){
         perror("didn't recieve the stdout fd");
@@ -139,7 +157,7 @@ int Daemon::accept_conn(){
         return -1;
     }
 
-    this->conn[i].conn_thread = new std::thread(&Daemon::thread_func, this, &this->conn[i]);
+    this->conn[i]->conn_thread = new std::thread(&Daemon::thread_func, this, this->conn[i]);
 
     return 0;
 }
@@ -164,7 +182,7 @@ void Daemon::thread_func(Conn *conn){
             conn->inuse = 0;
             break;
         }
-        int resp = this->query_handler(string(buf), conn->stdout_fd, conn->worker_id);
+        int resp = this->query_handler(string(buf), conn);
 
         q_len = send(conn->client_fd, "OK", 2, MSG_NOSIGNAL);
         if(q_len != 2){
@@ -184,22 +202,25 @@ extern string global_query;
 extern mutex query_mutex;
 extern int yyparse(int);
 
-int myhandler(string query, int fd, int worker_id){
-    size_t pos_start = 0, pos_end;
-    string token;
-
-    while (pos_start < query.size() && (pos_end = query.find (";", pos_start)) != string::npos) {
-        token = query.substr (pos_start, pos_end - pos_start);
-        pos_start = pos_end + 1;
-        token.push_back(';');
-
-        query_mutex.lock();
-        global_query = token;
-        yyparse(worker_id);
-        query_mutex.unlock();
-    }
+int myhandler(string query, Conn *conn){
     cout << query << endl;
-    write(fd, "this is another output\n", 23);
+
+    conn->f = fopen(conn->fname, "w");
+    fprintf(conn->f, "%s", query.c_str());
+    fclose(conn->f);
+
+    conn->f = fopen(conn->fname, "r");
+    yyset_in(conn->f, conn->scanner);
+    
+    cout << query << endl;
+
+    yyparse(conn->scanner);
+    cout << query << endl;
+    fclose(conn->f);
+
+    results[conn->worker_id]->prettyPrint();
+    
+    write(conn->stdout_fd, "this is another output\n", 23);
 
     return 0;
 }

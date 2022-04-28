@@ -1,20 +1,27 @@
+%define api.pure full
+%locations
+%param { yyscan_t scanner }
+
 %{
 #include "./receiver/query.h"
 #include "ast.h"
 #include "utils.h"
 
-int yyerror(int id, const char *);
-void checkerr(int err_code);
-
 extern vector<Temp_Table*> results;
 int const_type;
 
-extern int yylex();
-extern int readInputForLexer(char* buffer,unsigned long *numBytesRead,int maxBytesToRead);
-
 %}
 
-%parse-param {int worker_id}
+%code requires {
+  typedef void* yyscan_t;
+}
+
+%code {
+    int yylex(YYSTYPE* yylvalp, YYLTYPE* yyllocp, yyscan_t scanner);
+    void yyerror(YYLTYPE* yyllocp, yyscan_t unused, const char* msg);
+    void* yyget_extra ( yyscan_t yyscanner );
+    void checkerr(int err_code);
+}
 
 %union {
     int int_val;
@@ -69,8 +76,10 @@ extern int readInputForLexer(char* buffer,unsigned long *numBytesRead,int maxByt
 query
     : with_query SEMICOLON query SEMICOLON
     | select_query SEMICOLON
-    {
-        results[worker_id] = $1;
+    {   
+        cout << "here" << endl;
+        cout << *(int *)yyget_extra(scanner) << endl;
+        results[*(int *)yyget_extra(scanner)] = $1;
     }
     | create_query SEMICOLON
     | insert_query SEMICOLON
@@ -137,7 +146,8 @@ column_list
         $$->push_back(*$3);
     }
     | column 
-    {
+    {   
+        cout << "here" << endl;
         $$ = new vector<string> (1, *$1);
     }
 ;
@@ -362,10 +372,10 @@ delete_query
 
 %%
 
-int yyerror(int id, const char *err)
+void yyerror(YYLTYPE* yyllocp, yyscan_t unused, const char* msg)
 {
-    cerr<<err<<endl;
-    return 1;
+    // cerr<<err<<endl;
+    return;
 }
 
 void checkerr(int err_code) {
