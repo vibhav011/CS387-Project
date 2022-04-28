@@ -355,7 +355,6 @@ int execute_select(Temp_Table *result, vector<string> table_names, vector<string
         log_scan(callbackObj);
         int retval = callbackObj->ret_value;
         delete callbackObj;
-        cout<<result->schema->columns[1]->name<<endl;
         return retval;
     }
 
