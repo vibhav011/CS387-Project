@@ -14,6 +14,15 @@ struct Temp_Table {
     Schema* schema;
     vector<Table_Row*> rows;
 
+    Temp_Table(Schema* schema) {
+        this->schema = schema;
+    }
+
+    ~Temp_Table() {
+        for (int i = 0; i < rows.size(); i++)
+            delete rows[i];
+    }
+
     void set_schema_columns(vector<string> names)
     {
         for(int i=0;i<names.size();i++)

@@ -99,6 +99,7 @@ Table_Close(Table *tbl) {
     }
     free(tbl->lastPage);
     free(tbl->pagebuf);
+    delete tbl->schema;
     free(tbl);
 }
 

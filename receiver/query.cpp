@@ -28,6 +28,13 @@ void Table_Scan(Temp_Table *tbl, void *callbackObj, ReadFunc callbackfn) {
     }
 }
 
+void delete_table_row_fields(Table_Row *tr, Schema *schema) {
+    for (int i = 0; i < schema->numColumns; i++) {
+        if (tr->fields[i].str_val != NULL)
+            delete tr->fields[i].str_val;
+    }
+}
+
 void decode_to_table_row(Table_Row *result, Schema *schema, Byte *row) {
     Byte *cursor = row;
     for (int i = 0; i < schema->numColumns; i++)
@@ -70,16 +77,19 @@ int Table_Single_Select(void *callbackObj, RecId rid, Byte *row, int len) {
     if(cObj->tbl2_id != -1)
         tbl2 = tables[cObj->tbl2_id];
 
+    bool decoded = false;
     if(cObj->tr1 != NULL) {
         *tr = *cObj->tr1;
         cObj->tr1 = NULL;
     } else {
+        decoded = true;
         // Decoding the fields
         decode_to_table_row(tr, tbl1->schema, row);
         int unique_id = tr->fields[0].int_val;
         ChangeLog& change_log = change_logs[cObj->tbl1_id];
         if (change_log.find(unique_id) != change_log.end()) {
             if (change_log[unique_id].new_value == NULL) { // The row is deleted
+                delete_table_row_fields(tr, tbl1->schema);
                 delete tr;
                 return C_OK;
             }
@@ -87,6 +97,7 @@ int Table_Single_Select(void *callbackObj, RecId rid, Byte *row, int len) {
         }
     }
     int ret = query_process(cObj, tr);
+    if (decoded) delete_table_row_fields(tr, tbl1->schema);
     delete tr;
     return ret;
 }
@@ -95,10 +106,12 @@ int Table_Single_Select_Join(void *callbackObj, RecId rid, Byte *row, int len) {
     Query_Obj* cObj = (Query_Obj *)callbackObj;
     Table_Row* tr = new Table_Row();
 
+    bool decoded = false;
     if (cObj->tr1 != NULL) {            // The second table is temp_table
         *tr = *cObj->tr1;
         cObj->tr1 = NULL;
     } else {
+        decoded = true;
         // Decoding the fields
         Table* tbl2 = tables[cObj->tbl2_id];
         decode_to_table_row(tr, tbl2->schema, row);
@@ -106,6 +119,7 @@ int Table_Single_Select_Join(void *callbackObj, RecId rid, Byte *row, int len) {
         ChangeLog& change_log = change_logs[cObj->tbl2_id];
         if(change_log.find(unique_id) != change_log.end()) {
             if (change_log[unique_id].new_value == NULL) {    // The row is deleted
+                delete_table_row_fields(tr, tbl2->schema);
                 delete tr;
                 return C_OK;
             }
@@ -119,6 +133,7 @@ int Table_Single_Select_Join(void *callbackObj, RecId rid, Byte *row, int len) {
     log_scan(cObj);
     
     cObj->tr2 = NULL;
+    if (decoded) delete_table_row_fields(tr, tbl1->schema);
     delete tr;
     return cObj->ret_value;
 }
@@ -126,12 +141,12 @@ int Table_Single_Select_Join(void *callbackObj, RecId rid, Byte *row, int len) {
 int log_scan(Query_Obj *cObj)
 {
     ChangeLog &logs = change_logs[cObj->tbl1_id];
-    for(pair<int, Log_entry> entry: logs)
+    for(auto entry = logs.begin(); entry != logs.end(); entry++)
     {
-        if(entry.second.change_type != _INSERT)
+        if(entry->second.change_type != _INSERT)
             continue;
         Table_Row *tr = new Table_Row();
-        *tr = *(entry.second.new_value);
+        *tr = *(entry->second.new_value);
         int err = query_process(cObj, tr);
         delete tr;
         if(err != 0)
@@ -143,12 +158,13 @@ int log_scan(Query_Obj *cObj)
 int log_scan_join(Query_Obj *cObj)
 {
     ChangeLog &logs = change_logs[cObj->tbl2_id];
-    for(pair<int, Log_entry> entry: logs)
+    for(auto entry = logs.begin(); entry != logs.end(); entry++)
+
     {
-        if(entry.second.change_type != _INSERT)
+        if(entry->second.change_type != _INSERT)
             continue;
         Table_Row *tr = new Table_Row();
-        *tr = *(entry.second.new_value);
+        *tr = *(entry->second.new_value);
         cObj->tr2 = tr;
         Table_Scan(tables[cObj->tbl1_id], cObj, Table_Single_Select);
         log_scan(cObj);
@@ -306,7 +322,7 @@ int execute_select(Temp_Table *result, vector<string> table_names, vector<string
     callbackObj->ret_value = 0;
     Table_Scan(tbl2, callbackObj, Table_Single_Select_Join);
     log_scan_join(callbackObj);
-    // TODO: Delete callbackObj properly
+    delete callbackObj; // TODO: Delete callbackObj properly
     return callbackObj->ret_value;
 }
 
@@ -359,7 +375,7 @@ bool passes_pk_constraints(string table_name, Table_Row* row) {
     int table_id = table_name_to_id[table_name];
     Table* tbl  = tables[table_id];
 
-    Temp_Table* result = new Temp_Table();
+    Temp_Table* result = new Temp_Table(tbl->schema);
     int ret = execute_select(result, {table_name}, tbl->pk);
 
     if(ret != C_OK)
@@ -404,14 +420,12 @@ bool passes_pk_constraints(string table_name, Table_Row* row) {
 int execute_update(string table_name, vector<Update_Pair*>* update_list, CondAST* cond_tree) {
     try {
         if(table_name_to_id.find(table_name) == table_name_to_id.end()) return C_TABLE_NOT_FOUND;
-        int table_num = table_name_to_id[table_name];
-        Table* tbl  = tables[table_num];
-        vector<string>* all_cols = new vector<string>(1, "*");
-        Temp_Table* result = new Temp_Table();
-        vector<string>* vec_table_name = new vector<string>(1, table_name);
-        int ret = execute_select(result, *vec_table_name, tbl->pk, NULL);
-        delete vec_table_name;
-        delete all_cols;
+        int table_id = table_name_to_id[table_name];
+        Table* tbl  = tables[table_id];
+        
+        Temp_Table* result = new Temp_Table(tbl->schema);
+        int ret = execute_select(result, {table_name}, {"*"}, NULL);
+        
         for(int i=0; i<result->rows.size(); i++){
             Table_Row* old_value = result->rows[i];
             Table_Row* new_value = new Table_Row();
@@ -419,23 +433,61 @@ int execute_update(string table_name, vector<Update_Pair*>* update_list, CondAST
             for (int j = 0; j < update_list->size(); j++)
             {
                 int change_col_num = tbl->schema->getColumnNum(((*update_list)[j]->lhs).c_str());
-                if(change_col_num == -1) {
+                if(change_col_num == -1)
                     return -1;
-                }
-                bool violates = ! passes_range_constraints(table_name, change_col_num, (*update_list)[j]->rhs);
-                if(violates) {
-                    delete result;
-                    return -1;
-                }
+
                 string* new_rhs = new string((*update_list)[j]->rhs);
-                new_value->fields[change_col_num].str_val = new_rhs;
-                violates = ! passes_pk_constraints(table_name, new_value);
-                if(violates) {
+                switch (tbl->schema->columns[change_col_num]->type)
+                {
+                    case INT:
+                        try {
+                            int new_int_value = atoi((*new_rhs).c_str());
+                            new_value->fields[change_col_num].int_val = new_int_value;
+                        }
+                        catch(int x) {
+                            return -1;
+                        }
+                        delete new_rhs;
+                        break;
+                    case DOUBLE:
+                        try {
+                            double new_float_value = atof((*new_rhs).c_str());
+                            new_value->fields[change_col_num].float_val = new_float_value;
+                        }
+                        catch(int x) {
+                            return -1;
+                        }
+                        delete new_rhs;
+                        break;
+                    case VARCHAR:
+                        new_value->fields[change_col_num].str_val = new_rhs;
+                        break;
+                    default:
+                        break;
+                }
+                if(!passes_range_constraints(table_name, change_col_num, (*update_list)[j]->rhs)) {
                     delete result;
+                    for (int k = 0; k < tbl->schema->numColumns; k++) {
+                        if (tbl->schema->columns[k]->type == VARCHAR) {
+                            delete new_value->fields[k].str_val;
+                        }
+                    }
+                    delete new_value;
+                    return -1;
+                }
+                
+                if(!passes_pk_constraints(table_name, new_value)) {
+                    delete result;
+                    for (int k = 0; k < tbl->schema->numColumns; k++) {
+                        if (tbl->schema->columns[k]->type == VARCHAR) {
+                            delete new_value->fields[k].str_val;
+                        }
+                    }
+                    delete new_value;
                     return -1;
                 }
             }
-            ChangeLog &change_log = change_logs[table_num];
+            ChangeLog &change_log = change_logs[table_id];
             int unqiue_id = result->rows[i]->fields[0].int_val;
 
             if (change_log.find(unqiue_id) != change_log.end()) {
@@ -445,14 +497,16 @@ int execute_update(string table_name, vector<Update_Pair*>* update_list, CondAST
             }
             else {
                 Log_entry* log_entry = new Log_entry();
-                log_entry->old_value = old_value;
+                log_entry->old_value = new Table_Row();
+                *(log_entry->old_value) = *old_value;
                 log_entry->new_value = new_value;
                 log_entry->change_type = _UPDATE;
                 change_log[unqiue_id] = *log_entry;
+                delete log_entry;
             }
         }
         delete result;
-        return 0;
+        return C_OK;
     }
     catch(int x) {
         return -1;
@@ -482,7 +536,7 @@ int execute_create(string table_name, vector<ColumnDesc*> &column_desc_list, vec
         table_name_to_id[table_name] = tables.size();
         UIds.push_back(0);
         tables.push_back(tbl);
-        map<int, Log_entry> chnglog;
+        ChangeLog chnglog;
         change_logs.push_back(chnglog);
         return 0;
     }
@@ -530,13 +584,27 @@ int execute_insert(string table_name, vector<string> column_val_list) {
             }
         }
 
-        if(!passes_pk_constraints(table_name, new_row))
+        if(!passes_pk_constraints(table_name, new_row)) {
+            for (int j = 0; j < schema->numColumns; j++) {
+                if (schema->columns[j]->type == VARCHAR) {
+                    delete new_row->fields[j].str_val;
+                }
+            }
+            delete new_row;
             return -1;
+        }
                 
         for(int i=1;i<schema->numColumns;i++)
         {
-            if(!passes_range_constraints(table_name, i, column_val_list[i-1]))
+            if(!passes_range_constraints(table_name, i, column_val_list[i-1])) {
+                for (int j = 0; j < schema->numColumns; j++) {
+                    if (schema->columns[j]->type == VARCHAR) {
+                        delete new_row->fields[j].str_val;
+                    }
+                }
+                delete new_row;
                 return -1;
+            }
         }
 
         Log_entry log_entry;
@@ -555,20 +623,15 @@ int execute_insert(string table_name, vector<string> column_val_list) {
 int execute_delete(string table_name, CondAST* cond_tree) {
     try {
         if(table_name_to_id.find(table_name) == table_name_to_id.end()) return C_TABLE_NOT_FOUND;
-        int table_num = table_name_to_id[table_name];
-        Table* tbl  = tables[table_num];
-        vector<string>* all_cols = new vector<string>(1, "*");
-        Temp_Table* result = new Temp_Table();
-        vector<string>* vec_table_name = new vector<string>(1, table_name);
-        int ret = execute_select(result, *vec_table_name, tbl->pk, NULL);
-        delete vec_table_name;
-        delete all_cols;
+        int table_id = table_name_to_id[table_name];
+        Table* tbl = tables[table_id];
+
+        Temp_Table* result = new Temp_Table(tbl->schema);
+        int ret = execute_select(result, {table_name}, {"*"}, cond_tree);
+
         for (int i = 0; i < result->rows.size(); i++)
         {
-            Log_entry* log_entry = new Log_entry();
-            int table_num = table_name_to_id[table_name];
-
-            ChangeLog &change_log = change_logs[table_num];
+            ChangeLog &change_log = change_logs[table_id];
             int unqiue_id = result->rows[i]->fields[0].int_val;
 
             if (change_log.find(unqiue_id) != change_log.end()) {
@@ -578,13 +641,16 @@ int execute_delete(string table_name, CondAST* cond_tree) {
             }
             else {
                 Log_entry* log_entry = new Log_entry();
-                log_entry->old_value = result->rows[i];
+                log_entry->old_value = new Table_Row();
+                *(log_entry->old_value) = *(result->rows[i]);
                 log_entry->new_value = NULL;
                 log_entry->change_type = _DELETE;
                 change_log[unqiue_id] = *log_entry;
+                delete log_entry;
             }
         }
-        return 0;
+        delete result;
+        return C_OK;
     }
     catch (int x) {
         return -1;

@@ -45,20 +45,32 @@ struct ColumnDesc {
     }
 };
 
-typedef struct {
+struct Schema {
     int numColumns;
     ColumnDesc **columns; // array of column descriptors
+
+    ~Schema()
+    {
+        for (int i = 0; i < numColumns; i++)
+            delete columns[i];
+        delete[] columns;
+    }
+
     int getColumnNum(const char* name) {
         for(int i = 0; i<numColumns; i++) {
             if(strcmp(columns[i]->name, name) == 0) return i;
         }
         return -1;
     }
-} Schema;
+};
 
-typedef struct {
+struct Table {
     Schema *schema;
     vector<string> pk;
+
+    ~Table() {
+        delete schema;
+    }
 
     string name;     // name of the table
     int fd;          // file descriptor of associated file 
@@ -66,7 +78,7 @@ typedef struct {
     char **pagebuf;  // last page buffer
     int numPages;    // number of pages in file
     
-} Table ;
+};
 
 typedef struct {
     int numSlots;                       // number of slots in page
