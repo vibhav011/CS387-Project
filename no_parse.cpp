@@ -43,8 +43,13 @@ int main() {
     execute_insert("data1", col_val_list4);
     cout<<"Inserted second row in data1"<<endl;
 
+    ColAST* col_ast = new ColAST("data.Pop");
+    Constant* data = new Constant("34", INT);
+    ConstAST* const_ast = new ConstAST(data);
+    RelAST* cond_tree = new RelAST(col_ast, const_ast, _GT);
+
     vector<string> fetch_cols = {"Capital", "Pop", "Country"};
-    vector<string> fetch_tables = {"data1"};
-    execute_select(result, fetch_tables, fetch_cols);
+    vector<string> fetch_tables = {"data"};
+    execute_select(result, fetch_tables, fetch_cols, cond_tree);
     result->prettyPrint();
 }

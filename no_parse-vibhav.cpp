@@ -102,7 +102,7 @@ int main() {
     // cout<<le.new_value->fields[3].int_val<<endl;
 
     // ColAST* col_ast = new ColAST("data.Country");
-    // Constant* data = new Constant("Albania", _TEXT);
+    // Constant* data = new Constant("Albania", VARCHAR);
     // cout<<"here?"<<endl;
     // ConstAST* const_ast = new ConstAST(data);
     // RelAST* cond_tree = new RelAST(col_ast, const_ast, _EQ);

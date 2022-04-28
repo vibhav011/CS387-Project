@@ -247,9 +247,9 @@ expression
 ;
 
 constant
-    : TEXT_CONSTANT {$$ = new Constant(*$1, _TEXT);}
-    | INT_CONSTANT {$$ = new Constant(*$1, _INT);}
-    | FLOAT_CONSTANT {$$ = new Constant(*$1, _FLOAT);}
+    : TEXT_CONSTANT {$$ = new Constant(*$1, VARCHAR);}
+    | INT_CONSTANT {$$ = new Constant(*$1, INT);}
+    | FLOAT_CONSTANT {$$ = new Constant(*$1, FLOAT);}
 ;
 
 create_query
@@ -277,7 +277,7 @@ column_desc_list
 column_desc
     : NAME type range 
     {
-        if($2 == _TEXT)
+        if($2 == VARCHAR)
             return -1;
         $$ = new ColumnDesc(&(*$1)[0], $2, $3->lower_bound, $3->upper_bound);
     }
