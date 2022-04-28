@@ -1753,19 +1753,19 @@ yyreduce:
 
   case 40:
 #line 240 "parser.y"
-                    {(yyval.constant) = new Constant(*(yyvsp[0].str), _TEXT);}
+                    {(yyval.constant) = new Constant(*(yyvsp[0].str), VARCHAR);}
 #line 1758 "y.tab.c"
     break;
 
   case 41:
 #line 241 "parser.y"
-                   {(yyval.constant) = new Constant(*(yyvsp[0].str), _INT);}
+                   {(yyval.constant) = new Constant(*(yyvsp[0].str), INT);}
 #line 1764 "y.tab.c"
     break;
 
   case 42:
 #line 242 "parser.y"
-                     {(yyval.constant) = new Constant(*(yyvsp[0].str), _FLOAT);}
+                     {(yyval.constant) = new Constant(*(yyvsp[0].str), FLOAT);}
 #line 1770 "y.tab.c"
     break;
 
@@ -1804,7 +1804,7 @@ yyreduce:
   case 47:
 #line 269 "parser.y"
     {
-        if((yyvsp[-1].int_val) == _TEXT)
+        if((yyvsp[-1].int_val) == VARCHAR)
             return -1;
         (yyval.col_desc) = new ColumnDesc(&(*(yyvsp[-2].str))[0], (yyvsp[-1].int_val), (yyvsp[0].range)->lower_bound, (yyvsp[0].range)->upper_bound);
     }

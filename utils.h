@@ -17,6 +17,7 @@ typedef union {
     string* str_val;
     double float_val;
 } Entry;
+
 typedef enum {_UPDATE, _INSERT, _DELETE} Change_type;
 
 class Table_Row

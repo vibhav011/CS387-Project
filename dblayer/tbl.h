@@ -48,11 +48,13 @@ struct ColumnDesc {
 struct Schema {
     int numColumns;
     ColumnDesc **columns; // array of column descriptors
+    string table_name;
 
-    Schema(int numColumns, ColumnDesc** columns)
+    Schema(int numColumns, ColumnDesc** columns, string name="")
     {
         this->numColumns = numColumns;
         this->columns = columns;
+        this->table_name = name;
     }
     ~Schema()
     {

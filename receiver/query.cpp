@@ -11,6 +11,7 @@ extern vector<int> UIds;                   // constanstly increasing uids for ea
 extern vector<ChangeLog> change_logs;     // objects of change logs for corresponding tables in `tables`
 extern vector<MappingLog> mapping_logs;
 
+int execute_create_temp(table_list tables){return C_OK;};
 
 Query_Obj::Query_Obj(vector<string> col_names, CondAST* cond_tree, Temp_Table* temp_table, int tbl1_id, int tbl2_id) {
     this->col_names = col_names;
@@ -180,13 +181,17 @@ int query_process(Query_Obj *cObj, Table_Row *tr)
 
     if(cObj->cond_tree != NULL)
     {
-        int status = cObj->cond_tree->check_row(tr, cObj->tr2);
+        int status;
+        if(tbl2 == NULL)
+            status = cObj->cond_tree->check_row(tr, tbl1->schema, cObj->tr2);
+        else
+            status = cObj->cond_tree->check_row(tr, tbl1->schema, cObj->tr2, tbl2->schema);
         if (status == C_ERROR) {
             cObj->ret_value = C_ERROR;
             return C_ERROR;
         }
 
-        if (status == C_FALSE) {
+        if (status == false) {
             return C_OK;
         }
     }
@@ -202,7 +207,7 @@ int query_process(Query_Obj *cObj, Table_Row *tr)
         string table_col = cObj->col_names[i];
         int pos = table_col.find(".");
         string table_name, col_name;
-        if(pos == -1)
+        if(pos == string::npos)
             col_name = table_col;
         else
         {
@@ -300,7 +305,7 @@ int execute_select(Temp_Table *result, vector<string> table_names, vector<string
         string table_col = col_names[i];
         int pos = table_col.find(".");
         string table_name, col_name;
-        if(pos == -1)
+        if(pos == string::npos)
             col_name = table_col;
         else
         {
@@ -395,7 +400,7 @@ bool passes_range_constraints(string table_name, int column_num, string value) {
     switch(tbl->schema->columns[column_num]->type) {
         case INT:
             try {
-                int new_int_value = atoi(value.c_str());
+                int new_int_value = stoi(value);
                 if(lb.int_val > new_int_value || ub.int_val < new_int_value) 
                     return false;
             }
@@ -405,7 +410,7 @@ bool passes_range_constraints(string table_name, int column_num, string value) {
             break;
         case DOUBLE:
             try {
-                int new_float_value = atof(value.c_str());
+                int new_float_value = stof(value);
                 if(lb.float_val > new_float_value || ub.float_val < new_float_value) 
                     return false;
             }
@@ -493,7 +498,7 @@ int execute_update(string table_name, vector<Update_Pair*>* update_list, CondAST
                 {
                     case INT:
                         try {
-                            int new_int_value = atoi((*new_rhs).c_str());
+                            int new_int_value = stoi(*new_rhs);
                             new_value->fields[change_col_num].int_val = new_int_value;
                         }
                         catch(int x) {
@@ -503,7 +508,7 @@ int execute_update(string table_name, vector<Update_Pair*>* update_list, CondAST
                         break;
                     case DOUBLE:
                         try {
-                            double new_float_value = atof((*new_rhs).c_str());
+                            double new_float_value = stof(*new_rhs);
                             new_value->fields[change_col_num].float_val = new_float_value;
                         }
                         catch(int x) {
@@ -568,7 +573,7 @@ int execute_update(string table_name, vector<Update_Pair*>* update_list, CondAST
 int execute_create(string table_name, vector<ColumnDesc*> &column_desc_list, vector<string> constraint) {
     try {
         ColumnDesc** cols = new ColumnDesc*[column_desc_list.size()+1];
-        Schema* schema = new Schema(column_desc_list.size()+1, cols);
+        Schema* schema = new Schema(column_desc_list.size()+1, cols, table_name);
        
         schema->columns[0] = new ColumnDesc((char *)"unique_id", INT);
         for(int i=1;i<schema->numColumns;i++)
@@ -622,11 +627,11 @@ int execute_insert(string table_name, vector<string> column_val_list) {
                     new_row->fields.push_back(entry);
                     break;
                 case INT:
-                    entry.int_val = atoi(column_val_list[i-1].c_str());
+                    entry.int_val = stoi(column_val_list[i-1]);
                     new_row->fields.push_back(entry);
                     break;
                 case DOUBLE:
-                    entry.float_val = atof(column_val_list[i-1].c_str());
+                    entry.float_val = stof(column_val_list[i-1]);
                     new_row->fields.push_back(entry);
                     break;
                 default:
