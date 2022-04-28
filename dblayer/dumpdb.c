@@ -25,7 +25,7 @@ int printRow(void *callbackObj, RecId rid, Byte *row, int len)
         // decoding bytes from record for each type of column and printing them
         switch (schema->columns[i]->type)
         {
-        case INT:; {
+        case INT: {
             int int_field = DecodeInt(cursor);
             cursor += 4; // cursor offset by size of int
             if (i + 1 != schema->numColumns)
@@ -35,7 +35,7 @@ int printRow(void *callbackObj, RecId rid, Byte *row, int len)
             break;
         }
 
-        case VARCHAR:; {
+        case VARCHAR: {
             char string_field[256];
             int len = DecodeCString(cursor, string_field, 256); // check max len
             cursor += 2 + len; // cursor offset by 2 Byte len + string length

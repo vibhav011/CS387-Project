@@ -576,11 +576,11 @@ int execute_create(string table_name, vector<ColumnDesc*> &column_desc_list, vec
         for(int i=1;i<schema->numColumns;i++)
             schema->columns[i] = new ColumnDesc(column_desc_list[i-1]->name, column_desc_list[i-1]->type);
 
-        Table* tbl = new Table();
+        Table* tbl;
         cout<<"table open with db name : "<<&(table_name+".db")[0]<<endl;
-        int err = Table_Open(&(table_name+".db")[0], schema, false, &tbl);
+        int err = Table_Open(&(table_name+".db")[0], schema, true, &tbl);
         if(err<0) {
-            delete tbl;
+            free(tbl);
             return -1;
         }
 

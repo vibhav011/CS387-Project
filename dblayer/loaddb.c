@@ -100,7 +100,7 @@ loadCSV()
 
     PF_Init();          // Initialize the pflayer
     int err;
-    err = Table_Open(DB_NAME, sch, false, &tbl); // opening the table (creating if it doesn't exist)
+    err = Table_Open(DB_NAME, sch, true, &tbl); // opening the table (creating if it doesn't exist)
     checkerr(err); // for table open errors
     // AM_CreateIndex(DB_NAME, 0, 'i', 4); // creating a new index for type int, size 4 and index no. 0
     // int indexFD = PF_OpenFile(INDEX_NAME); // opening file for passing the descriptor to index creation
