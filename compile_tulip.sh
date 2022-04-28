@@ -9,7 +9,7 @@ cd ..
 cd ./pflayer
 make
 cd ..
-flex --header-file=yy.lex.h scanner.l
+flex --header-file=lex.yy.h scanner.l
 bison -dv parser.y
 
 g++ -c receiver/query.cpp
