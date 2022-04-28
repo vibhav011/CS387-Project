@@ -11,7 +11,7 @@ extern vector<Table*> tables;
 void clean_and_exit() {
     for (int i = 0; i < tables.size(); i++) {
         ChangeLog& log_map = change_logs[i];
-        map<int, Log_entry>:: iterator log;
+        map<int, Log_Entry>:: iterator log;
         for (log = log_map.begin(); log != log_map.end(); log++) {
             if (log->second.old_value != NULL) {
                 for (int j = 0; j < tables[i]->schema->numColumns; j++) {
@@ -93,7 +93,7 @@ int main() {
     col_val_list2.push_back("454657");
     insert_exit = execute_insert("data1", col_val_list2);
 
-    // Log_entry le = change_logs[1][1];
+    // Log_Entry le = change_logs[1][1];
     // cout<<le.new_value->fields[0].int_val<<endl;
     // cout<<*(le.new_value->fields[1].str_val)<<endl;
     // cout<<*(le.new_value->fields[2].str_val)<<endl;
@@ -107,10 +107,15 @@ int main() {
     // cout<<"calling seletc"<<endl;
 
     vector<string> fetch_cols = vector<string> (1, "data.Country");
-    fetch_cols.push_back("data1.Capital");
+    fetch_cols.push_back("data.Capital");
     vector<string> temp = vector<string> (1, "data");
-    temp.push_back("data1");
+    // temp.push_back("data1");
     int select_exit = execute_select(result, temp, fetch_cols);
+
+    cout<<"============================================="<<endl;
+
+    result->prettyPrint();
+
     cout<<"final result size "<< result->rows.size()<<endl;
     cout<<"select exited with: "<<select_exit<<endl;
     delete result;

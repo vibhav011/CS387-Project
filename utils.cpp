@@ -30,4 +30,24 @@ vector<int> UIds;                   // constanstly increasing uids for each of t
 vector<ChangeLog> change_logs;     // objects of change logs for corresponding tables in `tables`
 vector<MappingLog> mapping_logs;
 
+Table_Row::Table_Row()
+{
+    this->num_fields = 0;
+}
 
+Entry Table_Row::getField(int ind)
+{
+    return this->fields[ind];
+}
+
+Log_Entry::Log_Entry()
+{
+    this->old_value = NULL;
+    this->new_value = NULL;
+}
+
+Log_Entry::~Log_Entry()
+{
+    delete this->old_value;
+    delete this->new_value;
+}

@@ -6,7 +6,9 @@
 #include <vector>
 #include <map>
 #include <string>
-#include<iostream>
+#include <iostream>
+#include <cassert>
+#include <iomanip>
 using namespace std;
 
 struct Temp_Table {
@@ -21,6 +23,33 @@ struct Temp_Table {
     ~Temp_Table() {
         for (int i = 0; i < rows.size(); i++)
             delete rows[i];
+    }
+
+    void prettyPrint()
+    {
+        vector<int> types;
+        cout<<"Number of columns: "<<this->schema->numColumns<<endl;
+        cout<<"Number of rows: "<<this->rows.size()<<endl;
+        for(int i=0;i<this->schema->numColumns;i++)
+        {
+            types.push_back(this->schema->columns[i]->type);
+            cout<<setw(15)<<this->schema->columns[i]->name;
+        }
+        cout<<endl;
+        for(auto row: this->rows)
+        {
+            assert(row->fields.size() == this->schema->numColumns);
+            for(int i=0;i<this->schema->numColumns;i++)
+            {
+                if(types[i] == INT)
+                    cout<<setw(10)<<row->getField(i).int_val;
+                else if(types[i] == DOUBLE)
+                    cout<<setw(10)<<row->getField(i).float_val;
+                else
+                    cout<<setw(10)<<*(row->getField(i).str_val);
+            }
+            cout<<endl;
+        }
     }
 
     void set_schema_columns(vector<string> names)

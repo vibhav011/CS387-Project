@@ -53,7 +53,7 @@ int read_log(ChangeLog &change_log, string filename){
     int change_type;
 
     while ( !indata.eof() ) { 
-        Log_entry* log_entry = new Log_entry();
+        Log_Entry* log_entry = new Log_Entry();
         Table_Row* old_row = new Table_Row();
         Table_Row* new_row = new Table_Row();
         indata >> uid;

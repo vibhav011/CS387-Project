@@ -141,7 +141,7 @@ int Table_Single_Select_Join(void *callbackObj, RecId rid, Byte *row, int len) {
 int log_scan(Query_Obj *cObj)
 {
     ChangeLog &logs = change_logs[cObj->tbl1_id];
-    map<int, Log_entry>:: iterator entry = logs.begin();
+    map<int, Log_Entry>:: iterator entry = logs.begin();
     for(entry = logs.begin(); entry != logs.end(); entry++)
     {
         if(entry->second.change_type != _INSERT)
@@ -159,7 +159,7 @@ int log_scan(Query_Obj *cObj)
 int log_scan_join(Query_Obj *cObj)
 {
     ChangeLog &logs = change_logs[cObj->tbl2_id];
-    map<int, Log_entry>:: iterator entry = logs.begin();
+    map<int, Log_Entry>:: iterator entry = logs.begin();
     for(entry = logs.begin(); entry != logs.end(); entry++)
 
     {
@@ -198,7 +198,7 @@ int query_process(Query_Obj *cObj, Table_Row *tr)
     }
 
     // Expanding col_names if it is '*'
-    if (cObj->col_names.at(0) == "*") {
+    if (cObj->col_names[0] == "*") {
         cObj->col_names.pop_back();
         for(int i=0;i<tbl1->schema->numColumns;i++) {
             string s(tbl1->schema->columns[i]->name);
@@ -498,7 +498,7 @@ int execute_update(string table_name, vector<Update_Pair*>* update_list, CondAST
                 change_log[unqiue_id].new_value = new_value;
             }
             else {
-                Log_entry* log_entry = new Log_entry();
+                Log_Entry* log_entry = new Log_Entry();
                 log_entry->old_value = new Table_Row();
                 *(log_entry->old_value) = *old_value;
                 log_entry->new_value = new_value;
@@ -520,7 +520,7 @@ int execute_create(string table_name, vector<ColumnDesc*> &column_desc_list, vec
         ColumnDesc** cols = new ColumnDesc*[column_desc_list.size()+1];
         Schema* schema = new Schema(column_desc_list.size()+1, cols);
        
-        schema->columns[0] = new ColumnDesc((char *)"unique_id", _INT);
+        schema->columns[0] = new ColumnDesc((char *)"unique_id", INT);
         for(int i=1;i<schema->numColumns;i++)
             schema->columns[i] = new ColumnDesc(column_desc_list[i-1]->name, column_desc_list[i-1]->type);
 
@@ -607,7 +607,7 @@ int execute_insert(string table_name, vector<string> column_val_list) {
             }
         }
 
-        Log_entry log_entry;
+        Log_Entry log_entry;
         log_entry.old_value = NULL;
         log_entry.new_value = new_row;
         log_entry.change_type = _INSERT;
@@ -640,7 +640,7 @@ int execute_delete(string table_name, CondAST* cond_tree) {
                 change_log[unqiue_id].new_value = NULL;
             }
             else {
-                Log_entry* log_entry = new Log_entry();
+                Log_Entry* log_entry = new Log_Entry();
                 log_entry->old_value = new Table_Row();
                 *(log_entry->old_value) = *(result->rows[i]);
                 log_entry->new_value = NULL;
