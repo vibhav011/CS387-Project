@@ -31,7 +31,7 @@ void Table_Scan(Temp_Table *tbl, void *callbackObj, ReadFunc callbackfn) {
 void delete_table_row_fields(Table_Row *tr, Schema *schema) {
     for (int i = 0; i < schema->numColumns; i++) {
         if (schema->columns[i]->type == VARCHAR)
-            delete tr->fields[i].str_val;
+            delete tr->getField(i).str_val;
     }
 }
 
@@ -65,7 +65,7 @@ void decode_to_table_row(Table_Row *result, Schema *schema, Byte *row) {
         default:
             break;
         }
-        result->fields.push_back(entry);
+        result->addField(entry);
     }
 }
 
@@ -83,7 +83,7 @@ int Table_Single_Select(void *callbackObj, RecId rid, Byte *row, int len) {
     } else {
         // Decoding the fields
         decode_to_table_row(tr, tbl1->schema, row);
-        int unique_id = tr->fields[0].int_val;
+        int unique_id = tr->getField(0).int_val;
         ChangeLog& change_log = change_logs[cObj->tbl1_id];
         if (change_log.find(unique_id) != change_log.end()) {
             delete_table_row_fields(tr, tbl1->schema);
@@ -110,7 +110,7 @@ int Table_Single_Select_Join(void *callbackObj, RecId rid, Byte *row, int len) {
         // Decoding the fields
         Table* tbl2 = tables[cObj->tbl2_id];
         decode_to_table_row(tr, tbl2->schema, row);
-        int unique_id = tr->fields[0].int_val;
+        int unique_id = tr->getField(0).int_val;
         ChangeLog& change_log = change_logs[cObj->tbl2_id];
         if(change_log.find(unique_id) != change_log.end()) {
             delete_table_row_fields(tr, tbl2->schema);
@@ -246,7 +246,7 @@ int query_process(Query_Obj *cObj, Table_Row *tr)
         for(int j=0;j<scm->numColumns;j++) {
             string s = scm->columns[j]->name;
             if(s == col_name) {
-                new_row->fields.push_back(use_row->fields[j]);
+                new_row->addField(use_row->getField(j));
                 found = true;
                 break;
             }
@@ -263,7 +263,7 @@ int query_process(Query_Obj *cObj, Table_Row *tr)
             for(int j=0;j<scm->numColumns;j++) {
                 string s(scm->columns[i]->name);
                 if(s == cObj->col_names[i]) {
-                    new_row->fields.push_back(cObj->tr2->fields[j]);
+                    new_row->addField(cObj->tr2->getField(j));
                     found = true;
                     break;
                 }

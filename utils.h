@@ -5,6 +5,7 @@
 #include<vector>
 #include<map>
 #include<iostream>
+#include<cassert>
 #include "dblayer/tbl.h"
 
 using namespace std;
@@ -18,12 +19,12 @@ typedef enum {_UPDATE, _INSERT, _DELETE} Change_type;
 
 class Table_Row
 {
-    vector<Entry> fields;
-    
     public:
+    vector<Entry> fields;
     int num_fields;
     Table_Row();
     Entry getField(int ind);
+    void addField(Entry entry);
 };
 
 class Log_Entry

@@ -40,6 +40,11 @@ Entry Table_Row::getField(int ind)
     return this->fields[ind];
 }
 
+void Table_Row::addField(Entry entry)
+{
+    this->fields.push_back(entry);
+}
+
 Log_Entry::Log_Entry()
 {
     this->old_value = NULL;

@@ -38,7 +38,7 @@ struct Temp_Table {
         cout<<endl;
         for(auto row: this->rows)
         {
-            assert(row->fields.size() == this->schema->numColumns);
+            assert(row->num_fields == this->schema->numColumns);
             for(int i=0;i<this->schema->numColumns;i++)
             {
                 if(types[i] == INT)

@@ -16,14 +16,14 @@ void clean_and_exit() {
             if (log->second.old_value != NULL) {
                 for (int j = 0; j < tables[i]->schema->numColumns; j++) {
                     if (tables[i]->schema->columns[j]->type == VARCHAR) {
-                        delete log->second.old_value->fields[j].str_val;
+                        delete log->second.old_value->getField(j).str_val;
                     }
                 }
             }
             if (log->second.new_value != NULL) {
                 for (int j = 0; j < tables[i]->schema->numColumns; j++) {
                     if (tables[i]->schema->columns[j]->type == VARCHAR) {
-                        delete log->second.new_value->fields[j].str_val;
+                        delete log->second.new_value->getField(j).str_val;
                     }
                 }
             }
@@ -92,6 +92,7 @@ int main() {
     col_val_list2.push_back("Beijing");
     col_val_list2.push_back("454657");
     insert_exit = execute_insert("data1", col_val_list2);
+    cout<<"insert done"<<endl;
 
     // Log_Entry le = change_logs[1][1];
     // cout<<le.new_value->fields[0].int_val<<endl;
