@@ -87,7 +87,7 @@ int execute_commit(vector<int>* ChangeIndices) {
         for (ChangeLog::iterator it = change_log.begin(); it != change_log.end(); it++) {
             int unique_id = it->first;
             cout<<unique_id<<endl;
-            Log_entry& log_entry = it->second;
+            Log_Entry& log_entry = it->second;
             Table_Row *old_value = log_entry.old_value;
             Table_Row *new_value = log_entry.new_value;
 
