@@ -16,6 +16,10 @@ struct Temp_Table {
     Schema* schema;
     vector<Table_Row*> rows;
 
+    Temp_Table(){
+        this->schema = NULL;
+    }
+
     Temp_Table(Schema* schema) {
         this->schema = schema;
     }

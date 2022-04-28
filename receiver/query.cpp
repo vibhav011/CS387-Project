@@ -283,6 +283,7 @@ int query_process(Query_Obj *cObj, Table_Row *tr)
 int execute_select(Temp_Table *result, vector<string> table_names, vector<string> col_names, CondAST *cond_tree) {
     if (table_name_to_id.find(table_names[0]) == table_name_to_id.end())
         return C_TABLE_NOT_FOUND;
+
     int tbl1_id = table_name_to_id[table_names[0]];
     int tbl2_id = -1;
     if (table_names.size() > 1) {
@@ -305,7 +306,7 @@ int execute_select(Temp_Table *result, vector<string> table_names, vector<string
             table_name = table_col.substr(0, pos);
             col_name = table_col.substr(pos+1);
         }
-        Table * tbl = tables[tbl1_id];
+        Table *tbl = tables[tbl1_id];
         if (tbl2_id != -1)
             if (table_names[1] == table_name)
                 tbl = tables[tbl2_id];

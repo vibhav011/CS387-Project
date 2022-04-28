@@ -94,19 +94,6 @@ int main() {
     insert_exit = execute_insert("data1", col_val_list2);
     cout<<"insert done"<<endl;
 
-    // Log_Entry le = change_logs[1][1];
-    // cout<<le.new_value->fields[0].int_val<<endl;
-    // cout<<*(le.new_value->fields[1].str_val)<<endl;
-    // cout<<*(le.new_value->fields[2].str_val)<<endl;
-    // cout<<le.new_value->fields[3].int_val<<endl;
-
-    // ColAST* col_ast = new ColAST("data.Country");
-    // Constant* data = new Constant("Albania", _TEXT);
-    // cout<<"here?"<<endl;
-    // ConstAST* const_ast = new ConstAST(data);
-    // RelAST* cond_tree = new RelAST(col_ast, const_ast, _EQ);
-    // cout<<"calling seletc"<<endl;
-
     vector<string> fetch_cols = vector<string> (1, "data.Country");
     fetch_cols.push_back("data.Capital");
     vector<string> temp = vector<string> (1, "data");
