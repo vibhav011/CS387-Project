@@ -54,7 +54,7 @@ extern int yydebug;
     TEXT_CONSTANT = 260,
     INT_CONSTANT = 261,
     FLOAT_CONSTANT = 262,
-    INTTOK = 263,
+    INTEGER = 263,
     FLOAT = 264,
     TEXT = 265,
     AND = 266,
@@ -86,11 +86,11 @@ extern int yydebug;
     RANGE = 292,
     PRIMARY = 293,
     KEY = 294,
-    INSERTTOK = 295,
+    INSERT = 295,
     INTO = 296,
     VALUES = 297,
     ASSIGN = 298,
-    UPDATETOK = 299,
+    UPDATE = 299,
     SET = 300,
     DELETE = 301,
     INFINITY = 302,
@@ -104,7 +104,7 @@ extern int yydebug;
 #define TEXT_CONSTANT 260
 #define INT_CONSTANT 261
 #define FLOAT_CONSTANT 262
-#define INTTOK 263
+#define INTEGER 263
 #define FLOAT 264
 #define TEXT 265
 #define AND 266
@@ -136,11 +136,11 @@ extern int yydebug;
 #define RANGE 292
 #define PRIMARY 293
 #define KEY 294
-#define INSERTTOK 295
+#define INSERT 295
 #define INTO 296
 #define VALUES 297
 #define ASSIGN 298
-#define UPDATETOK 299
+#define UPDATE 299
 #define SET 300
 #define DELETE 301
 #define INFINITY 302

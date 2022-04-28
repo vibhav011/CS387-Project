@@ -1,5 +1,5 @@
-#ifndef AST_H
-#define AST_H
+#ifndef _AST_H
+#define _AST_H
 
 #include<string>
 #include "utils.h"
@@ -18,9 +18,9 @@ using namespace std;
 # define _NE 10
 # define _EQ 11
 
-# define _TEXT 0
-# define _INT 1
-# define _FLOAT 2
+# define _TEXT 1
+# define _INT 2
+# define _FLOAT 4
 
 class Constant 
 {

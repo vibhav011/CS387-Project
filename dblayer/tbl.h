@@ -11,7 +11,7 @@ using namespace std;
 #define VARCHAR 1
 #define INT     2
 #define LONG    3
-#define DOUBLE 4
+#define DOUBLE  4
 
 typedef char Byte;
 
