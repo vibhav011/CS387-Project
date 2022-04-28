@@ -265,9 +265,9 @@ int query_process(Query_Obj *cObj, Table_Row *tr)
 
 int execute_select(Temp_Table *result, vector<string> table_names, vector<string> col_names, CondAST *cond_tree) {
 
-    for(string name: table_names)
+    for (int i = 0; i < table_names.size(); i++)
     {
-        if(table_name_to_id.find(name) == table_name_to_id.end())
+        if(table_name_to_id.find(table_names[i]) == table_name_to_id.end())
             return C_TABLE_NOT_FOUND;
     }
 

@@ -1,5 +1,5 @@
 #include "helper.h"
-#include "utils.h"
+#include "../utils.h"
 #include <fstream>
 using namespace std;
 
@@ -17,21 +17,23 @@ int dump_clog(Table *tbl, ChangeLog &change_log, string filename){
     }
     fs << endl;
 
-    for(auto const &p: change_log){
-        fs << p.first << ' ' << p.second.change_type << ' ';
+    ChangeLog:: iterator p;
+    for(p = change_log.begin(); p != change_log.end(); p++){
+        fs << p->first << ' ' << p->second.change_type << ' ';
         
-        if(p.second.change_type != _INSERT){
+        if(p->second.change_type != _INSERT){
             for(int i=0; i<numcols; i++){
-                cout << p.second.old_value->fields[i].float_val << ' ';
+                cout << p->second.old_value->fields[i].float_val << ' ';
             }
         }
-        if(p.second.change_type != _DELETE){
+        if(p->second.change_type != _DELETE){
             for(int i=0; i<numcols; i++){
-                cout << p.second.new_value->fields[i].float_val << ' ';
+                cout << p->second.new_value->fields[i].float_val << ' ';
             }
         }
     }
     fs.close();
+    return C_OK;
 }
 
 int dump_mlog(Table *tbl, MappingLog& mapping_log, string filename) {
@@ -95,7 +97,7 @@ int read_clog(ChangeLog &change_log, string filename){
         change_log[uid] = *log_entry;
     }
     indata.close();
-    
+    return C_OK;
 }
 
 int read_mlog(MappingLog& mapping_log, string filename) {
