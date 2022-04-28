@@ -266,9 +266,9 @@ int query_process(Query_Obj *cObj, Table_Row *tr)
 
 int execute_select(Temp_Table *result, vector<string> table_names, vector<string> col_names, CondAST *cond_tree) {
 
-    for(string name: table_names)
+    for (int i = 0; i < table_names.size(); i++)
     {
-        if(table_name_to_id.find(name) == table_name_to_id.end())
+        if(table_name_to_id.find(table_names[i]) == table_name_to_id.end())
             return C_TABLE_NOT_FOUND;
     }
 
@@ -577,7 +577,8 @@ int execute_create(string table_name, vector<ColumnDesc*> &column_desc_list, vec
             schema->columns[i] = new ColumnDesc(column_desc_list[i-1]->name, column_desc_list[i-1]->type);
 
         Table* tbl = new Table();
-        int err = Table_Open(&(table_name+".tbl")[0], schema, false, &tbl);
+        cout<<"table open with db name : "<<&(table_name+".db")[0]<<endl;
+        int err = Table_Open(&(table_name+".db")[0], schema, false, &tbl);
         if(err<0) {
             delete tbl;
             return -1;

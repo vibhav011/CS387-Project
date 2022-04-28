@@ -15,7 +15,7 @@
         }                    \
     }
 
-void printRow(void *callbackObj, RecId rid, Byte *row, int len)
+int printRow(void *callbackObj, RecId rid, Byte *row, int len)
 {
     Schema *schema = (Schema *)callbackObj;
     Byte *cursor = row;
@@ -60,7 +60,7 @@ void printRow(void *callbackObj, RecId rid, Byte *row, int len)
             break;
         }
     }
-
+    return 0;
 }
 
 #define DB_NAME (char*)"data.db"
@@ -87,60 +87,73 @@ void index_scan(Table *tbl, Schema *schema, int indexFD, int op, int value)
 
 int main(int argc, char **argv)
 {
-    char *schemaTxt = (char*)"Country:varchar,Capital:varchar,Population:int";
+    char *schemaTxt = (char*)"unique_id:int,Country:varchar,Capital:varchar,Population:int";
     Schema *schema = parseSchema(schemaTxt);
-    Table *tbl;
+    Table *tbl = new Table();
 
     PF_Init();          // Initialize the pflayer
     int err, fd;
     // checking if database exists
+    printf("yahan0?\n");
     fd = PF_OpenFile(DB_NAME);
+    printf("yahan1?\n");
+
     if(fd < 0) {
-        printf("database does not exist \n");
+        printf(DB_NAME);
+        printf("\ndatabase does not exist \n");
         return -1;
     }
+    printf("yahan2?\n");
     PF_CloseFile(fd);
+    printf("yahan3?\n");
+    
     // opening database table if it exists
+    printf("%s", schema->columns[0]->name);
     err = Table_Open(DB_NAME, schema, false, &tbl);
+    printf("yahan4?\n");
+    cout << *tbl->lastPage << endl;
+
     checkerr(err);
+    printf("yahan5?\n");
+    Table_Scan(tbl, schema, printRow);
 
-    if (argc == 2 && *(argv[1]) == 's')
-    {
-        // Table_Scan(tbl, schema, printRow);
-        // invoke Table_Scan with printRow, which will be invoked for each row in the table.
-    }
-    /*
-    else
-    {
-        // index scan by default
-        int indexFD = PF_OpenFile(INDEX_NAME);
-        checkerr(indexFD);
+    // if (argc == 2 && *(argv[1]) == 's')
+    // {
+    //     // Table_Scan(tbl, schema, printRow);
+    //     // invoke Table_Scan with printRow, which will be invoked for each row in the table.
+    // }
+    // /*
+    // else
+    // {
+    //     // index scan by default
+    //     int indexFD = PF_OpenFile(INDEX_NAME);
+    //     checkerr(indexFD);
 
-        if(argc == 4) {
-            if (strcmp("EQUAL", argv[2]) == 0){
-                index_scan(tbl, schema, indexFD, EQUAL, atoi(argv[3]));
-            }
-            else if (strcmp("LESS_THAN", argv[2]) == 0) {
-                index_scan(tbl, schema, indexFD, LESS_THAN, atoi(argv[3]));
-            }
-            else if (strcmp("GREATER_THAN", argv[2]) == 0) {
-                index_scan(tbl, schema, indexFD, GREATER_THAN, atoi(argv[3]));
-            }
-            else if (strcmp("LESS_THAN_EQUAL", argv[2]) == 0) {
-                index_scan(tbl, schema, indexFD, LESS_THAN_EQUAL, atoi(argv[3]));
-            }
-            else if (strcmp("GREATER_THAN_EQUAL", argv[2]) == 0) {
-                index_scan(tbl, schema, indexFD, GREATER_THAN_EQUAL, atoi(argv[3]));
-            }
-            else {index_scan(tbl, schema, indexFD, LESS_THAN_EQUAL, atoi(argv[3]));}
+    //     if(argc == 4) {
+    //         if (strcmp("EQUAL", argv[2]) == 0){
+    //             index_scan(tbl, schema, indexFD, EQUAL, atoi(argv[3]));
+    //         }
+    //         else if (strcmp("LESS_THAN", argv[2]) == 0) {
+    //             index_scan(tbl, schema, indexFD, LESS_THAN, atoi(argv[3]));
+    //         }
+    //         else if (strcmp("GREATER_THAN", argv[2]) == 0) {
+    //             index_scan(tbl, schema, indexFD, GREATER_THAN, atoi(argv[3]));
+    //         }
+    //         else if (strcmp("LESS_THAN_EQUAL", argv[2]) == 0) {
+    //             index_scan(tbl, schema, indexFD, LESS_THAN_EQUAL, atoi(argv[3]));
+    //         }
+    //         else if (strcmp("GREATER_THAN_EQUAL", argv[2]) == 0) {
+    //             index_scan(tbl, schema, indexFD, GREATER_THAN_EQUAL, atoi(argv[3]));
+    //         }
+    //         else {index_scan(tbl, schema, indexFD, LESS_THAN_EQUAL, atoi(argv[3]));}
             
-        } else {
-            // Ask for populations less than 100000, then more than 100000. Together they should
-            // yield the complete database.
-            index_scan(tbl, schema, indexFD, LESS_THAN_EQUAL, 100000);
-            index_scan(tbl, schema, indexFD, GREATER_THAN, 100000);
-        }
-    }
-    */
+    //     } else {
+    //         // Ask for populations less than 100000, then more than 100000. Together they should
+    //         // yield the complete database.
+    //         index_scan(tbl, schema, indexFD, LESS_THAN_EQUAL, 100000);
+    //         index_scan(tbl, schema, indexFD, GREATER_THAN, 100000);
+    //     }
+    // }
+    // */
     Table_Close(tbl);
 }
