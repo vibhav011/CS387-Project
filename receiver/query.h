@@ -9,12 +9,18 @@
 #include <iostream>
 #include <cassert>
 #include <iomanip>
+#include <iterator>
+#include <algorithm>
 using namespace std;
 
 struct Temp_Table {
     string name;
     Schema* schema;
     vector<Table_Row*> rows;
+
+    Temp_Table(){
+        this->schema = NULL;
+    }
 
     Temp_Table(Schema* schema) {
         this->schema = schema;
@@ -27,27 +33,32 @@ struct Temp_Table {
 
     void prettyPrint()
     {
+        if(this->schema == NULL)
+        {
+            cout<<"Empty table"<<endl;
+            return ;
+        }
         vector<int> types;
         cout<<"Number of columns: "<<this->schema->numColumns<<endl;
         cout<<"Number of rows: "<<this->rows.size()<<endl;
         for(int i=0;i<this->schema->numColumns;i++)
         {
             types.push_back(this->schema->columns[i]->type);
-            cout<<setw(15)<<this->schema->columns[i]->name;
+            cout<<setw(20)<<this->schema->columns[i]->name;
         }
         cout<<endl;
 
         for(int ii = 0; ii < this->rows.size(); ii++)
         {
-            assert(rows[ii]->num_fields == this->schema->numColumns);
+            assert(rows[ii]->fields.size() == this->schema->numColumns);
             for(int i=0;i<this->schema->numColumns;i++)
             {
                 if(types[i] == INT)
-                    cout<<setw(10)<<rows[ii]->getField(i).int_val;
+                    cout<<setw(20)<<rows[ii]->getField(i).int_val;
                 else if(types[i] == DOUBLE)
-                    cout<<setw(10)<<rows[ii]->getField(i).float_val;
+                    cout<<setw(20)<<rows[ii]->getField(i).float_val;
                 else
-                    cout<<setw(10)<<*(rows[ii]->getField(i).str_val);
+                    cout<<setw(20)<<*(rows[ii]->getField(i).str_val);
             }
             cout<<endl;
         }
@@ -90,10 +101,10 @@ struct Update_Pair {
 
 typedef vector<Temp_Table*> table_list;
 
-int execute_create_temp(table_list tables);
+int execute_create_temp(table_list tables){return C_OK;};
 int execute_select(Temp_Table *result, vector<string> table_names, vector<string> col_names, CondAST *cond_tree=NULL);
 int execute_update(string table_name, vector<Update_Pair*> update_list, CondAST* cond_tree=NULL);
-int execute_create(string table_name, vector<ColumnDesc*> &column_desc_list, vector<string> constraint);
+int execute_create(string table_name, vector<ColumnDesc*> &column_desc_list, vector<string> constraint={});
 int execute_insert(string table_name, vector<string> column_val_list);
 int execute_delete(string table_name, CondAST *cond_tree=NULL);
 

@@ -11,7 +11,7 @@ using namespace std;
 #define VARCHAR 1
 #define INT     2
 #define LONG    3
-#define DOUBLE 4
+#define DOUBLE  4
 
 typedef char Byte;
 
@@ -23,7 +23,7 @@ typedef union {
 
 struct ColumnDesc {
     char *name;
-    int  type;  // one of VARCHAR, INT, LONG, DOUBLE
+    int type;  // one of VARCHAR, INT, LONG, DOUBLE
     Value lower_bound;
     Value upper_bound;
     bool range;

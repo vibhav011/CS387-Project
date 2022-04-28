@@ -10,6 +10,8 @@
 
 using namespace std;
 
+enum {C_OK, C_TRUE, C_FALSE, C_ERROR, C_TABLE_NOT_FOUND, C_FIELD_NOT_FOUND} error_codes;
+
 typedef union {
     int int_val;
     string* str_val;
@@ -21,8 +23,6 @@ class Table_Row
 {
     public:
     vector<Entry> fields;
-    int num_fields;
-    Table_Row();
     Entry getField(int ind);
     void addField(Entry entry);
 };
@@ -36,7 +36,6 @@ class Log_Entry
     Log_Entry();
 };
 
-enum {C_OK, C_TRUE, C_FALSE, C_ERROR, C_TABLE_NOT_FOUND, C_FIELD_NOT_FOUND} error_codes;
 
 /////////////////////////////
 // Shared global variables //
