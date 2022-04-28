@@ -28,9 +28,9 @@
 Takes a schema, and an array of strings (fields), and uses the functionality
 in codec.c to convert strings into compact binary representations
  */
-int encode(Schema *sch, char **fields, byte *record, int spaceLeft)
+int encode(Schema *sch, char **fields, Byte *record, int spaceLeft)
 {
-    // function for filling record by byte encoded values of the fields
+    // function for filling record by Byte encoded values of the fields
 
     int num_bytes = 0; // to store the total number of bytes taken up by all attributes in the row
     int temp_bytes = 0; // to track num bytes returned by encode methods

@@ -13,7 +13,7 @@ using namespace std;
 #define LONG    3
 #define DOUBLE 4
 
-typedef char byte;
+typedef char Byte;
 
 typedef union {
     int int_val;
@@ -81,10 +81,10 @@ int
 Table_Open(char *fname, Schema *schema, bool overwrite, Table **table);
 
 int
-Table_Insert(Table *t, byte *record, int len, RecId *rid);
+Table_Insert(Table *t, Byte *record, int len, RecId *rid);
 
 int
-Table_Get(Table *t, RecId rid, byte *record, int maxlen);
+Table_Get(Table *t, RecId rid, Byte *record, int maxlen);
 
 int
 Table_Delete(Table *t, RecId rid);
@@ -92,7 +92,7 @@ Table_Delete(Table *t, RecId rid);
 void
 Table_Close(Table *);
 
-typedef int (*ReadFunc)(void *callbackObj, RecId rid, byte *row, int len);
+typedef int (*ReadFunc)(void *callbackObj, RecId rid, Byte *row, int len);
 
 void
 Table_Scan(Table *tbl, void *callbackObj, ReadFunc callbackfn);

@@ -10,15 +10,15 @@
 #define SLOT_COUNT_OFFSET 2
 #define checkerr(err) {if (err < 0) {PF_PrintError(); exit(EXIT_FAILURE);}}
 
-int  getLen(int slot, byte *pageBuf) {
+int  getLen(int slot, Byte *pageBuf) {
     Header *header = (Header *)pageBuf;
     return ((slot == 0) ? PF_PAGE_SIZE : header->slotOffsets[slot-1])-header->slotOffsets[slot];
 }
-int  getNumSlots(byte *pageBuf) {
+int  getNumSlots(Byte *pageBuf) {
     Header *header = (Header *)pageBuf;
     return header->numSlots;
 }
-void setNumSlots(byte *pageBuf, int nslots) {
+void setNumSlots(Byte *pageBuf, int nslots) {
     Header *header = (Header *)pageBuf;
     header->numSlots = nslots;
 }
@@ -104,7 +104,7 @@ Table_Close(Table *tbl) {
 
 
 int
-Table_Insert(Table *tbl, byte *record, int len, RecId *rid) {
+Table_Insert(Table *tbl, Byte *record, int len, RecId *rid) {
     // Allocate a fresh page if len is not enough for remaining space
     // Get the next free slot on page, and copy record in the free
     // space
@@ -157,7 +157,7 @@ Table_Insert(Table *tbl, byte *record, int len, RecId *rid) {
   Returns the number of bytes copied.
  */
 int
-Table_Get(Table *tbl, RecId rid, byte *record, int maxlen) {
+Table_Get(Table *tbl, RecId rid, Byte *record, int maxlen) {
     int slot = rid & 0xFFFF;
     int pageNum = rid >> 16;
 

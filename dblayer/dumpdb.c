@@ -15,10 +15,10 @@
         }                    \
     }
 
-void printRow(void *callbackObj, RecId rid, byte *row, int len)
+void printRow(void *callbackObj, RecId rid, Byte *row, int len)
 {
     Schema *schema = (Schema *)callbackObj;
-    byte *cursor = row;
+    Byte *cursor = row;
 
     for (int i = 0; i < schema->numColumns; i++)
     {
@@ -38,7 +38,7 @@ void printRow(void *callbackObj, RecId rid, byte *row, int len)
         case VARCHAR:; {
             char string_field[256];
             int len = DecodeCString(cursor, string_field, 256); // check max len
-            cursor += 2 + len; // cursor offset by 2 byte len + string length
+            cursor += 2 + len; // cursor offset by 2 Byte len + string length
             if (i + 1 != schema->numColumns)
                 printf("%s,", string_field);
             else
@@ -72,7 +72,7 @@ void index_scan(Table *tbl, Schema *schema, int indexFD, int op, int value)
     int scanDesc = AM_OpenIndexScan(indexFD, 'i', 4, op, (char *)&value);
     checkerr(scanDesc);
     int recId;
-    byte *record = (byte *)malloc(PF_PAGE_SIZE);
+    Byte *record = (Byte *)malloc(PF_PAGE_SIZE);
 
     while ((recId = AM_FindNextEntry(scanDesc)) >= 0)
     {   

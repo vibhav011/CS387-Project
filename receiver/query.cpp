@@ -28,8 +28,8 @@ void Table_Scan(Temp_Table *tbl, void *callbackObj, ReadFunc callbackfn) {
     }
 }
 
-void decode_to_table_row(Table_Row *result, Schema *schema, byte *row) {
-    byte *cursor = row;
+void decode_to_table_row(Table_Row *result, Schema *schema, Byte *row) {
+    Byte *cursor = row;
     for (int i = 0; i < schema->numColumns; i++)
     {
         Entry entry;
@@ -46,7 +46,7 @@ void decode_to_table_row(Table_Row *result, Schema *schema, byte *row) {
             char string_field[256];
             int len = DecodeCString(cursor, string_field, 256); // check max len
             entry.str_val = new string(string_field);
-            cursor += 2 + len; // cursor offset by 2 byte len + string length
+            cursor += 2 + len; // cursor offset by 2 Byte len + string length
             break;
         }
         case LONG:; {
@@ -62,7 +62,7 @@ void decode_to_table_row(Table_Row *result, Schema *schema, byte *row) {
     }
 }
 
-int Table_Single_Select(void *callbackObj, RecId rid, byte *row, int len) {
+int Table_Single_Select(void *callbackObj, RecId rid, Byte *row, int len) {
     Query_Obj* cObj = (Query_Obj *)callbackObj;
     Table_Row* tr = new Table_Row();
     Table* tbl1 = tables[cObj->tbl1_id];
@@ -86,26 +86,33 @@ int Table_Single_Select(void *callbackObj, RecId rid, byte *row, int len) {
             *tr = *change_log[unique_id].new_value;
         }
     }
-
-    return query_process(cObj, tr);
+    int ret = query_process(cObj, tr);
+    delete tr;
+    return ret;
 }
 
-int Table_Single_Select_Join(void *callbackObj, RecId rid, byte *row, int len) {
+int Table_Single_Select_Join(void *callbackObj, RecId rid, Byte *row, int len) {
     Query_Obj* cObj = (Query_Obj *)callbackObj;
     Table_Row* tr = new Table_Row();
 
-    // Decoding the fields
-    Table* tbl2 = tables[cObj->tbl2_id];
-    decode_to_table_row(tr, tbl2->schema, row);
-    int unique_id = tr->fields[0].int_val;
-    ChangeLog& change_log = change_logs[cObj->tbl2_id];
-    if(change_log.find(unique_id) != change_log.end()) {
-        if (change_log[unique_id].new_value == NULL) {    // The row is deleted
-            delete tr;
-            return C_OK;
+    if (cObj->tr1 != NULL) {            // The second table is temp_table
+        *tr = *cObj->tr1;
+        cObj->tr1 = NULL;
+    } else {
+        // Decoding the fields
+        Table* tbl2 = tables[cObj->tbl2_id];
+        decode_to_table_row(tr, tbl2->schema, row);
+        int unique_id = tr->fields[0].int_val;
+        ChangeLog& change_log = change_logs[cObj->tbl2_id];
+        if(change_log.find(unique_id) != change_log.end()) {
+            if (change_log[unique_id].new_value == NULL) {    // The row is deleted
+                delete tr;
+                return C_OK;
+            }
+            *tr = *change_log[unique_id].new_value;
         }
-        *tr = *change_log[unique_id].new_value;
     }
+    
     cObj->tr2 = tr;
     Table* tbl1 = tables[cObj->tbl1_id];
     Table_Scan(tbl1, cObj, Table_Single_Select);
@@ -116,22 +123,37 @@ int Table_Single_Select_Join(void *callbackObj, RecId rid, byte *row, int len) {
     return cObj->ret_value;
 }
 
-int log_scan(Query_Obj *cObj, int table_id)
+int log_scan(Query_Obj *cObj)
 {
-    ChangeLog &logs = change_logs[table_id];
+    ChangeLog &logs = change_logs[cObj->tbl1_id];
     for(pair<int, Log_entry> entry: logs)
     {
         if(entry.second.change_type != _INSERT)
             continue;
         Table_Row *tr = new Table_Row();
         *tr = *(entry.second.new_value);
-        if (cObj->tbl2_id != -1) {
-            Table_Scan(tables[cObj->tbl1_id], cObj, Table_Single_Select);
-            log_scan(cObj, cObj->tbl1_id);
-        }
         int err = query_process(cObj, tr);
+        delete tr;
         if(err != 0)
             return err;
+    }
+    return C_OK;
+}
+
+int log_scan_join(Query_Obj *cObj)
+{
+    ChangeLog &logs = change_logs[cObj->tbl2_id];
+    for(pair<int, Log_entry> entry: logs)
+    {
+        if(entry.second.change_type != _INSERT)
+            continue;
+        Table_Row *tr = new Table_Row();
+        *tr = *(entry.second.new_value);
+        cObj->tr2 = tr;
+        Table_Scan(tables[cObj->tbl1_id], cObj, Table_Single_Select);
+        log_scan(cObj);
+        cObj->tr2 = NULL;
+        delete tr;
     }
     return C_OK;
 }
@@ -149,12 +171,10 @@ int query_process(Query_Obj *cObj, Table_Row *tr)
         int status = cObj->cond_tree->check_row(tr, cObj->tr2);
         if (status == C_ERROR) {
             cObj->ret_value = C_ERROR;
-            delete tr;
             return C_ERROR;
         }
 
         if (status == C_FALSE) {
-            delete tr;
             return C_OK;
         }
     }
@@ -182,7 +202,7 @@ int query_process(Query_Obj *cObj, Table_Row *tr)
 
     // Adding the required columns in new_row (in the order in which they are needed)
     int num_cols = cObj->col_names.size();
-    cout<<num_cols<<endl;
+
     for(int i=0;i<num_cols;i++) {
         string table_col = cObj->col_names[i];
         int pos = table_col.find(".");
@@ -195,8 +215,6 @@ int query_process(Query_Obj *cObj, Table_Row *tr)
             col_name = table_col.substr(pos+1);
         }
 
-        cout<<"Column names: "<<table_name<<" "<<col_name<<endl;
-
         scm = tbl1->schema;
         use_row = tr;
         if(tbl2 != NULL) {
@@ -208,7 +226,6 @@ int query_process(Query_Obj *cObj, Table_Row *tr)
 
         if(scm == tbl1->schema && tbl1->name != table_name && table_name != "") {
             delete new_row;
-            delete tr;
             cObj->ret_value = C_TABLE_NOT_FOUND;
             return C_TABLE_NOT_FOUND;
         }
@@ -226,7 +243,6 @@ int query_process(Query_Obj *cObj, Table_Row *tr)
         if (!found) {
             if(table_name != "" || tbl2 == NULL) {
                 delete new_row;
-                delete tr;
                 cObj->ret_value = C_FIELD_NOT_FOUND;
                 return C_FIELD_NOT_FOUND;
             }
@@ -243,14 +259,12 @@ int query_process(Query_Obj *cObj, Table_Row *tr)
 
             if (!found) {
                 delete new_row;
-                delete tr;
                 cObj->ret_value = C_FIELD_NOT_FOUND;
                 return C_FIELD_NOT_FOUND;
             }
         }
     }
     cObj->temp_table->rows.push_back(new_row);
-    delete tr;
     return C_OK;
 }
 
@@ -291,7 +305,8 @@ int execute_select(Temp_Table *result, vector<string> table_names, vector<string
     callbackObj->tr2 = NULL;
     callbackObj->ret_value = 0;
     Table_Scan(tbl2, callbackObj, Table_Single_Select_Join);
-    log_scan(callbackObj);
+    log_scan_join(callbackObj);
+    // TODO: Delete callbackObj properly
     return callbackObj->ret_value;
 }
 

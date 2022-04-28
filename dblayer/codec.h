@@ -1,28 +1,28 @@
 #include "tbl.h"
 
 int
-EncodeInt(int i, byte *bytes);
+EncodeInt(int i, Byte *bytes);
 int
-DecodeInt(byte *bytes);
+DecodeInt(Byte *bytes);
 
 int
-EncodeShort(short s, byte *bytes) ;
+EncodeShort(short s, Byte *bytes) ;
 short
-DecodeShort(byte *bytes);
+DecodeShort(Byte *bytes);
 
 int
-EncodeDouble(double s, byte *bytes) ;
+EncodeDouble(double s, Byte *bytes) ;
 double
-DecodeDouble(byte *bytes);
+DecodeDouble(Byte *bytes);
 
 int
-EncodeLong(long long l, byte *bytes);
+EncodeLong(long long l, Byte *bytes);
 
 long long
-DecodeLong(byte *bytes);
+DecodeLong(Byte *bytes);
 
 int
-EncodeCString(char *str, byte *bytes, int max_len);
+EncodeCString(char *str, Byte *bytes, int max_len);
 
 int
-DecodeCString(byte *bytes, char *str, int max_len);
+DecodeCString(Byte *bytes, char *str, int max_len);

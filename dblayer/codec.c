@@ -5,11 +5,11 @@
 
 typedef union {
     int i;
-    byte  bytes[4];
+    Byte  bytes[4];
 } IntBytes;
 
 int
-EncodeInt(int i, byte *bytes) {
+EncodeInt(int i, Byte *bytes) {
     IntBytes ib;
     ib.i = i;
     memcpy(bytes, ib.bytes, 4);
@@ -17,7 +17,7 @@ EncodeInt(int i, byte *bytes) {
 }
 
 int
-DecodeInt(byte *bytes) {
+DecodeInt(Byte *bytes) {
     IntBytes ib;
     memcpy(ib.bytes, bytes, 4);
     return ib.i;
@@ -25,11 +25,11 @@ DecodeInt(byte *bytes) {
 
 typedef union {
     double d;
-    byte bytes[8];
+    Byte bytes[8];
 } DoubleBytes;
 
 int 
-EncodeDouble(double d, byte *bytes){
+EncodeDouble(double d, Byte *bytes){
     DoubleBytes db;
     db.d = d;
     memcpy(bytes, db.bytes, 8);
@@ -37,7 +37,7 @@ EncodeDouble(double d, byte *bytes){
 }
 
 double
-DecodeDouble(byte *bytes){
+DecodeDouble(Byte *bytes){
     DoubleBytes db;
     memcpy(db.bytes, bytes, 8);
     return db.d;
@@ -45,14 +45,14 @@ DecodeDouble(byte *bytes){
 
 typedef union {
     short s;
-    byte  bytes[2];
+    Byte  bytes[2];
 } ShortBytes;
 
 /*
   Copies an encoding of a 16-bit short to a buf that must contain at least 2 bytes.
  */
 int
-EncodeShort(short s, byte *bytes) {
+EncodeShort(short s, Byte *bytes) {
     ShortBytes sb;
     sb.s = s;
     memcpy(bytes, sb.bytes, 2);
@@ -63,7 +63,7 @@ EncodeShort(short s, byte *bytes) {
  Translates 2 bytes (pointed to by bytes) to a short.
  */
 short
-DecodeShort(byte *bytes) {
+DecodeShort(Byte *bytes) {
     ShortBytes sb;
     memcpy(sb.bytes, bytes, 2);
     return sb.s;
@@ -71,14 +71,14 @@ DecodeShort(byte *bytes) {
 
 typedef union {
     long long ll;
-    byte   bytes[8];
+    Byte   bytes[8];
 } LongBytes;
 
 /*
  Naive encoding of a 64-bit long to 8 bytes. 
  */
 int
-EncodeLong(long long l, byte *bytes) {
+EncodeLong(long long l, Byte *bytes) {
     LongBytes lb;
     lb.ll = l;
     memcpy(bytes, lb.bytes, 8);
@@ -89,7 +89,7 @@ EncodeLong(long long l, byte *bytes) {
   Translates 8 bytes pointed to by 'bytes' to a 64-bit long.
  */
 long long
-DecodeLong(byte *bytes) {
+DecodeLong(Byte *bytes) {
     LongBytes lb;
     memcpy(lb.bytes, bytes, 8);
     return lb.ll;
@@ -97,12 +97,12 @@ DecodeLong(byte *bytes) {
 
 /*
   Copies a null-terminated string to a <len><bytes> format. The length 
-  is encoded as a 2-byte short. 
+  is encoded as a 2-Byte short. 
   Precondition: the 'bytes' buffer must have max_len bytes free.
   Returns the total number of bytes encoded (including the length)
  */
 int
-EncodeCString(char *str, byte *bytes, int max_len) {
+EncodeCString(char *str, Byte *bytes, int max_len) {
     int len = strlen(str);
     if (len + 2 > max_len) {
 	len = max_len - 2;
@@ -113,7 +113,7 @@ EncodeCString(char *str, byte *bytes, int max_len) {
 }
 
 int
-DecodeCString(byte *bytes, char *str, int max_len) {
+DecodeCString(Byte *bytes, char *str, int max_len) {
     int len = DecodeShort(bytes);
     if (len + 1 > max_len) { // account for null terminator.
 	len = max_len - 1; 

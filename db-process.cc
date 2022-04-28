@@ -56,7 +56,7 @@ int DB_inst::send_stdout(){
     msgh.msg_name = NULL;
     msgh.msg_namelen = 0;
 
-    /* On Linux, we must transmit at least 1 byte of real data in
+    /* On Linux, we must transmit at least 1 Byte of real data in
        order to send ancillary data */
 
     struct iovec iov;

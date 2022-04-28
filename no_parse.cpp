@@ -54,11 +54,11 @@ int main() {
     col_val_list2.push_back("454657");
     insert_exit = execute_insert("data1", col_val_list2);
 
-    Log_entry le = change_logs[1][1];
-    cout<<le.new_value->fields[0].int_val<<endl;
-    cout<<*(le.new_value->fields[1].str_val)<<endl;
-    cout<<*(le.new_value->fields[2].str_val)<<endl;
-    cout<<le.new_value->fields[3].int_val<<endl;
+    // Log_entry le = change_logs[1][1];
+    // cout<<le.new_value->fields[0].int_val<<endl;
+    // cout<<*(le.new_value->fields[1].str_val)<<endl;
+    // cout<<*(le.new_value->fields[2].str_val)<<endl;
+    // cout<<le.new_value->fields[3].int_val<<endl;
 
     // ColAST* col_ast = new ColAST("data.Country");
     // Constant* data = new Constant("Albania", _TEXT);
@@ -67,7 +67,7 @@ int main() {
     // RelAST* cond_tree = new RelAST(col_ast, const_ast, _EQ);
     // cout<<"calling seletc"<<endl;
 
-    vector<string> fetch_cols = {"data.Country", "data.Capital", "data1.Country", "data1.Capital"};
+    vector<string> fetch_cols = {"data.Country", "data1.Capital"};
 
     int select_exit = execute_select(result, {"data", "data1"}, fetch_cols);
     cout<<"final result size "<< result->rows.size()<<endl;
