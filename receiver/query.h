@@ -32,13 +32,14 @@ struct Temp_Table {
     }
 
     void prettyPrint()
-    {
+    {   
+        
+        cout << "inside pretty print" << endl;
         if(this->schema == NULL)
         {
             cout<<"Empty table"<<endl;
             return ;
         }
-        cout << "inside pretty print" << endl;
         vector<int> types;
         cout<<"Number of columns: "<<this->schema->numColumns<<endl;
         cout<<"Number of rows: "<<this->rows.size()<<endl;
