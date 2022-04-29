@@ -1,0 +1,379 @@
+".DS_Store"
+"countries.scm"
+"countries.tbl"
+lpage 0
+setup and recover done
+insert done
+insert done
+select exited with: 0
+final result size 5
+row 0
+1
+Albania
+2930187
+
+row 1
+0
+this
+3553008
+Kabul
+row 2
+0
+this
+3553008
+this
+row 3
+1
+Albania
+2930187
+this
+row 4
+4
+Afghanistan
+3553008
+this
+execute commit exited with 0
+after commit: final result size 5
+row 0
+1
+Albania
+2930187
+
+row 1
+0
+this
+3553008
+Kabul
+row 2
+0
+this
+3553008
+this
+row 3
+1
+Albania
+2930187
+this
+row 4
+4
+Afghanistan
+3553008
+this
+insert done
+insert done
+select exited with: 0
+final result size 10
+row 0
+1
+Albania
+2930187
+
+row 1
+0
+this
+3553008
+Kabul
+row 2
+0
+this
+3553008
+this
+row 3
+1
+Albania
+2930187
+this
+row 4
+4
+Afghanistan
+3553008
+this
+row 5
+1
+Albania
+2930187
+
+row 6
+0
+this
+3553008
+Kabul
+row 7
+0
+this
+3553008
+this
+row 8
+1
+Albania
+2930187
+this
+row 9
+4
+Afghanistan
+3553008
+this
+execute commit exited with 0
+after commit: final result size 5
+row 0
+1
+Albania
+2930187
+
+row 1
+0
+this
+3553008
+Kabul
+row 2
+0
+this
+3553008
+this
+row 3
+1
+Albania
+2930187
+this
+row 4
+4
+Afghanistan
+3553008
+this
+insert done
+insert done
+select exited with: 0
+final result size 15
+row 0
+1
+Albania
+2930187
+
+row 1
+0
+this
+3553008
+Kabul
+row 2
+0
+this
+3553008
+this
+row 3
+1
+Albania
+2930187
+this
+row 4
+4
+Afghanistan
+3553008
+this
+row 5
+1
+Albania
+2930187
+
+row 6
+0
+this
+3553008
+Kabul
+row 7
+0
+this
+3553008
+this
+row 8
+1
+Albania
+2930187
+this
+row 9
+4
+Afghanistan
+3553008
+this
+row 10
+1
+Albania
+2930187
+
+row 11
+0
+this
+3553008
+Kabul
+row 12
+0
+this
+3553008
+this
+row 13
+1
+Albania
+2930187
+this
+row 14
+4
+Afghanistan
+3553008
+this
+execute commit exited with 0
+after commit: final result size 5
+row 0
+1
+Albania
+2930187
+
+row 1
+0
+this
+3553008
+Kabul
+row 2
+0
+this
+3553008
+this
+row 3
+1
+Albania
+2930187
+this
+row 4
+4
+Afghanistan
+3553008
+this
+insert done
+insert done
+select exited with: 0
+final result size 20
+row 0
+1
+Albania
+2930187
+
+row 1
+0
+this
+3553008
+Kabul
+row 2
+0
+this
+3553008
+this
+row 3
+1
+Albania
+2930187
+this
+row 4
+4
+Afghanistan
+3553008
+this
+row 5
+1
+Albania
+2930187
+
+row 6
+0
+this
+3553008
+Kabul
+row 7
+0
+this
+3553008
+this
+row 8
+1
+Albania
+2930187
+this
+row 9
+4
+Afghanistan
+3553008
+this
+row 10
+1
+Albania
+2930187
+
+row 11
+0
+this
+3553008
+Kabul
+row 12
+0
+this
+3553008
+this
+row 13
+1
+Albania
+2930187
+this
+row 14
+4
+Afghanistan
+3553008
+this
+row 15
+1
+Albania
+2930187
+
+row 16
+0
+this
+3553008
+Kabul
+row 17
+0
+this
+3553008
+this
+row 18
+1
+Albania
+2930187
+this
+row 19
+4
+Afghanistan
+3553008
+this
+execute commit exited with 0
+after commit: final result size 5
+row 0
+1
+Albania
+2930187
+
+row 1
+0
+this
+3553008
+Kabul
+row 2
+0
+this
+3553008
+this
+row 3
+1
+Albania
+2930187
+this
+row 4
+4
+Afghanistan
+3553008
+this
