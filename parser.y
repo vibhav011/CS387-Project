@@ -453,7 +453,7 @@ delete_query
 void yyerror(YYLTYPE* yyllocp, yyscan_t unused, const char* msg)
 {
     FILE *f = ((Pro *)yyget_extra(unused))->out;
-    fprintf(f, "Error: %s\n", msg);
+    fprintf(f, "%s: rolling back to last commit..\n", msg);
     fflush(f);
     cerr<<msg<<endl;
     int worker_id = ((Pro *)yyget_extra(unused))->id;
