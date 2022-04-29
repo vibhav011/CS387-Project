@@ -1,8 +1,8 @@
 #include <string.h>
 #include <filesystem>
 #include <fstream>
-#include <map>
 #include <string>
+#include <list>
 #include "utils.h"
 #include "./receiver/commit.h"
 #include "receiver/helper.h"
@@ -15,7 +15,36 @@ extern vector<Table*> tables;              // objects of all tables
 extern vector<int> UIds;                   // constanstly increasing uids for each of the tables
 extern vector<ChangeLog> change_logs;     // objects of change logs for corresponding tables in `tables`
 extern vector<MappingLog> mapping_logs;
+extern list<mutex> locks;
+extern map<string, int> table_access;
 
+int obtain_write_lock(string table_name){
+    map<string, int>::iterator it;
+
+    if((it = table_name_to_id.find(table_name)) == table_name_to_id.end()){
+        return C_TABLE_NOT_FOUND;
+    }
+    list<std::mutex>::iterator it2 = locks.begin();
+    advance(it2, it->second);
+    it2->lock();
+
+    return C_OK;
+}
+
+int release_write_lock(string table_name){
+    map<string, int>::iterator it;
+
+    if((it = table_name_to_id.find(table_name)) == table_name_to_id.end()){
+        return C_TABLE_NOT_FOUND;
+    }
+    table_access[table_name] = -1;
+
+    list<std::mutex>::iterator it2 = locks.begin();
+    advance(it2, it->second);
+    it2->unlock();
+
+    return C_OK;
+}
 
 void recover_from_folder(string folder_name) {
     map<int, ChangeLog> change_logs;
@@ -111,11 +140,16 @@ void setup_and_recover() {
             schema_file >> uid;
 
         table_name_to_id[tbl_name] = tables.size();
+        table_access[table->name] = -1; // initially nobody accessing the table
+
         tables.push_back(table);
         UIds.push_back(uid);
         change_logs.push_back(ChangeLog());
         mapping_logs.push_back(MappingLog());
         
+        // instantiating locks
+        locks.emplace_back();
+
         schema_file.close();
     }
 
@@ -127,5 +161,5 @@ void setup_and_recover() {
         }
         std::filesystem::remove(s);
     }
-
+    // instantiate_locks();
 }

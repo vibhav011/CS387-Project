@@ -6,6 +6,8 @@ vector<int> UIds;                   // constanstly increasing uids for each of t
 vector<ChangeLog> change_logs;     // objects of change logs for corresponding tables in `tables`
 vector<MappingLog> mapping_logs;
 map<string, int> table_access;   // Map from table name to user id (-1 in case no user is editing it)
+list<std::mutex> locks;     // Map from table id to its write lock
+std::mutex create_mutex;
 
 Entry Table_Row::getField(int ind)
 {

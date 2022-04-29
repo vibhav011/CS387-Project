@@ -4,6 +4,7 @@
 
 %{
 #include "./receiver/query.h"
+#include "./receiver/commit.h"
 #include "ast.h"
 #include "parser.tab.h"
 

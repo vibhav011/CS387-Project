@@ -19,6 +19,8 @@ extern map<string, int> table_name_to_id;
 extern vector<Table*> tables;
 extern vector<int> UIds;
 
+int release_write_lock(string table_name);
+
 #define MAX_PAGE_SIZE 4000
 
 int commit_insert(Table *tbl, Table_Row *tr, RecId* rid) {
@@ -79,7 +81,7 @@ int commit_insert(Table *tbl, Table_Row *tr, RecId* rid) {
 
 }
 
-int execute_commit(vector<string> change_tables) {
+int execute_commit(vector<string> &change_tables) {
 
     vector<int> *ChangeIndices = new vector<int>();
     for(auto table: change_tables)
@@ -146,6 +148,10 @@ int execute_commit(vector<string> change_tables) {
         mapping_log.clear();
     }
     
+    for(string name: change_tables){
+        release_write_lock(name);
+    }
+
     filesystem::remove_all(folder_path);
     return C_OK;
 }
@@ -205,10 +211,10 @@ int execute_rollback_single(Table *tbl, ChangeLog& change_log, MappingLog& mappi
     return C_OK;
 }
 
-int execute_rollback(vector<string> changed_tables) {
+int execute_rollback(vector<string> &change_tables) {
 
     vector<int> *ChangeIndices = new vector<int>();
-    for(auto table: changed_tables)
+    for(auto table: change_tables)
         ChangeIndices->push_back(table_name_to_id[table]);
 
     for (int i = 0; i < ChangeIndices->size(); i++) {
@@ -220,5 +226,10 @@ int execute_rollback(vector<string> changed_tables) {
 
         if (ret_val != C_OK) return ret_val;
     }
+
+    for(string name: change_tables){
+        release_write_lock(name);
+    }
+
     return C_OK;
 }

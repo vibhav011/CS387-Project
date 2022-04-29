@@ -2,9 +2,9 @@
 #include <string.h>
 #include <mutex>
 #include <filesystem>
-#include "sock.hpp"
 #include <map>
 #include <string>
+#include "sock.hpp"
 #include "utils.h"
 #include "receiver/helper.h"
 
@@ -202,8 +202,7 @@ void Daemon::thread_func(Conn *conn){
     this function is executed on each arriving query
     need to call yyparse() here
 */
-extern string global_query;
-extern mutex query_mutex;
+
 extern int yyparse(int);
 
 int myhandler(string query, Conn *conn){
@@ -247,16 +246,8 @@ void install_sig_handler(){
 
 extern void setup_and_recover();
 
-int obtain_write_lock(int worker_id, string table_name){
-    
-}
-
-int release_write_lock(int worker_id, string table_name){
-    
-}
-
 int main(){
-    // setup_and_recover();
+    setup_and_recover();
 
     Daemon *d = new Daemon(SOCK_PATH, myhandler);
     install_sig_handler();
