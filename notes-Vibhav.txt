@@ -1,3 +1,16 @@
+TODOS:
+execute_create:
+- Append to mutex vector in create
+- Set table_access for that table to -1
+
+setup_and_recover:
+- same as above
+
+rollback or commit:
+- release table locks
+
+- call execute_select with worker_id in parser
+
 ChangeLog file structure:
 
 <table_name> <num_fields> <num_logs>

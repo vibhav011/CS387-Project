@@ -251,7 +251,6 @@ void install_sig_handler(){
 extern void setup_and_recover();
 
 int main(){
-    cout << MSG_NOSIGNAL << endl;
     setup_and_recover();
 
     Daemon *d = new Daemon(SOCK_PATH, myhandler);
