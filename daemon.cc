@@ -7,20 +7,20 @@
 #include "sock.hpp"
 #include "utils.h"
 #include "receiver/helper.h"
+#include "receiver/commit.h"
 // #define MSG_NOSIGNAL 524288
 
 using namespace std;
 
 int Conn::id = 0;
 vector<Temp_Table*> results;
+extern vector<string> changed_tables[MAX_PROCESSES];
 
 Conn::Conn(){
     this->worker_meta.id = id++;
     sprintf(this->fname, "/tmp/toydb.%d", this->worker_meta.id);
     this->inuse = 0;
     this->conn_thread = NULL;
-
-    yylex_init_extra(&this->worker_meta, &this->scanner);
 }
 
 Daemon::Daemon(const char *sock_path, request_handler_t func){
@@ -194,7 +194,7 @@ void Daemon::thread_func(Conn *conn){
             perror("error ack");
         }
     }
-
+    execute_rollback(changed_tables[conn->worker_meta.id]);
     fclose(conn->worker_meta.out);
     printf("joining back: %p\n", conn);
 }
@@ -214,10 +214,11 @@ int myhandler(string query, Conn *conn){
 
     conn->f = fopen(conn->fname, "r");
     yyset_in(conn->f, conn->scanner);
-    yyset_extra(&conn->worker_meta, conn->scanner);
+    yylex_init_extra(&conn->worker_meta, &conn->scanner);
     
     yyparse(conn->scanner);
     fclose(conn->f);
+    free(conn->scanner);
     cout << "out of yyparse()" << endl;
 
     // FILE *f = fdopen(conn->stdout_fd, "a+");

@@ -428,12 +428,12 @@ update
 ;           
 
 delete_query
-    : DELETE FROM NAME condition 
+    : DELETE FROM NAME WHERE condition 
     {
         int worker_id = ((Pro *)yyget_extra(scanner))->id;
         checkerr(obtain_write_lock(worker_id, *$3), scanner);
         table_access[*$3] = worker_id;
-        checkerr(execute_delete(*$3, $4), scanner);
+        checkerr(execute_delete(*$3, $5), scanner);
         changed_tables[worker_id].push_back(*$3);
         // cannot release the lock here
     }
@@ -452,7 +452,12 @@ delete_query
 
 void yyerror(YYLTYPE* yyllocp, yyscan_t unused, const char* msg)
 {
+    FILE *f = ((Pro *)yyget_extra(unused))->out;
+    fprintf(f, "Error: %s\n", msg);
+    fflush(f);
     cerr<<msg<<endl;
+    int worker_id = ((Pro *)yyget_extra(unused))->id;
+    execute_rollback(changed_tables[worker_id]);
     return;
 }
 

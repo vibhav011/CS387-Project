@@ -163,6 +163,7 @@ int commit_delete(Table *tbl, RecId rid) {
 
 int execute_rollback_single(Table *tbl, ChangeLog& change_log, MappingLog& mapping_log) {
     cout<<"yahan?"<<endl;
+    int ret_value = C_OK;
     for (ChangeLog::iterator it = change_log.begin(); it != change_log.end(); it++) {
         cout<<"in"<<endl;
         int unique_id = it->first;
@@ -176,8 +177,7 @@ int execute_rollback_single(Table *tbl, ChangeLog& change_log, MappingLog& mappi
         switch (log_entry.change_type) {
         case _UPDATE: {
             cout<<"update"<<endl;
-            int ret_value = commit_delete(tbl, mapping_log[new_value->fields[0].int_val]);
-            if (ret_value != C_OK) return ret_value;
+            ret_value = commit_delete(tbl, mapping_log[new_value->fields[0].int_val]);
             RecId x;
             ret_value = commit_insert(tbl, old_value, &x);
             if (ret_value != C_OK) return ret_value;
@@ -186,15 +186,13 @@ int execute_rollback_single(Table *tbl, ChangeLog& change_log, MappingLog& mappi
         case _INSERT: {
             cout<<"reverting insert on rid:"<<endl;
             cout<<mapping_log[new_value->fields[0].int_val]<<endl;
-            int ret_value = commit_delete(tbl, mapping_log[new_value->fields[0].int_val]);
-            if (ret_value != C_OK) return ret_value;
+            ret_value = commit_delete(tbl, mapping_log[new_value->fields[0].int_val]);
             break;
         }
         case _DELETE: {
             cout<<"delete"<<endl;
             RecId x;
-            int ret_value = commit_insert(tbl, old_value, &x);
-            if (ret_value != C_OK) return ret_value;
+            ret_value = commit_insert(tbl, old_value, &x);
             break;
         }
         default:
@@ -206,26 +204,28 @@ int execute_rollback_single(Table *tbl, ChangeLog& change_log, MappingLog& mappi
     free(tbl->lastPage);
     free(tbl->pagebuf);
     Table_Open(&("./data/"+tbl->name+".tbl")[0], tbl->schema, false, &tbl);
+    cout << "clearing logs" << endl;
     change_log.clear();
     mapping_log.clear();
-    return C_OK;
+    return ret_value;
 }
 
 int execute_rollback(vector<string> &change_tables) {
-
+    cout << "rollback" << endl;
     vector<int> *ChangeIndices = new vector<int>();
     for(auto table: change_tables)
         ChangeIndices->push_back(table_name_to_id[table]);
 
     for (int i = 0; i < ChangeIndices->size(); i++) {
         Table *tbl = tables[ChangeIndices->at(i)];
-        ChangeLog& change_log = change_logs[ChangeIndices->at(i)];
-        MappingLog& mapping_log = mapping_logs[ChangeIndices->at(i)];
-
-        int ret_val = execute_rollback_single(tbl, change_log, mapping_log);
+        // ChangeLog& change_log = change_logs[ChangeIndices->at(i)];
+        // MappingLog& mapping_log = mapping_logs[ChangeIndices->at(i)];
+        cout << "single rollback" << endl;
+        int ret_val = execute_rollback_single(tbl, change_logs[ChangeIndices->at(i)], mapping_logs[ChangeIndices->at(i)]);
 
         if (ret_val != C_OK) return ret_val;
     }
+    delete ChangeIndices;
 
     for(string name: change_tables){
         release_write_lock(name);
