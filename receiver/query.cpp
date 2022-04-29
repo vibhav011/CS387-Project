@@ -22,14 +22,6 @@ Query_Obj::Query_Obj(vector<string> col_names, CondAST* cond_tree, Temp_Table* t
     this->tbl2_id = tbl2_id;
 }
 
-void Table_Scan(Temp_Table *tbl, void *callbackObj, ReadFunc callbackfn) {
-    for (int i = 0; i < tbl->rows.size(); i++) {
-        ((Query_Obj*)callbackObj)->tr1 = tbl->rows[i];
-        if (callbackfn(callbackObj, 0, NULL, 0) != C_OK)
-            break;
-    }
-}
-
 void delete_table_row_fields(Table_Row *tr, Schema *schema) {
     for (int i = 0; i < schema->numColumns; i++) {
         if (schema->columns[i]->type == VARCHAR)
@@ -85,15 +77,18 @@ int Table_Single_Select(void *callbackObj, RecId rid, Byte *row, int len) {
     } else {
         // Decoding the fields
         decode_to_table_row(tr, tbl1->schema, row);
-        int unique_id = tr->getField(0).int_val;
-        ChangeLog& change_log = change_logs[cObj->tbl1_id];
-        if (change_log.find(unique_id) != change_log.end()) {
-            delete_table_row_fields(tr, tbl1->schema);
-            if (change_log[unique_id].change_type == _DELETE) { // The row is deleted
-                delete tr;
-                return C_OK;
+        if(cObj->user_id == -1 || table_access[tbl1->name] == cObj->user_id)
+        {
+            int unique_id = tr->getField(0).int_val;
+            ChangeLog& change_log = change_logs[cObj->tbl1_id];
+            if (change_log.find(unique_id) != change_log.end()) {
+                delete_table_row_fields(tr, tbl1->schema);
+                if (change_log[unique_id].change_type == _DELETE) { // The row is deleted
+                    delete tr;
+                    return C_OK;
+                }
+                *tr = *change_log[unique_id].new_value;
             }
-            *tr = *change_log[unique_id].new_value;
         }
     }
     int ret = query_process(cObj, tr, rid);
@@ -113,15 +108,18 @@ int Table_Single_Select_Join(void *callbackObj, RecId rid, Byte *row, int len) {
         // Decoding the fields
         Table* tbl2 = tables[cObj->tbl2_id];
         decode_to_table_row(tr, tbl2->schema, row);
-        int unique_id = tr->getField(0).int_val;
-        ChangeLog& change_log = change_logs[cObj->tbl2_id];
-        if(change_log.find(unique_id) != change_log.end()) {
-            delete_table_row_fields(tr, tbl2->schema);
-            if (change_log[unique_id].change_type == _DELETE) {    // The row is deleted
-                delete tr;
-                return C_OK;
+        if(cObj->user_id == -1 || table_access[tbl2->name] == cObj->user_id)
+        {
+            int unique_id = tr->getField(0).int_val;
+            ChangeLog& change_log = change_logs[cObj->tbl2_id];
+            if(change_log.find(unique_id) != change_log.end()) {
+                delete_table_row_fields(tr, tbl2->schema);
+                if (change_log[unique_id].change_type == _DELETE) {    // The row is deleted
+                    delete tr;
+                    return C_OK;
+                }
+                *tr = *change_log[unique_id].new_value;
             }
-            *tr = *change_log[unique_id].new_value;
         }
     }
     
@@ -370,7 +368,7 @@ int execute_select(Temp_Table *result, vector<string> table_names, vector<string
         callbackObj->rids = rids;
         callbackObj->user_id = user_id;
         Table_Scan(tbl, callbackObj, Table_Single_Select);
-        if (user_id == -1 || table_access[table_names[0]] == user_id)
+        if(user_id == -1 || table_access[table_names[0]] == user_id)
             log_scan(callbackObj);
         int retval = callbackObj->ret_value;
         delete callbackObj;

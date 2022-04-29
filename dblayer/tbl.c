@@ -79,7 +79,6 @@ Table_Open(char *dbname, Schema *schema, bool overwrite, Table **ptable)
 
     // Counting number of pages and fixing the last page into pagebuf
     int prevPage = -1;
-
     while (PF_GetNextPage(fd, table->lastPage, table->pagebuf) == PFE_OK) {
         table->numPages++;
         PF_UnfixPage(fd, prevPage, false);
