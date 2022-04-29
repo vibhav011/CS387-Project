@@ -95,6 +95,7 @@ struct Query_Obj {
     Table_Row *tr1, *tr2;
     int ret_value;
     vector<int>* rids;
+    int user_id;
 
     Query_Obj(vector<string>, CondAST*, Temp_Table*, int, int);
 };
@@ -113,7 +114,7 @@ struct Update_Pair {
 typedef vector<Temp_Table*> table_list;
 
 int execute_create_temp(table_list tables);
-int execute_select(Temp_Table *result, vector<string> table_names, vector<string> col_names, CondAST *cond_tree=NULL, vector<int>*rids = NULL);
+int execute_select(Temp_Table *result, vector<string> table_names, vector<string> col_names, CondAST *cond_tree=NULL, vector<int>*rids = NULL, int user_id = -1);
 int execute_update(string table_name, vector<Update_Pair*> &update_list, CondAST* cond_tree=NULL);
 int execute_create(string table_name, vector<ColumnDesc*> &column_desc_list, vector<string> constraint= vector<string> ());
 int execute_insert(string table_name, vector<string> column_val_list);

@@ -10,6 +10,7 @@ extern vector<Table*> tables;              // objects of all tables
 extern vector<int> UIds;                   // constanstly increasing uids for each of the tables
 extern vector<ChangeLog> change_logs;     // objects of change logs for corresponding tables in `tables`
 extern vector<MappingLog> mapping_logs;
+extern map<string, int> table_access;
 
 int execute_create_temp(table_list tables){return C_OK;}
 
@@ -127,7 +128,8 @@ int Table_Single_Select_Join(void *callbackObj, RecId rid, Byte *row, int len) {
     cObj->tr2 = tr;
     Table* tbl1 = tables[cObj->tbl1_id];
     Table_Scan(tbl1, cObj, Table_Single_Select);
-    log_scan(cObj);
+    if (cObj->user_id == -1 || table_access[tbl1->name] == cObj->user_id)
+        log_scan(cObj);
     
     cObj->tr2 = NULL;
     delete tr;
@@ -164,8 +166,10 @@ int log_scan_join(Query_Obj *cObj)
         Table_Row *tr = new Table_Row();
         *tr = *(entry->second.new_value);
         cObj->tr2 = tr;
-        Table_Scan(tables[cObj->tbl1_id], cObj, Table_Single_Select);
-        log_scan(cObj);
+        Table *tbl1 = tables[cObj->tbl1_id];
+        Table_Scan(tbl1, cObj, Table_Single_Select);
+        if (cObj->user_id == -1 || table_access[tbl1->name] == cObj->user_id)
+            log_scan(cObj);
         cObj->tr2 = NULL;
         delete tr;
     }
@@ -274,7 +278,7 @@ int query_process(Query_Obj *cObj, Table_Row *tr, RecId rid)
     return C_OK;
 }
 
-int execute_select(Temp_Table *result, vector<string> table_names, vector<string> col_names, CondAST *cond_tree, vector<int> *rids) {
+int execute_select(Temp_Table *result, vector<string> table_names, vector<string> col_names, CondAST *cond_tree, vector<int> *rids, int user_id) {
     for (int i = 0; i < table_names.size(); i++)
     {
         if(table_name_to_id.find(table_names[i]) == table_name_to_id.end())
@@ -364,8 +368,10 @@ int execute_select(Temp_Table *result, vector<string> table_names, vector<string
         callbackObj->ret_value = 0;
         callbackObj->temp_table->schema = schema;
         callbackObj->rids = rids;
+        callbackObj->user_id = user_id;
         Table_Scan(tbl, callbackObj, Table_Single_Select);
-        log_scan(callbackObj);
+        if (user_id == -1 || table_access[table_names[0]] == user_id)
+            log_scan(callbackObj);
         int retval = callbackObj->ret_value;
         delete callbackObj;
         return retval;
@@ -386,8 +392,10 @@ int execute_select(Temp_Table *result, vector<string> table_names, vector<string
     callbackObj->ret_value = 0;
     callbackObj->temp_table->schema = schema;
     callbackObj->rids = NULL;
+    callbackObj->user_id = user_id;
     Table_Scan(tbl2, callbackObj, Table_Single_Select_Join);
-    log_scan_join(callbackObj);
+    if (user_id == -1 || table_access[table_names[1]] == user_id)
+        log_scan_join(callbackObj);
     delete callbackObj; // TODO: Delete callbackObj properly
     return callbackObj->ret_value;
 }
@@ -495,7 +503,11 @@ int execute_update(string table_name, vector<Update_Pair*> &update_list, CondAST
         
         Temp_Table* result = new Temp_Table(tbl->schema);
         int ret = execute_select(result, vector<string> (1, table_name), vector<string> (1, "*"), cond_tree);
-        
+        if (ret != C_OK) {
+            delete result;
+            return ret;
+        }
+
         for(int i=0; i<result->rows.size(); i++){
             Table_Row* old_value = result->rows[i];
             Table_Row* new_value = new Table_Row();
@@ -736,7 +748,12 @@ int execute_delete(string table_name, CondAST* cond_tree) {
         Temp_Table* result = new Temp_Table();
         vector<int> *rids = new vector<int>();
         int ret = execute_select(result, vector<string> (1, table_name), vector<string> (1, "*"), cond_tree, rids);
-
+        if (ret != C_OK) {
+            delete result;
+            delete rids;
+            return ret;
+        }
+        
         for (int i = 0; i < result->rows.size(); i++)
         {
             ChangeLog &change_log = change_logs[table_id];
