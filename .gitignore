@@ -175,6 +175,9 @@ $RECYCLE.BIN/
 ### DB files ###
 dumpdb
 loaddb
+*.tbl
+*.log
+*.scm
 
 ## PARSER files ##
 *.yy.c
