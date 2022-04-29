@@ -13,7 +13,6 @@ using namespace std;
 int Conn::id = 0;
 vector<Temp_Table*> results;
 
-
 Conn::Conn(){
     this->worker_id = id++;
     sprintf(this->fname, "/tmp/toydb.%d", this->worker_id);

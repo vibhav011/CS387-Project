@@ -15,7 +15,6 @@
 #include "parser.tab.h"
 #include "lex.yy.h"
 
-
 #define MAX_BUFFLEN 1024
 #define SOCK_PATH "/tmp/server.sock"
 

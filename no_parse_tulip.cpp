@@ -17,14 +17,14 @@ void clean_and_exit() {
             if (log->second.old_value != NULL) {
                 for (int j = 0; j < tables[i]->schema->numColumns; j++) {
                     if (tables[i]->schema->columns[j]->type == VARCHAR) {
-                        delete log->second.old_value->getField(j).str_val;
+                        delete log->second.old_value->fields[j].str_val;
                     }
                 }
             }
             if (log->second.new_value != NULL) {
                 for (int j = 0; j < tables[i]->schema->numColumns; j++) {
                     if (tables[i]->schema->columns[j]->type == VARCHAR) {
-                        delete log->second.new_value->getField(j).str_val;
+                        delete log->second.new_value->fields[j].str_val;
                     }
                 }
             }
@@ -52,6 +52,7 @@ int main() {
 
     ColumnDesc* colsPtr[] = {col1, col2, col3};
     Schema* schema = new Schema(3, colsPtr);
+    Temp_Table* result = new Temp_Table(schema);
 
     vector<ColumnDesc*> cols;
     cols.push_back(col1);
@@ -60,13 +61,13 @@ int main() {
     vector<string> pk;
     pk.push_back("Country");
     int create_exit = execute_create("data", cols, pk);
-
     vector<string> col_val_list1;
     col_val_list1.push_back("Afghanistan");
     col_val_list1.push_back("Kabul");
     col_val_list1.push_back("3553008");
+    cout << "before" << endl;
     int insert_exit = execute_insert("data", col_val_list1);
-    cout<<"insert 1 done"<<endl;
+    cout << "after" << endl;
     // execute_delete("data", NULL);
     // execute_delete("data", NULL);
     // cout << "delete done" << endl;
@@ -76,7 +77,6 @@ int main() {
     col_val_list2.push_back("2930187");
     insert_exit = execute_insert("data", col_val_list2);
     cout << "insert done" << endl;
-
     /*
     create_exit = execute_create("data1", cols, pk);
     cout << "create done" << endl;
@@ -94,33 +94,56 @@ int main() {
     col_val_list2.push_back("Beijing");
     col_val_list2.push_back("454657");
     insert_exit = execute_insert("data1", col_val_list2);
-    cout<<"insert done"<<endl;
     */
+    // Log_Entry le = change_logs[1][1];
+    // cout<<le.new_value->fields[0].int_val<<endl;
+    // cout<<*(le.new_value->fields[1].str_val)<<endl;
+    // cout<<*(le.new_value->fields[2].str_val)<<endl;
+    // cout<<le.new_value->fields[3].int_val<<endl;
 
-    Temp_Table* result = new Temp_Table(schema);
-    table_names->clear();
-    table_names->push_back("data");
-    int select_exit = execute_select(result, *table_names, vector<string>(1, "*"));
-    cout<<"select exited with "<<select_exit<<endl;
+    // ColAST* col_ast = new ColAST("data.Country");
+    // Constant* data = new Constant("Albania", VARCHAR);
+    // cout<<"here?"<<endl;
+    // ConstAST* const_ast = new ConstAST(data);
+    // RelAST* cond_tree = new RelAST(col_ast, const_ast, _EQ);
+    // cout<<"calling seletc"<<endl;
 
-    vector<int> *ci = new vector<int> (1, 0);
-    // ci->push_back(1);
-    int commit_exit = execute_commit(ci);
-    return 0;
-    cout<<"commit exited with: "<<commit_exit<<endl;
-    delete result;
-    result = new Temp_Table(schema);
-    table_names->clear();
-    table_names->push_back("data");
-    select_exit = execute_select(result, *table_names, vector<string> (1, "*"));
-    cout<<"select exited with "<<select_exit<<endl;
+    vector<Update_Pair*> update_list = vector<Update_Pair*>();
+    Update_Pair* upr = new Update_Pair("Country", "Nigeria");
+    update_list.push_back(upr);
+    int update_exit = execute_update("data",update_list);
+
+    cout<<"update exiting with: "<<update_exit<<endl;
+    vector<string> fetch_cols(1, "data.Country");
+    fetch_cols.push_back("data.Population");
+    // fetch_cols.push_back("data1.Capital");
+    vector<string> temp = vector<string> (1, "data");
+    // temp.push_back("data1");
+    int select_exit = execute_select(result, temp, fetch_cols);
+    cout<<"final result size "<< result->rows.size()<<endl;
+    for (int i = 0; i < result->rows.size(); i++) {
+        cout<<"row "<<i<<endl;
+        for (int j = 0; j < result->schema->numColumns; j++) {
+            if (result->schema->columns[j]->type == VARCHAR) {
+                // cout << "str" << endl;
+                cout<<*(result->rows[i]->fields[j].str_val)<<endl;
+            } else {
+                cout<<result->rows[i]->fields[j].int_val<<endl;
+            }
+        }
+    }
+    cout<<"select exited with: "<<select_exit<<endl;
+
+    // vector<int> tbl_ind = vector<int>(1, 0);
+    // int commit_exit = execute_commit(&tbl_ind);
+
+    // cout<<"commit exited with: "<<commit_exit<<endl;
     delete result;
     delete col_names;
     delete table_names;
     delete col1;
     delete col2;
     delete col3;
-    // delete ci;
     // clean_and_exit();
     // delete col_ast;
     // delete data;

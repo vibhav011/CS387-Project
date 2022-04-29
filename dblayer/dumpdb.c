@@ -63,7 +63,7 @@ int printRow(void *callbackObj, RecId rid, Byte *row, int len)
     return 0;
 }
 
-#define DB_NAME (char*)"data2.db"
+#define DB_NAME (char*)"data.db"
 #define INDEX_NAME "data.db.0"
 
 /*
