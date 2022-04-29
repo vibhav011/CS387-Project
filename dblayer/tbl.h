@@ -58,8 +58,10 @@ struct Schema {
     }
     ~Schema()
     {
-        for (int i = 0; i < numColumns; i++)
+        for (int i = 0; i < numColumns; i++) {
+            delete columns[i]->name;
             delete columns[i];
+        }
         delete[] columns;
     }
 
