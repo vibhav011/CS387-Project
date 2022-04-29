@@ -632,6 +632,7 @@ int execute_insert(string table_name, vector<string> column_val_list) {
         for(int i=1;i<schema->numColumns;i++)
         {
             Entry entry;
+            int len;
             switch(schema->columns[i]->type) {
                 case VARCHAR:
                     entry.str_val = new string(column_val_list[i-1]);
@@ -642,7 +643,10 @@ int execute_insert(string table_name, vector<string> column_val_list) {
                     new_row->fields.push_back(entry);
                     break;
                 case DOUBLE:
-                    entry.float_val = stof(column_val_list[i-1]);
+                    cout << column_val_list[i-1] << endl;
+                    len = column_val_list.size();
+                    entry.float_val = stof(column_val_list[i-1].substr(1, len-2));
+                    cout << "out of stof" << endl;
                     new_row->fields.push_back(entry);
                     break;
                 default:

@@ -31,7 +31,7 @@ struct Temp_Table {
             delete rows[i];
     }
 
-    void prettyPrint()
+    void prettyPrint(FILE *f)
     {   
         cout<<"Inside PrettyPrint"<<endl;
         if(this->schema == NULL)
@@ -40,12 +40,16 @@ struct Temp_Table {
             return ;
         }
         vector<int> types;
-        cout<<"Number of columns: "<<this->schema->numColumns<<endl;
-        cout<<"Number of rows: "<<this->rows.size()<<endl;
+        fprintf(f, "Number of columns: %d", this->schema->numColumns);
+        fprintf(f, "Number of rows: %ld", this->rows.size());
+
+        // cout<<"Number of columns: "<<this->schema->numColumns<<endl;
+        // cout<<"Number of rows: "<<this->rows.size()<<endl;
         for(int i=0;i<this->schema->numColumns;i++)
         {
             types.push_back(this->schema->columns[i]->type);
-            cout<<setw(20)<<this->schema->columns[i]->name;
+            fprintf(f, "%*s", 20, this->schema->columns[i]->name);
+            // cout<<setw(20)<<this->schema->columns[i]->name;
         }
         cout<<endl;
 
@@ -55,11 +59,14 @@ struct Temp_Table {
             for(int i=0;i<this->schema->numColumns;i++)
             {
                 if(types[i] == INT)
-                    cout<<setw(20)<<rows[ii]->getField(i).int_val;
+                    fprintf(f, "%*d", 20, rows[ii]->getField(i).int_val);
+                    // cout<<setw(20)<<rows[ii]->getField(i).int_val;
                 else if(types[i] == DOUBLE)
-                    cout<<setw(20)<<rows[ii]->getField(i).float_val;
+                    fprintf(f, "%*.*f", 20, 3, rows[ii]->getField(i).float_val);
+                    // cout<<setw(20)<<rows[ii]->getField(i).float_val;
                 else
-                    cout<<setw(20)<<*(rows[ii]->getField(i).str_val);
+                    fprintf(f, "%*s", 20, rows[ii]->getField(i).str_val->c_str());
+                    // cout<<setw(20)<<*(rows[ii]->getField(i).str_val);
             }
             cout<<endl;
         }

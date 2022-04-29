@@ -205,8 +205,6 @@ extern mutex query_mutex;
 extern int yyparse(int);
 
 int myhandler(string query, Conn *conn){
-    cout << query << endl;
-
     conn->f = fopen(conn->fname, "w");
     fprintf(conn->f, "%s", query.c_str());
     fclose(conn->f);
@@ -214,15 +212,13 @@ int myhandler(string query, Conn *conn){
     conn->f = fopen(conn->fname, "r");
     yyset_in(conn->f, conn->scanner);
     
-    cout << query << endl;
-
     yyparse(conn->scanner);
-    cout << query << endl;
     fclose(conn->f);
-    cout<<query<<endl;
+    cout << "out of yyparse()" << endl;
 
-    results[conn->worker_id]->prettyPrint();
-    cout<<"ankit"<<endl;
+    FILE *f = fdopen(conn->stdout_fd, "a+");
+
+    results[conn->worker_id]->prettyPrint(f);
     delete results[conn->worker_id];
     results[conn->worker_id] = NULL;
     
