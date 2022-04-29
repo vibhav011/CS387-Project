@@ -122,5 +122,6 @@ int execute_delete(string table_name, CondAST *cond_tree=NULL);
 
 int query_process(Query_Obj *cObj, Table_Row *tr, RecId rid);
 int log_scan(Query_Obj *cObj);
+int log_scan_join(Query_Obj *cObj);
 
 #endif
