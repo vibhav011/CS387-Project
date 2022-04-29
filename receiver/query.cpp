@@ -11,6 +11,7 @@ extern vector<int> UIds;                   // constanstly increasing uids for ea
 extern vector<ChangeLog> change_logs;     // objects of change logs for corresponding tables in `tables`
 extern vector<MappingLog> mapping_logs;
 extern map<string, int> table_access;
+extern list<mutex> locks;
 
 int execute_create_temp(table_list tables){return C_OK;}
 
@@ -37,25 +38,27 @@ void decode_to_table_row(Table_Row *result, Schema *schema, Byte *row) {
         // decoding bytes from record for each type of column and printing them
         switch (schema->columns[i]->type)
         {
-        case INT:; {
+        case INT: {
             int int_field = DecodeInt(cursor);
             entry.int_val = int_field;
             cursor += 4; // cursor offset by size of int
             break;
         }
-        case VARCHAR:; {
+        case VARCHAR: {
             char string_field[256];
             int len = DecodeCString(cursor, string_field, 256); // check max len
             entry.str_val = new string(string_field);
             cursor += 2 + len; // cursor offset by 2 Byte len + string length
             break;
         }
-        case LONG:; {
-            long long long_field = DecodeLong(cursor);
+        case DOUBLE: {
+            double long_field = DecodeDouble(cursor);
+            entry.float_val = long_field;
             cursor += 8; // cursor offset by size of long long
             
             break;
         }
+        
         default:
             break;
         }
@@ -684,6 +687,9 @@ int execute_create(string table_name, vector<ColumnDesc*> &column_desc_list, vec
         change_logs.push_back(chnglog);
         MappingLog mapplog;
         mapping_logs.push_back(mapplog);
+        locks.emplace_back();
+        table_access[table_name] = -1;
+
         return 0;
     }
 
