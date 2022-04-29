@@ -105,7 +105,7 @@ void setup_and_recover() {
         Table_Open((char *)tbl_path.c_str(), schema, false, &table);
         table->name = tbl_name;
         table->pk = pk;
-        cout << "lpage " << *table->lastPage << endl;
+
         int uid = 0;
         while (!schema_file.eof())
             schema_file >> uid;
