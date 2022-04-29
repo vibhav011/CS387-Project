@@ -7,6 +7,7 @@
 #include "sock.hpp"
 #include "utils.h"
 #include "receiver/helper.h"
+// #define MSG_NOSIGNAL 524288
 
 using namespace std;
 
@@ -44,7 +45,7 @@ Daemon::Daemon(const char *sock_path, request_handler_t func){
     addr.sun_family = AF_UNIX;
     strcpy(addr.sun_path, sock_path);
 
-    this->sock_fd = socket(AF_UNIX, SOCK_SEQPACKET, 0);
+    this->sock_fd = socket(AF_UNIX, SOCK_STREAM, 0);
     if(this->sock_fd < 0){
         perror("cannot open listen socket");
         exit(1);
@@ -64,7 +65,7 @@ Daemon::Daemon(const char *sock_path, request_handler_t func){
         exit(1);
     }
 
-    results = vector<Temp_Table*>(MAX_PROCESSES);
+    results = vector<Temp_Table*>(MAX_PROCESSES, NULL);
 }
 
 Daemon::~Daemon(){
@@ -221,8 +222,10 @@ int myhandler(string query, Conn *conn){
 
     // FILE *f = fdopen(conn->stdout_fd, "a+");
 
-    results[conn->worker_meta.id]->prettyPrint(conn->worker_meta.out);
-    delete results[conn->worker_meta.id];
+    if (results[conn->worker_meta.id] != NULL) {
+        results[conn->worker_meta.id]->prettyPrint(conn->worker_meta.out);
+        delete results[conn->worker_meta.id];
+    }
     results[conn->worker_meta.id] = NULL;
     
     // write(conn->stdout_fd, "this is another output\n", 23);
