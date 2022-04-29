@@ -451,7 +451,7 @@ bool passes_pk_constraints(string table_name, Table_Row* row) {
         return true;
 
     Temp_Table* result = new Temp_Table(tbl->schema);
-    int ret = execute_select(result, vector<string> (1, table_name), tbl->pk);
+    int ret = execute_select(result, vector<string> (1, table_name), tbl->pk, NULL);
 
     if(ret != C_OK)
         return false;
@@ -460,11 +460,18 @@ bool passes_pk_constraints(string table_name, Table_Row* row) {
     for(int i=0;i<result->rows.size();i++)
     {
         bool match = true;
+        if(result->rows[i]->fields[0].int_val == row->fields[0].int_val){
+            cout<<"found it"<<endl;
+            continue;
+        }
         for(int j=0;j<tbl->pk.size();j++)
         {
             int pk_col_num = tbl->schema->getColumnNum(tbl->pk[j].c_str());
             switch(tbl->schema->columns[pk_col_num]->type) {
                 case VARCHAR:
+                    cout<<"in match"<<endl;
+                    cout<<"new row : "<<*(row->getField(pk_col_num).str_val)<<endl;
+                    cout<<"old row: "<<*(result->rows[i]->getField(pk_col_num).str_val)<<endl;
                     if(*(row->getField(pk_col_num).str_val) != *(result->rows[i]->getField(pk_col_num).str_val))
                         match = false;
                     break;
@@ -489,12 +496,14 @@ bool passes_pk_constraints(string table_name, Table_Row* row) {
         }
     }
     delete result;
+    cout<<"returning"<<endl;
     return !found;
 }
 
 int execute_update(string table_name, vector<Update_Pair*> &update_list, CondAST* cond_tree) {
     try {
-
+        ChangeLog temp_cl;
+        cout<<"all in uopdate"<<endl<<endl;
         if(table_name_to_id.find(table_name) == table_name_to_id.end()) 
             return C_TABLE_NOT_FOUND;
 
@@ -514,6 +523,7 @@ int execute_update(string table_name, vector<Update_Pair*> &update_list, CondAST
             *new_value = *old_value;
             for (int j = 0; j < update_list.size(); j++)
             {
+                cout<<update_list[j]->lhs<<endl;
                 int change_col_num = tbl->schema->getColumnNum(update_list[j]->lhs.c_str());
                 if(change_col_num == -1)
                     return -1;
@@ -542,6 +552,9 @@ int execute_update(string table_name, vector<Update_Pair*> &update_list, CondAST
                         delete new_rhs;
                         break;
                     case VARCHAR:
+                        cout<<"in update varchar case"<<endl;
+                        cout<<change_col_num<<endl;
+                        cout<<*new_rhs<<endl;
                         new_value->fields[change_col_num].str_val = new_rhs;
                         break;
                     default:
@@ -554,17 +567,32 @@ int execute_update(string table_name, vector<Update_Pair*> &update_list, CondAST
                             delete new_value->fields[k].str_val;
                         }
                     }
+                    cout<<"no for rc"<<endl;
                     delete new_value;
                     return -1;
                 }
                 
                 if(!passes_pk_constraints(table_name, new_value)) {
+                    for (int jj = 0; jj < i; jj++)
+                    {
+                        cout<<"jj: "<<jj<<endl;
+                        if(temp_cl.find(result->rows[jj]->fields[0].int_val) != temp_cl.end()) {
+                            cout<<"here"<<endl;
+                            change_logs[table_id][result->rows[jj]->fields[0].int_val].new_value = temp_cl[result->rows[jj]->fields[0].int_val].old_value;
+                            cout<<"out"<<endl;
+                        }
+                        else{
+                            continue;
+                        }
+                    }
                     delete result;
                     for (int k = 0; k < tbl->schema->numColumns; k++) {
                         if (tbl->schema->columns[k]->type == VARCHAR) {
                             delete new_value->fields[k].str_val;
                         }
                     }
+
+                    cout<<"no for pk"<<endl;
                     delete new_value;
                     return -1;
                 }
@@ -573,8 +601,12 @@ int execute_update(string table_name, vector<Update_Pair*> &update_list, CondAST
             int unqiue_id = result->rows[i]->fields[0].int_val;
 
             if (change_log.find(unqiue_id) != change_log.end()) {
-                delete change_log[unqiue_id].new_value;
+                Log_Entry* tle = new Log_Entry();
+                tle->old_value = change_log[unqiue_id].new_value;
                 change_log[unqiue_id].new_value = new_value;
+                cout<<"in cl: "<<*(change_log[unqiue_id].new_value->fields[1].str_val)<<endl;
+                temp_cl[unqiue_id] = *tle;
+                delete tle;
             }
             else {
                 Log_Entry* log_entry = new Log_Entry();
@@ -582,7 +614,8 @@ int execute_update(string table_name, vector<Update_Pair*> &update_list, CondAST
                 *(log_entry->old_value) = *old_value;
                 log_entry->new_value = new_value;
                 log_entry->change_type = _UPDATE;
-                change_log[unqiue_id] = *log_entry;
+                change_log[unqiue_id] = *log_entry; 
+                cout<<"in cl: "<<*(change_log[unqiue_id].new_value->fields[1].str_val)<<endl;
                 delete log_entry;
             }
         }

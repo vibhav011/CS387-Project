@@ -62,7 +62,7 @@ int main() {
     cols.push_back(col2);
     cols.push_back(col3);
     vector<string> pk;
-    /*
+    
     pk.push_back("Country");
     int create_exit = execute_create("countries", cols, pk);
     vector<string> col_val_list1;
@@ -73,7 +73,7 @@ int main() {
     int insert_exit = execute_insert("countries", col_val_list1);
     // cout << "after" << endl;
 
-    execute_delete("countries", NULL);
+    // execute_delete("countries", NULL);
     // cout << "delete done" << endl;
     vector<string> col_val_list2;
     col_val_list2.push_back("Albania");
@@ -81,6 +81,33 @@ int main() {
     col_val_list2.push_back("2930187");
     insert_exit = execute_insert("countries", col_val_list2);
     cout << "insert done" << endl;
+
+    vector<string> fetch_cols(1, "countries.Country");
+    fetch_cols.push_back("countries.Population");
+    fetch_cols.push_back("countries.Capital");
+    // fetch_cols.push_back("data1.Capital");
+    vector<string> temp = vector<string> (1, "countries");
+    // temp.push_back("data1");
+    int select_exit = execute_select(result, temp, fetch_cols);
+    cout<<"final result size "<< result->rows.size()<<endl;
+    for (int i = 0; i < result->rows.size(); i++) {
+        cout<<"row "<<i<<endl;
+        for (int j = 0; j < result->schema->numColumns; j++) {
+            if (result->schema->columns[j]->type == VARCHAR) {
+                // cout << "str" << endl;
+                cout<<*(result->rows[i]->fields[j].str_val)<<endl;
+            } else {
+                cout<<result->rows[i]->fields[j].int_val<<endl;
+            }
+        }
+    }
+    cout<<"select exited with: "<<select_exit<<endl;
+
+
+    vector<Update_Pair*> update_pair_list;
+    Update_Pair* up = new Update_Pair("Country", "this");
+    update_pair_list.push_back(up);
+    int update_exit = execute_update("countries", update_pair_list);
     /*
     create_exit = execute_create("data1", cols, pk);
     cout << "create done" << endl;
@@ -112,12 +139,9 @@ int main() {
     // RelAST* cond_tree = new RelAST(col_ast, const_ast, _EQ);
     // cout<<"calling seletc"<<endl;
 
-    vector<string> fetch_cols(1, "countries.Country");
-    fetch_cols.push_back("countries.Population");
-    // fetch_cols.push_back("data1.Capital");
-    vector<string> temp = vector<string> (1, "countries");
+
     // temp.push_back("data1");
-    int select_exit = execute_select(result, temp, fetch_cols);
+    select_exit = execute_select(result, temp, fetch_cols);
     cout<<"final result size "<< result->rows.size()<<endl;
     for (int i = 0; i < result->rows.size(); i++) {
         cout<<"row "<<i<<endl;
@@ -133,7 +157,7 @@ int main() {
     cout<<"select exited with: "<<select_exit<<endl;
 
     vector<int>* ChangeIndices= new vector<int>(1, 0);
-    // execute_commit(ChangeIndices);
+    execute_commit(ChangeIndices);
     change_logs.clear();
 
     Temp_Table *result2 = new Temp_Table(schema);
