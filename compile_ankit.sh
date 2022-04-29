@@ -13,11 +13,12 @@ flex --header-file=lex.yy.h scanner.l
 bison -dv parser.y
 
 g++ -c receiver/query.cpp
-g++ -c receiver/commit.cpp
-# g++ -c lex.yy.c
-# g++ -c parser.tab.c
+g++ -c -std=c++17 receiver/commit.cpp
+g++ -c receiver/helper.cpp
+g++ -c lex.yy.c
+g++ -c parser.tab.c
 g++ -c utils.cpp
 g++ -c ast.cc
 
-g++ no_parse.cpp ast.o query.o dblayer/tbl.o dblayer/codec.o pflayer/pf.o pflayer/buf.o pflayer/hash.o utils.o commit.o
+g++ no_parse.cpp ast.o query.o dblayer/tbl.o dblayer/codec.o pflayer/pf.o pflayer/buf.o pflayer/hash.o utils.o commit.o helper.o
 # g++ daemon.cc y.tab.o query.o ast.o -o daemon -pthread

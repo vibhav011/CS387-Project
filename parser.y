@@ -43,15 +43,15 @@ int const_type;
 
 %token <str> DOT_NAME NAME TEXT_CONSTANT INT_CONSTANT FLOAT_CONSTANT
 %token <int_val> INTEGER FLOAT TEXT
-%token AND OR NOT MULT PLUS MINUS DIV GE LT GT LE NE EQ STAR
-%token SEMICOLON COMMIT ROLLBACK WITH COMMA AS ROUND_BRACKET_OPEN ROUND_BRACKET_CLOSE SELECT FROM WHERE CREATE TABLE RANGE PRIMARY KEY INSERT INTO VALUES ASSIGN UPDATE SET DELETE INFINITY BETWEEN
+%token AND OR NOT PLUS MINUS DIV GE LT GT LE NE EQ STAR
+%token SEMICOLON COMMIT ROLLBACK WITH COMMA AS ROUND_BRACKET_OPEN ROUND_BRACKET_CLOSE SELECT FROM WHERE CREATE TABLE RANGE PRIMARY KEY INSERT INTO VALUES ASSIGN UPDATE SET DELETE BETWEEN
 
 %left OR
 %left AND
 %right NOT
 %nonassoc NE EQ LT LE GT GE
 %left PLUS MINUS
-%left MULT DIV
+%left STAR DIV
 %nonassoc REDC
 %nonassoc COMMA
 
@@ -238,7 +238,7 @@ relex
     }
     | expression NE expression
     {
-        $$ = new RelAST($1, $3, _NE);
+        $$ = new RelAST($1, $3, __NE);
     }
     | expression EQ expression
     {
@@ -247,7 +247,7 @@ relex
 ;
 
 expression
-    : expression MULT expression 
+    : expression STAR expression 
     {
         $$ = new BinArithAST($1, $3, _MULT);
     }

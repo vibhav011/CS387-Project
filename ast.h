@@ -15,7 +15,7 @@ using namespace std;
 # define _LT 7
 # define _GT 8
 # define _LE 9
-# define _NE 10
+# define __NE 10
 # define _EQ 11
 
 class Constant 
@@ -113,7 +113,6 @@ class BinArithAST: public ExprAST
 class CondAST: public AST
 {
     public:
-    // CondAST(){};
     virtual ~CondAST(){};
     virtual int check_row(Table_Row *row1, Schema *s1, Table_Row *row2 = NULL, Schema *s2 = NULL){return true;};
 }; 

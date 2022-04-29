@@ -147,7 +147,7 @@ int RelAST::compare(T v1, T v2)
     if(this->op == _LT) return v1 < v2;
     if(this->op == _LE) return v1 <= v2;
     if(this->op == _EQ) return v1 == v2;
-    if(this->op == _NE) return v1 != v2;
+    if(this->op == __NE) return v1 != v2;
     return true;
 }
 
