@@ -409,12 +409,7 @@ bool passes_range_constraints(string table_name, int column_num, string value) {
     }
 
     Value lb = tbl->schema->columns[column_num]->lower_bound;
-    Value ub = tbl->schema->columns[column_num]->lower_bound;
-
-    // cout << " ==================  "<<endl<<endl;
-    // cout<<"lb in range check "<< lb.int_val<<endl;
-    // cout<<"ub in range check "<< ub.int_val<<endl;
-    // cout << " ==================  "<<endl<<endl;
+    Value ub = tbl->schema->columns[column_num]->upper_bound;
 
     switch(tbl->schema->columns[column_num]->type) {
         case INT:
@@ -676,6 +671,28 @@ int execute_create(string table_name, vector<ColumnDesc*> &column_desc_list, vec
         }
         fprintf(fp, "%ld ", constraint.size());
         fprintf(fp, "%s\n", constraint_str.c_str());
+        string range_str = "";
+        for (int i = 1; i < schema->numColumns; i++)
+        {
+            range_str+=to_string(column_desc_list[i-1]->range);
+            if(column_desc_list[i-1]->range){
+                range_str+=" ";
+                switch(column_desc_list[i-1]->type) {
+                    case INT:
+                        range_str+=to_string(column_desc_list[i-1]->lower_bound.int_val);
+                        range_str += " ";
+                        range_str+=to_string(column_desc_list[i-1]->upper_bound.int_val);
+                        break;
+                    case DOUBLE:
+                        range_str+=to_string(column_desc_list[i-1]->lower_bound.float_val);
+                        range_str+=" ";
+                        range_str+=to_string(column_desc_list[i-1]->upper_bound.float_val);
+                        break;
+                }
+            }
+            range_str+="\n";
+        }
+        fprintf(fp, "%s", range_str.c_str());
         fclose(fp);
 
         tbl->name = table_name;
