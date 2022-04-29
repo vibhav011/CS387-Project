@@ -212,4 +212,3 @@ int execute_rollback(vector<int>* ChangeIndices) {
     }
     return C_OK;
 }
-
