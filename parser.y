@@ -487,15 +487,6 @@ void checkerr(int err_code, yyscan_t scanner) {
     fflush(f);
 
     int worker_id = ((Pro *)yyget_extra(scanner))->id;
-    if (err_code != C_OK) {
-        vector<string> changed_tables;
-        map<string, int>::iterator it;
-        for (it = table_access.begin(); it != table_access.end(); it++) {
-            // TODO: think about -1
-            if (table_access[it->first] == worker_id)
-                changed_tables.push_back(it->first);
-        }
-        execute_rollback(changed_tables);
-    
-    }
+    if (err_code != C_OK)
+        execute_rollback(changed_tables[worker_id]);
 }
