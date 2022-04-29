@@ -204,22 +204,24 @@ extern mutex query_mutex;
 extern int yyparse(int);
 
 int myhandler(string query, Conn *conn){
-    cout << query << endl;
     conn->f = fopen(conn->fname, "w");
     fprintf(conn->f, "%s", query.c_str());
     fclose(conn->f);
 
     conn->f = fopen(conn->fname, "r");
     yyset_in(conn->f, conn->scanner);
-
+    
     yyparse(conn->scanner);
     fclose(conn->f);
+    cout << "out of yyparse()" << endl;
 
-    results[conn->worker_id]->prettyPrint();
+    FILE *f = fdopen(conn->stdout_fd, "a+");
+
+    results[conn->worker_id]->prettyPrint(f);
     delete results[conn->worker_id];
     results[conn->worker_id] = NULL;
     
-    write(conn->stdout_fd, "this is another output\n", 23);
+    // write(conn->stdout_fd, "this is another output\n", 23);
 
     return 0;
 }
@@ -240,6 +242,11 @@ void install_sig_handler(){
 }
 
 extern void setup_and_recover();
+
+int obtain_read_lock(int worker_id, vector<string> table_names){return 0;}
+int obtain_write_lock(int worker_id, vector<string> table_names){return 0;}
+int release_read_lock(int worker_id, vector<string> table_names){return 0;}
+int release_write_lock(int worker_id, vector<string> table_names){return 0;}
 
 int main(){
     // setup_and_recover();
