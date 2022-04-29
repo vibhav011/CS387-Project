@@ -75,7 +75,7 @@ parseSchema(char *buf) {
             fprintf(stderr, "Unknown type %s \n", type);
             exit(EXIT_FAILURE);
         }
-        ColumnDesc *cd = new ColumnDesc(strdup(descTokens[0]), itype);// = new ColumnDesc *) malloc(sizeof(ColumnDesc));
+        ColumnDesc *cd = new ColumnDesc(strdup(descTokens[0]), itype);
         // cd->type = itype;
         sch->columns[i] = cd;
     }

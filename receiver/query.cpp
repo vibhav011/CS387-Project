@@ -403,12 +403,18 @@ bool passes_range_constraints(string table_name, int column_num, string value) {
 
     int table_id = table_name_to_id[table_name];
     Table* tbl  = tables[table_id];
-
     if(!tbl->schema->columns[column_num]->range)
+    {
         return true;
+    }
 
     Value lb = tbl->schema->columns[column_num]->lower_bound;
     Value ub = tbl->schema->columns[column_num]->lower_bound;
+
+    // cout << " ==================  "<<endl<<endl;
+    // cout<<"lb in range check "<< lb.int_val<<endl;
+    // cout<<"ub in range check "<< ub.int_val<<endl;
+    // cout << " ==================  "<<endl<<endl;
 
     switch(tbl->schema->columns[column_num]->type) {
         case INT:
@@ -636,7 +642,9 @@ int execute_create(string table_name, vector<ColumnDesc*> &column_desc_list, vec
 
         schema->columns[0] = new ColumnDesc(unq, INT);
         for(int i=1;i<schema->numColumns;i++) {
-            schema->columns[i] = new ColumnDesc(column_desc_list[i-1]->name, column_desc_list[i-1]->type);
+            if(column_desc_list[i-1]->range) schema->columns[i] = new ColumnDesc(column_desc_list[i-1]->name, column_desc_list[i-1]->type, column_desc_list[i-1]->lower_bound, column_desc_list[i-1]->upper_bound);
+            else schema->columns[i] = new ColumnDesc(column_desc_list[i-1]->name, column_desc_list[i-1]->type);
+            // *schema->columns[i] = *column_desc_list[i];
             switch (column_desc_list[i-1]->type)
             {
                 case INT:

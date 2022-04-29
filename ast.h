@@ -38,7 +38,7 @@ class Range
         if(lower.dt == INT)
         {
             this->lower_bound.int_val = stoi(lower.val);
-            this->upper_bound.float_val = stoi(upper.val);
+            this->upper_bound.int_val = stoi(upper.val);
         }
         else if(upper.dt == DOUBLE)
         {

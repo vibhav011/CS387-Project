@@ -61,6 +61,7 @@ int commit_insert(Table *tbl, Table_Row *tr, RecId* rid) {
                 printf("insert error: no space left for double/float value");
                 return C_ERROR;
             }
+            cout << "++++++++++++++" << tr->fields[i].float_val << endl;
             bytes_added = EncodeDouble(tr->fields[i].float_val, record+pos);
             pos += bytes_added;
             break;
