@@ -265,7 +265,10 @@ int query_process(Query_Obj *cObj, Table_Row *tr, RecId rid)
             }
         }
     }
-    cObj->temp_table->rows.push_back(new_row);
+    if(new_row->fields[0].int_val != -1) cObj->temp_table->rows.push_back(new_row);
+    // cout<<new_row->fields[0].int_val<<endl;
+    // if(new_row->fields[0].int_val == -1) cout<<"yahan theek kardo"<<endl;
+    // cObj->temp_table->rows.push_back(new_row);
     if (cObj->rids != NULL)
         cObj->rids->push_back(rid);
     return C_OK;

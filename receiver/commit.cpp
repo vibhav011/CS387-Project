@@ -150,14 +150,20 @@ int commit_delete(Table *tbl, RecId rid) {
 }
 
 int execute_rollback_single(Table *tbl, ChangeLog& change_log, MappingLog& mapping_log) {
+    cout<<"yahan?"<<endl;
     for (ChangeLog::iterator it = change_log.begin(); it != change_log.end(); it++) {
+        cout<<"in"<<endl;
         int unique_id = it->first;
         Log_Entry& log_entry = it->second;
         Table_Row *old_value = log_entry.old_value;
         Table_Row *new_value = log_entry.new_value;
-
+        cout<<log_entry.change_type<<endl;
+        cout<<_UPDATE<<endl;
+        cout<<_INSERT<<endl;
+        cout<<_DELETE<<endl;
         switch (log_entry.change_type) {
         case _UPDATE: {
+            cout<<"update"<<endl;
             int ret_value = commit_delete(tbl, mapping_log[new_value->fields[0].int_val]);
             if (ret_value != C_OK) return ret_value;
             RecId x;
@@ -166,11 +172,14 @@ int execute_rollback_single(Table *tbl, ChangeLog& change_log, MappingLog& mappi
             break;
         }
         case _INSERT: {
+            cout<<"reverting insert on rid:"<<endl;
+            cout<<mapping_log[new_value->fields[0].int_val]<<endl;
             int ret_value = commit_delete(tbl, mapping_log[new_value->fields[0].int_val]);
             if (ret_value != C_OK) return ret_value;
             break;
         }
         case _DELETE: {
+            cout<<"delete"<<endl;
             RecId x;
             int ret_value = commit_insert(tbl, old_value, &x);
             if (ret_value != C_OK) return ret_value;

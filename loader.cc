@@ -4,6 +4,7 @@
 #include <map>
 #include <string>
 #include "utils.h"
+#include "./receiver/commit.h"
 #include "receiver/helper.h"
 #include "dblayer/util.h"
 
@@ -16,48 +17,51 @@ extern vector<ChangeLog> change_logs;     // objects of change logs for correspo
 extern vector<MappingLog> mapping_logs;
 
 
-// void recover_from_folder(string folder_name) {
-//     map<int, ChangeLog> change_logs;
-//     map<int, MappingLog> mapping_logs;
-//     for (const auto& dirEntry : std::filesystem::directory_iterator(folder_name)) {
-//         if (!dirEntry.is_directory()) {
-//             string s = dirEntry.path().filename();
-//             if (s.size() > 5) {
-//                 if (s.substr(s.size() - 5) == ".clog") {
-//                     string clog_path = dirEntry.path().string();
-//                     string table_name = s.substr(0, s.size() - 5);
-//                     read_clog(change_logs[table_name], clog_path);
-//                 }
-//                 else if (s.substr(s.size() - 5) == ".mlog") {
-//                     string mlog_path = dirEntry.path().string();
-//                     string table_name = s.substr(0, s.size() - 5);
-//                     read_mlog(mapping_logs[table_name], mlog_path);
-//                 }
-//             }
-//         }
-//     }
-//     for (auto it = change_logs.begin(); it != change_logs.end(); it++) {
-//         int table_id = it->first;
-//         ChangeLog change_log = it->second;
+void recover_from_folder(string folder_name) {
+    map<int, ChangeLog> change_logs;
+    map<int, MappingLog> mapping_logs;
+    for (const auto& dirEntry : std::filesystem::directory_iterator(folder_name)) {
+        if (!dirEntry.is_directory()) {
+            string s = dirEntry.path().filename();
+            if (s.size() > 5) {
+                if (s.substr(s.size() - 5) == ".clog") {
+                    string clog_path = dirEntry.path().string();
+                    string table_name = s.substr(0, s.size() - 5);
+                    read_clog(change_logs[table_name_to_id[table_name]], clog_path);
+                }
+                else if (s.substr(s.size() - 5) == ".mlog") {
+                    string mlog_path = dirEntry.path().string();
+                    string table_name = s.substr(0, s.size() - 5);
+                    read_mlog(mapping_logs[table_name_to_id[table_name]], mlog_path);
+                }
+            }
+        }
+    }
+    for (auto it = change_logs.begin(); it != change_logs.end(); it++) {
+        int table_id = it->first;
+        ChangeLog change_log = it->second;
 
-//         if (mapping_logs.find(table_id) == mapping_logs.end())
-//             continue;
+        if (mapping_logs.find(table_id) == mapping_logs.end())
+            continue;
 
-//         MappingLog mapping_log = mapping_logs[table_id];
-//         // TODO: implement following functions and uncomment
-//         execute_rollback_single(tables[table_id], change_log, mapping_log);
-//     }
-// }
+        MappingLog mapping_log = mapping_logs[table_id];
+        // TODO: implement following functions and uncomment
+        cout<<"called exec rb single on "<<table_id<<endl;
+        execute_rollback_single(tables[table_id], change_log, mapping_log);
+    }
+}
 
 void setup_and_recover() {
     vector<string> log_folders;
     vector<string> table_names;
 
     for (const auto& dirEntry : std::filesystem::directory_iterator("./data")) {
+        cout<<dirEntry.path().filename()<<endl;
         if (dirEntry.is_directory()) {
-            string s = dirEntry.path().filename();
+            string s = dirEntry.path(); // .filename();
             if (s.size() > 4) {
                 if (s.substr(s.size() - 4) == ".log") {
+                    cout<<"s "<<s<<endl;
                     log_folders.push_back(s);
                 }
             }
@@ -115,9 +119,13 @@ void setup_and_recover() {
         schema_file.close();
     }
 
-    // for (string s: log_folders) {
-    //     recover_from_folder(s);
-    //     std::filesystem::remove(dirEntry.path());
-    // }
+    for (string s: log_folders) {
+        cout<<"rolling back "<<s<<endl;
+        recover_from_folder(s);
+        for (const auto& de: std::filesystem::directory_iterator(s)) {
+            std::filesystem::remove(de.path());
+        }
+        std::filesystem::remove(s);
+    }
 
 }

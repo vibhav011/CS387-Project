@@ -40,7 +40,7 @@ void clean_and_exit() {
 
 int main() {
     setup_and_recover();
-    
+    cout<<"setup and recover done"<<endl;
     vector<string>* table_names = new vector<string> (1, "countries");
     // table_names->push_back("data1");
     vector<string>* col_names = new vector<string> (1, "Country");
@@ -74,7 +74,7 @@ int main() {
     // cout << "after" << endl;
 
     execute_delete("countries", NULL);
-    cout << "delete done" << endl;
+    // cout << "delete done" << endl;
     vector<string> col_val_list2;
     col_val_list2.push_back("Albania");
     col_val_list2.push_back("Tirana");
@@ -131,9 +131,10 @@ int main() {
         }
     }
     cout<<"select exited with: "<<select_exit<<endl;
-    
+
     vector<int>* ChangeIndices= new vector<int>(1, 0);
-    execute_commit(ChangeIndices);
+    // execute_commit(ChangeIndices);
+    change_logs.clear();
 
     Temp_Table *result2 = new Temp_Table(schema);
 

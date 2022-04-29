@@ -103,13 +103,14 @@ int read_clog(ChangeLog &change_log, string filename){
     int uid;
     int change_type;
     char discard[256];
+    cout<<"ne in read_clog "<<num_entries<<endl;
     for (int i = 0; i < num_entries; i++) {
         Log_Entry log_entry;
         Table_Row *old_row, *new_row;
         old_row = new_row = NULL;
         indata >> uid;
         indata >> change_type;
-
+        cout<<"change type okay in read_clog? "<<change_type<<endl;
         if(change_type != _INSERT) {
             old_row = new Table_Row();
             for (int i = 0; i < numcols; i++)
@@ -160,6 +161,7 @@ int read_clog(ChangeLog &change_log, string filename){
             }
         }
 
+        log_entry.change_type = (Change_type)change_type;
         log_entry.old_value = old_row;
         log_entry.new_value = new_row;
 
