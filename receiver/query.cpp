@@ -678,10 +678,9 @@ int execute_insert(string table_name, vector<string> column_val_list) {
                     new_row->fields.push_back(entry);
                     break;
                 case DOUBLE:
-                    cout << column_val_list[i-1] << endl;
                     len = column_val_list.size();
                     entry.float_val = stof(column_val_list[i-1]);
-                    cout << "out of stof" << endl;
+                    // cout << "out of stof" << endl
                     new_row->fields.push_back(entry);
                     break;
                 default:

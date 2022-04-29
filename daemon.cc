@@ -14,10 +14,10 @@ int Conn::id = 0;
 vector<Temp_Table*> results;
 
 Conn::Conn(){
-    this->worker_id = id++;
-    sprintf(this->fname, "/tmp/toydb.%d", this->worker_id);
+    this->worker_meta.id = id++;
+    sprintf(this->fname, "/tmp/toydb.%d", this->worker_meta.id);
 
-    yylex_init_extra(&this->worker_id, &this->scanner);
+    yylex_init_extra(&this->worker_meta, &this->scanner);
 }
 
 Daemon::Daemon(const char *sock_path, request_handler_t func){
@@ -119,10 +119,12 @@ int Daemon::recv_stdout(Conn *conn){
         printf("cmsg_type != SCM_RIGHTS");
         return -1;
     }
+    int fd;
+    memcpy(&fd, CMSG_DATA(cmsgp), sizeof(int));
 
-    memcpy(&conn->stdout_fd, CMSG_DATA(cmsgp), sizeof(int));
-
-    write(conn->stdout_fd, "database connected\n", 19);
+    conn->worker_meta.out = fdopen(fd, "a+");
+    fprintf(conn->worker_meta.out, "Database connected\n\n");
+    // write(conn->stdout_fd, "database connected\n", 19);
 
     return 0;
 }
@@ -191,6 +193,7 @@ void Daemon::thread_func(Conn *conn){
         }
     }
 
+    fclose(conn->worker_meta.out);
     printf("joining back: %p\n", conn);
 }
 
@@ -210,16 +213,17 @@ int myhandler(string query, Conn *conn){
 
     conn->f = fopen(conn->fname, "r");
     yyset_in(conn->f, conn->scanner);
+    yyset_extra(&conn->worker_meta, conn->scanner);
     
     yyparse(conn->scanner);
     fclose(conn->f);
     cout << "out of yyparse()" << endl;
 
-    FILE *f = fdopen(conn->stdout_fd, "a+");
+    // FILE *f = fdopen(conn->stdout_fd, "a+");
 
-    results[conn->worker_id]->prettyPrint(f);
-    delete results[conn->worker_id];
-    results[conn->worker_id] = NULL;
+    results[conn->worker_meta.id]->prettyPrint(conn->worker_meta.out);
+    delete results[conn->worker_meta.id];
+    results[conn->worker_meta.id] = NULL;
     
     // write(conn->stdout_fd, "this is another output\n", 23);
 

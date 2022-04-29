@@ -6,6 +6,7 @@
 #include "./receiver/query.h"
 #include "ast.h"
 #include "utils.h"
+#include "sock.hpp"
 
 extern vector<Temp_Table*> results;
 int const_type;
@@ -20,7 +21,7 @@ int const_type;
     int yylex(YYSTYPE* yylvalp, YYLTYPE* yyllocp, yyscan_t scanner);
     void yyerror(YYLTYPE* yyllocp, yyscan_t unused, const char* msg);
     void* yyget_extra ( yyscan_t yyscanner );
-    void checkerr(int err_code);
+    void checkerr(int err_code, yyscan_t scanner);
 }
 
 %union {
@@ -77,38 +78,38 @@ query
     : with_query SEMICOLON query SEMICOLON
     | select_query SEMICOLON
     {   
-        results[*(int *)yyget_extra(scanner)] = $1;
+        results[((Pro *)yyget_extra(scanner))->id] = $1;
     }
     | create_query SEMICOLON
     {
-        results[*(int *)yyget_extra(scanner)] = new Temp_Table();
+        results[((Pro *)yyget_extra(scanner))->id] = new Temp_Table();
     }
     | insert_query SEMICOLON
     {
-        results[*(int *)yyget_extra(scanner)] = new Temp_Table();
+        results[((Pro *)yyget_extra(scanner))->id] = new Temp_Table();
     }
     | update_query SEMICOLON
     {
-        results[*(int *)yyget_extra(scanner)] = new Temp_Table();
+        results[((Pro *)yyget_extra(scanner))->id] = new Temp_Table();
     }
     | delete_query SEMICOLON
     {
-        results[*(int *)yyget_extra(scanner)] = new Temp_Table();
+        results[((Pro *)yyget_extra(scanner))->id] = new Temp_Table();
     }
     | COMMIT SEMICOLON
     {
-        results[*(int *)yyget_extra(scanner)] = new Temp_Table();
+        results[((Pro *)yyget_extra(scanner))->id] = new Temp_Table();
     }
     | ROLLBACK SEMICOLON
     {
-        results[*(int *)yyget_extra(scanner)] = new Temp_Table();
+        results[((Pro *)yyget_extra(scanner))->id] = new Temp_Table();
     }
 ;
 
 with_query
     : WITH table_as_list 
     {
-        checkerr(execute_create_temp(*($2)));
+        checkerr(execute_create_temp(*($2)), scanner);
     }
 ;
 
@@ -144,25 +145,25 @@ select_query
     : SELECT STAR FROM table_list
     {
         Temp_Table *temp = new Temp_Table();
-        checkerr(execute_select(temp, *$4, {"*"}));
+        checkerr(execute_select(temp, *$4, {"*"}), scanner);
         $$ = temp;
     }
     | SELECT STAR FROM table_list WHERE condition
     {
         Temp_Table *temp = new Temp_Table();
-        checkerr(execute_select(temp, *$4, {"*"}, $6));
+        checkerr(execute_select(temp, *$4, {"*"}, $6), scanner);
         $$ = temp;
     }
     | SELECT column_list FROM table_list 
     {
         Temp_Table *temp = new Temp_Table();
-        checkerr(execute_select(temp, *$4, *$2));
+        checkerr(execute_select(temp, *$4, *$2), scanner);
         $$ = temp;
     }
     | SELECT column_list FROM table_list WHERE condition 
     {
         Temp_Table *temp = new Temp_Table();
-        checkerr(execute_select(temp, *$4, *$2, $6));
+        checkerr(execute_select(temp, *$4, *$2, $6), scanner);
         $$ = temp;
     }
 ;
@@ -286,11 +287,11 @@ constant
 create_query
     : CREATE TABLE NAME ROUND_BRACKET_OPEN column_desc_list COMMA constraint ROUND_BRACKET_CLOSE  
     {
-        checkerr(execute_create(*$3, *$5, *$7));
+        checkerr(execute_create(*$3, *$5, *$7), scanner);
     }
     | CREATE TABLE NAME ROUND_BRACKET_OPEN column_desc_list ROUND_BRACKET_CLOSE 
     {
-        checkerr(execute_create(*$3, *$5));
+        checkerr(execute_create(*$3, *$5), scanner);
     }
 ;
 
@@ -338,7 +339,7 @@ constraint
 insert_query
     : INSERT INTO NAME VALUES ROUND_BRACKET_OPEN column_val_list ROUND_BRACKET_CLOSE 
     {
-        checkerr(execute_insert(*$3, *$6));
+        checkerr(execute_insert(*$3, *$6), scanner);
     }
 ;
 
@@ -362,11 +363,11 @@ column_val
 update_query
     : UPDATE NAME SET update_list WHERE condition 
     {
-        checkerr(execute_update(*$2, *$4, $6));
+        checkerr(execute_update(*$2, *$4, $6), scanner);
     }
     | UPDATE NAME SET update_list 
     {
-        checkerr(execute_update(*$2, *$4));
+        checkerr(execute_update(*$2, *$4), scanner);
     }
 ;
 
@@ -395,11 +396,11 @@ update
 delete_query
     : DELETE FROM NAME condition 
     {
-        checkerr(execute_delete(*$3, $4));
+        checkerr(execute_delete(*$3, $4), scanner);
     }
     | DELETE FROM NAME 
     {
-        checkerr(execute_delete(*$3));
+        checkerr(execute_delete(*$3), scanner);
     }
 ;
 
@@ -411,7 +412,8 @@ void yyerror(YYLTYPE* yyllocp, yyscan_t unused, const char* msg)
     return;
 }
 
-void checkerr(int err_code) {
+void checkerr(int err_code, yyscan_t scanner) {
+    FILE *f = ((Pro *)yyget_extra(scanner))->out;
     switch(err_code) {
         case C_OK:
             cout<<"successfully terminated"<<endl;
@@ -423,16 +425,21 @@ void checkerr(int err_code) {
             cout<<"false output"<<endl;
             break;
         case C_ERROR:
+            fprintf(f, "some error occured, check query. Rolling back.\n");
             cout<<"error"<<endl;
             break;
         case C_TABLE_NOT_FOUND:
+            fprintf(f, "table not found\n");
             cout<<"table not found"<<endl;
             break;
         case C_FIELD_NOT_FOUND:
+            fprintf(f, "field not found\n");
             cout<<"field not found"<<endl;
             break;
         case C_TABLE_ALREADY_EXISTS:
+            fprintf(f, "table already exists\n");
             cout<<"table already exists"<<endl;
             break;
     }
+    fflush(f);
 }

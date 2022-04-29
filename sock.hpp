@@ -35,12 +35,19 @@ public:
 /* Max number of db-processes connected at a time */
 #define MAX_PROCESSES 10
 
+struct Pro { //  to be passed to the scanner
+    int id; FILE *out;
+};
+
 struct Conn{
+
     static int id;
     int inuse;
-    int worker_id;
     int client_fd;
-    int stdout_fd;
+    Pro worker_meta;
+    // int worker_id;
+    // int stdout_fd;
+
     yyscan_t scanner;
     char fname[20];
     FILE *f;
