@@ -18,15 +18,19 @@ extern vector<MappingLog> mapping_logs;
 extern list<mutex> locks;
 extern map<string, int> table_access;
 
-int obtain_write_lock(string table_name){
+int obtain_write_lock(int worker_id, string table_name){
     map<string, int>::iterator it;
 
     if((it = table_name_to_id.find(table_name)) == table_name_to_id.end()){
         return C_TABLE_NOT_FOUND;
+    } 
+    
+    if(table_access[table_name] != worker_id){
+        list<std::mutex>::iterator it2 = locks.begin();
+        advance(it2, it->second);
+        it2->lock();
+        table_access[table_name] = worker_id;
     }
-    list<std::mutex>::iterator it2 = locks.begin();
-    advance(it2, it->second);
-    it2->lock();
 
     return C_OK;
 }

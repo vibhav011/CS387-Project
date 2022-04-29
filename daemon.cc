@@ -16,6 +16,8 @@ vector<Temp_Table*> results;
 Conn::Conn(){
     this->worker_meta.id = id++;
     sprintf(this->fname, "/tmp/toydb.%d", this->worker_meta.id);
+    this->inuse = 0;
+    this->conn_thread = NULL;
 
     yylex_init_extra(&this->worker_meta, &this->scanner);
 }
@@ -25,7 +27,6 @@ Daemon::Daemon(const char *sock_path, request_handler_t func){
 
     for(int i=0; i<MAX_PROCESSES; i++){
         this->conn[i] = new Conn(); 
-        this->conn[i]->conn_thread = NULL; 
     }
 
     struct sockaddr_un addr;
