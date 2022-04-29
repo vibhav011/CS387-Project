@@ -1,5 +1,5 @@
-# shopt -s expand_aliases
-# source ~/.zprofile
+shopt -s expand_aliases
+source ~/.zprofile
 
 # rm -rf data.db *.tbl a.out
 
@@ -19,7 +19,8 @@ g++ -c receiver/helper.cpp
 # g++ -c parser.tab.c
 g++ -c utils.cpp
 g++ -c ast.cc
+g++ -c -std=gnu++17 loader.cc
 
-g++ no_parse-vibhav.cpp commit.o helper.o ast.o query.o dblayer/tbl.o dblayer/codec.o pflayer/pf.o pflayer/buf.o pflayer/hash.o utils.o -pthread
+g++ no_parse-vibhav.cpp loader.o commit.o helper.o ast.o query.o dblayer/tbl.o dblayer/util.o dblayer/codec.o pflayer/pf.o pflayer/buf.o pflayer/hash.o utils.o -pthread
 # g++ -o dbprocess db-process.cc
 # g++ daemon.cc y.tab.o query.o ast.o -o daemon -pthread

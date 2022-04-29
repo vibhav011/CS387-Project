@@ -124,8 +124,9 @@ int execute_commit(vector<int>* ChangeIndices) {
         outfile << endl << UIds[ChangeIndices->at(i)];
 
         if (*tbl->lastPage != -1) {
-            PF_UnfixPage(tbl->fd, *tbl->lastPage, true);
-            PF_GetThisPage(tbl->fd, *tbl->lastPage, tbl->pagebuf);
+            cout << "yay " << *tbl->lastPage << endl;
+            cout << PF_UnfixPage(tbl->fd, *tbl->lastPage, true) << endl;
+            cout << PF_GetThisPage(tbl->fd, *tbl->lastPage, tbl->pagebuf) << endl;
         }
         change_log.clear();
         mapping_log.clear();

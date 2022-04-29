@@ -610,7 +610,7 @@ int execute_create(string table_name, vector<ColumnDesc*> &column_desc_list, vec
         Table* tbl = new Table();
         int err = Table_Open(&("./data/"+table_name+".tbl")[0], schema, false, &tbl);
         if(err<0) {
-            free(tbl);
+            delete tbl;
             return -1;
         }
         FILE *fp = fopen(("./data/"+table_name+".scm").c_str(), "w");
