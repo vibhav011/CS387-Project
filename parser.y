@@ -7,6 +7,7 @@
 #include "./receiver/commit.h"
 #include "ast.h"
 #include "utils.h"
+#include "sock.hpp"
 
 extern vector<Temp_Table*> results;
 extern int obtain_read_lock(int worker_id, vector<string> table_names);
@@ -25,7 +26,7 @@ vector<string> changed_tables[10];
     int yylex(YYSTYPE* yylvalp, YYLTYPE* yyllocp, yyscan_t scanner);
     void yyerror(YYLTYPE* yyllocp, yyscan_t unused, const char* msg);
     void* yyget_extra ( yyscan_t yyscanner );
-    void checkerr(int err_code);
+    void checkerr(int err_code, yyscan_t scanner);
 }
 
 %union {
@@ -82,34 +83,34 @@ query
     : with_query SEMICOLON query SEMICOLON
     | select_query SEMICOLON
     {   
-        results[*(int *)yyget_extra(scanner)] = $1;
+        results[((Pro *)yyget_extra(scanner))->id] = $1;
     }
     | create_query SEMICOLON
     {
-        results[*(int *)yyget_extra(scanner)] = new Temp_Table();
+        results[((Pro *)yyget_extra(scanner))->id] = new Temp_Table();
     }
     | insert_query SEMICOLON
     {
-        results[*(int *)yyget_extra(scanner)] = new Temp_Table();
+        results[((Pro *)yyget_extra(scanner))->id] = new Temp_Table();
     }
     | update_query SEMICOLON
     {
-        results[*(int *)yyget_extra(scanner)] = new Temp_Table();
+        results[((Pro *)yyget_extra(scanner))->id] = new Temp_Table();
     }
     | delete_query SEMICOLON
     {
-        results[*(int *)yyget_extra(scanner)] = new Temp_Table();
+        results[((Pro *)yyget_extra(scanner))->id] = new Temp_Table();
     }
     | COMMIT SEMICOLON
     {
-        int worker_id = *(int *)yyget_extra(scanner);
+        int worker_id = ((Pro *)yyget_extra(scanner))->id;
         results[worker_id] = new Temp_Table();
         checkerr(execute_commit(changed_tables[worker_id]));
         changed_tables[worker_id].clear();
     }
     | ROLLBACK SEMICOLON
     {
-        int worker_id = *(int *)yyget_extra(scanner);
+        int worker_id = ((Pro *)yyget_extra(scanner))->id;
         results[worker_id] = new Temp_Table();
         checkerr(execute_rollback(changed_tables[worker_id]));
         changed_tables[worker_id].clear();
@@ -119,7 +120,7 @@ query
 with_query
     : WITH table_as_list 
     {
-        checkerr(execute_create_temp(*($2)));
+        checkerr(execute_create_temp(*($2)), scanner);
     }
 ;
 
@@ -155,37 +156,29 @@ select_query
     : SELECT STAR FROM table_list
     {
         Temp_Table *temp = new Temp_Table();
-        int worker_id = *(int *)yyget_extra(scanner);
-        obtain_read_lock(worker_id, {"*"});
+        int worker_id = ((Pro *)yyget_extra(scanner))->id;
         checkerr(execute_select(temp, *$4, {"*"}));
-        release_read_lock(worker_id, {"*"});
         $$ = temp;
     }
     | SELECT STAR FROM table_list WHERE condition
     {
         Temp_Table *temp = new Temp_Table();
-        int worker_id = *(int *)yyget_extra(scanner);
-        obtain_read_lock(worker_id, {"*"});
+        int worker_id = ((Pro *)yyget_extra(scanner))->id;
         checkerr(execute_select(temp, *$4, {"*"}, $6));
-        release_read_lock(worker_id, {"*"});
         $$ = temp;
     }
     | SELECT column_list FROM table_list 
     {
         Temp_Table *temp = new Temp_Table();
-        int worker_id = *(int *)yyget_extra(scanner);
-        obtain_read_lock(worker_id, *$4);
+        int worker_id = ((Pro *)yyget_extra(scanner))->id;
         checkerr(execute_select(temp, *$4, *$2));
-        release_read_lock(worker_id, *$4);
         $$ = temp;
     }
     | SELECT column_list FROM table_list WHERE condition 
     {
         Temp_Table *temp = new Temp_Table();
-        int worker_id = *(int *)yyget_extra(scanner);
-        obtain_read_lock(worker_id, *$4);
+        int worker_id = ((Pro *)yyget_extra(scanner))->id;
         checkerr(execute_select(temp, *$4, *$2, $6));
-        release_read_lock(worker_id, *$4);
         $$ = temp;
     }
 ;
@@ -309,7 +302,7 @@ constant
 create_query
     : CREATE TABLE NAME ROUND_BRACKET_OPEN column_desc_list COMMA constraint ROUND_BRACKET_CLOSE  
     {
-        int worker_id = *(int *)yyget_extra(scanner);
+        int worker_id = ((Pro *)yyget_extra(scanner))->id;
         obtain_write_lock(worker_id, {*$3});
         checkerr(execute_create(*$3, *$5, *$7));
         changed_tables[worker_id].push_back(*$3);
@@ -317,7 +310,7 @@ create_query
     }
     | CREATE TABLE NAME ROUND_BRACKET_OPEN column_desc_list ROUND_BRACKET_CLOSE 
     {
-        int worker_id = *(int *)yyget_extra(scanner);
+        int worker_id = ((Pro *)yyget_extra(scanner))->id;
         obtain_write_lock(worker_id, {*$3});
         checkerr(execute_create(*$3, *$5));
         changed_tables[worker_id].push_back(*$3);
@@ -369,7 +362,7 @@ constraint
 insert_query
     : INSERT INTO NAME VALUES ROUND_BRACKET_OPEN column_val_list ROUND_BRACKET_CLOSE 
     {
-        int worker_id = *(int *)yyget_extra(scanner);
+        int worker_id = ((Pro *)yyget_extra(scanner))->id;
         obtain_write_lock(worker_id, {*$3});
         checkerr(execute_insert(*$3, *$6));
         changed_tables[worker_id].push_back(*$3);
@@ -397,7 +390,7 @@ column_val
 update_query
     : UPDATE NAME SET update_list WHERE condition 
     {
-        int worker_id = *(int *)yyget_extra(scanner);
+        int worker_id = ((Pro *)yyget_extra(scanner))->id;
         obtain_write_lock(worker_id, {*$2});
         checkerr(execute_update(*$2, *$4, $6));
         changed_tables[worker_id].push_back(*$2);
@@ -405,7 +398,7 @@ update_query
     }
     | UPDATE NAME SET update_list 
     {
-        int worker_id = *(int *)yyget_extra(scanner);
+        int worker_id = ((Pro *)yyget_extra(scanner))->id;
         obtain_write_lock(worker_id, {*$2});
         checkerr(execute_update(*$2, *$4));
         changed_tables[*(int *)yyget_extra(scanner)].push_back(*$2);
@@ -438,7 +431,7 @@ update
 delete_query
     : DELETE FROM NAME condition 
     {
-        int worker_id = *(int *)yyget_extra(scanner);
+        int worker_id = ((Pro *)yyget_extra(scanner))->id;
         obtain_write_lock(worker_id, {*$3});
         checkerr(execute_delete(*$3, $4));
         changed_tables[worker_id].push_back(*$3);
@@ -446,7 +439,7 @@ delete_query
     }
     | DELETE FROM NAME 
     {
-        int worker_id = *(int *)yyget_extra(scanner);
+        int worker_id = ((Pro *)yyget_extra(scanner))->id;
         obtain_write_lock(worker_id, {*$3});
         checkerr(execute_delete(*$3));
         changed_tables[worker_id].push_back(*$3);
@@ -462,7 +455,8 @@ void yyerror(YYLTYPE* yyllocp, yyscan_t unused, const char* msg)
     return;
 }
 
-void checkerr(int err_code) {
+void checkerr(int err_code, yyscan_t scanner) {
+    FILE *f = ((Pro *)yyget_extra(scanner))->out;
     switch(err_code) {
         case C_OK:
             cout<<"successfully terminated"<<endl;
@@ -474,16 +468,21 @@ void checkerr(int err_code) {
             cout<<"false output"<<endl;
             break;
         case C_ERROR:
+            fprintf(f, "some error occured, check query. Rolling back.\n");
             cout<<"error"<<endl;
             break;
         case C_TABLE_NOT_FOUND:
+            fprintf(f, "table not found\n");
             cout<<"table not found"<<endl;
             break;
         case C_FIELD_NOT_FOUND:
+            fprintf(f, "field not found\n");
             cout<<"field not found"<<endl;
             break;
         case C_TABLE_ALREADY_EXISTS:
+            fprintf(f, "table already exists\n");
             cout<<"table already exists"<<endl;
             break;
     }
+    fflush(f);
 }
