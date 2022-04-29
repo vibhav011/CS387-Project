@@ -103,7 +103,7 @@ int DB_inst::send_query(const char *query){
     int q_len, bytes;
     q_len = strlen(query);
 
-    bytes = send(this->sock_fd, query, q_len, MSG_NOSIGNAL);
+    bytes = send(this->sock_fd, query, q_len, 0);
     if(bytes != q_len){
         return -1;
     }

@@ -156,28 +156,28 @@ select_query
     {
         Temp_Table *temp = new Temp_Table();
         int worker_id = ((Pro *)yyget_extra(scanner))->id;
-        checkerr(execute_select(temp, *$4, {"*"}), scanner);
+        checkerr(execute_select(temp, *$4, {"*"}, NULL, NULL, worker_id), scanner);
         $$ = temp;
     }
     | SELECT STAR FROM table_list WHERE condition
     {
         Temp_Table *temp = new Temp_Table();
         int worker_id = ((Pro *)yyget_extra(scanner))->id;
-        checkerr(execute_select(temp, *$4, {"*"}, $6), scanner);
+        checkerr(execute_select(temp, *$4, {"*"}, $6, NULL, worker_id), scanner);
         $$ = temp;
     }
     | SELECT column_list FROM table_list 
     {
         Temp_Table *temp = new Temp_Table();
         int worker_id = ((Pro *)yyget_extra(scanner))->id;
-        checkerr(execute_select(temp, *$4, *$2), scanner);
+        checkerr(execute_select(temp, *$4, *$2, NULL, NULL, worker_id), scanner);
         $$ = temp;
     }
     | SELECT column_list FROM table_list WHERE condition 
     {
         Temp_Table *temp = new Temp_Table();
         int worker_id = ((Pro *)yyget_extra(scanner))->id;
-        checkerr(execute_select(temp, *$4, *$2, $6), scanner);
+        checkerr(execute_select(temp, *$4, *$2, $6, NULL, worker_id), scanner);
         $$ = temp;
     }
 ;

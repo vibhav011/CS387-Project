@@ -188,7 +188,7 @@ void Daemon::thread_func(Conn *conn){
         }
         int resp = this->query_handler(string(buf), conn);
 
-        q_len = send(conn->client_fd, "OK", 2, MSG_NOSIGNAL);
+        q_len = send(conn->client_fd, "OK", 2, 0);
         if(q_len != 2){
             perror("error ack");
         }
@@ -248,6 +248,7 @@ void install_sig_handler(){
 extern void setup_and_recover();
 
 int main(){
+    cout << MSG_NOSIGNAL << endl;
     setup_and_recover();
 
     Daemon *d = new Daemon(SOCK_PATH, myhandler);

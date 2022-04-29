@@ -627,8 +627,11 @@ int execute_create(string table_name, vector<ColumnDesc*> &column_desc_list, vec
 
         ColumnDesc** cols = new ColumnDesc*[column_desc_list.size()+1];
         Schema* schema = new Schema(column_desc_list.size()+1, cols, table_name);
-       
-        schema->columns[0] = new ColumnDesc((char *)"unique_id", INT);
+
+        char *unq = (char*) malloc(sizeof(char)*10);
+        sprintf(unq, "unique_id");
+
+        schema->columns[0] = new ColumnDesc(unq, INT);
         for(int i=1;i<schema->numColumns;i++) {
             schema->columns[i] = new ColumnDesc(column_desc_list[i-1]->name, column_desc_list[i-1]->type);
             switch (column_desc_list[i-1]->type)
