@@ -132,7 +132,38 @@ void setup_and_recover() {
             schema_file >> pk_name;
             pk.push_back(pk_name);
         }
+
         Schema* schema = parseSchema(discard);
+        schema->columns[0]->range = false;
+        for (int i = 1; i < schema->numColumns; i++)
+        {
+            bool range;
+            int int_val;
+            float float_val;
+            string* str_val;
+            schema_file >> range;
+            schema->columns[i]->range = range;
+            if(range)
+            {
+                switch(schema->columns[i]->type) {
+                    case INT:
+                        schema_file >> int_val;
+                        schema->columns[i]->lower_bound.int_val = int_val;
+                        schema_file >> int_val;
+                        schema->columns[i]->upper_bound.int_val = int_val;
+                        break;
+                    case DOUBLE:
+                        schema_file >> float_val;
+                        schema->columns[i]->lower_bound.float_val = float_val;
+                        schema_file >> float_val;
+                        schema->columns[i]->upper_bound.float_val = float_val;
+                        break;
+                    case VARCHAR:
+                        break;
+                }
+            }
+        }
+        
         schema->table_name = tbl_name;
         Table *table = new Table();
         Table_Open((char *)tbl_path.c_str(), schema, false, &table);
