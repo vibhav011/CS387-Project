@@ -123,7 +123,10 @@ int execute_commit(vector<int>* ChangeIndices) {
         outfile.open("./data/"+tbl->name+".scm", std::ios_base::app); // append instead of overwrite
         outfile << endl << UIds[ChangeIndices->at(i)];
 
-        Table_Close(tbl);
+        if (*tbl->lastPage != -1) {
+            PF_UnfixPage(tbl->fd, *tbl->lastPage, true);
+            PF_GetThisPage(tbl->fd, *tbl->lastPage, tbl->pagebuf);
+        }
         change_log.clear();
         mapping_log.clear();
     }
