@@ -222,4 +222,3 @@ int execute_rollback(vector<string> changed_tables) {
     }
     return C_OK;
 }
-
