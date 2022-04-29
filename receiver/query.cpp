@@ -95,8 +95,8 @@ int Table_Single_Select(void *callbackObj, RecId rid, Byte *row, int len) {
             *tr = *change_log[unique_id].new_value;
         }
     }
-    cObj->ret_value = rid+100;
     int ret = query_process(cObj, tr, rid);
+   
     delete tr;
     return ret;
 }
@@ -266,12 +266,12 @@ int query_process(Query_Obj *cObj, Table_Row *tr, RecId rid)
         }
     }
     cObj->temp_table->rows.push_back(new_row);
-    if(rid != -1) return rid;
-    else return C_OK;
+    if (cObj->rids != NULL)
+        cObj->rids->push_back(rid);
+    return C_OK;
 }
 
-int execute_select(Temp_Table *result, vector<string> table_names, vector<string> col_names, CondAST *cond_tree) {
-
+int execute_select(Temp_Table *result, vector<string> table_names, vector<string> col_names, CondAST *cond_tree, vector<int> *rids) {
     for (int i = 0; i < table_names.size(); i++)
     {
         if(table_name_to_id.find(table_names[i]) == table_name_to_id.end())
@@ -360,6 +360,7 @@ int execute_select(Temp_Table *result, vector<string> table_names, vector<string
         callbackObj->tr2 = NULL;
         callbackObj->ret_value = 0;
         callbackObj->temp_table->schema = schema;
+        callbackObj->rids = rids;
         Table_Scan(tbl, callbackObj, Table_Single_Select);
         log_scan(callbackObj);
         int retval = callbackObj->ret_value;
@@ -381,6 +382,7 @@ int execute_select(Temp_Table *result, vector<string> table_names, vector<string
     callbackObj->tr2 = NULL;
     callbackObj->ret_value = 0;
     callbackObj->temp_table->schema = schema;
+    callbackObj->rids = NULL;
     Table_Scan(tbl2, callbackObj, Table_Single_Select_Join);
     log_scan_join(callbackObj);
     delete callbackObj; // TODO: Delete callbackObj properly
@@ -579,20 +581,41 @@ int execute_create(string table_name, vector<ColumnDesc*> &column_desc_list, vec
         if(table_name_to_id.find(table_name) != table_name_to_id.end())
             return C_TABLE_ALREADY_EXISTS;
 
+        string schemaStr = "unique_id:int";
+        string col_type;
+
         ColumnDesc** cols = new ColumnDesc*[column_desc_list.size()+1];
         Schema* schema = new Schema(column_desc_list.size()+1, cols, table_name);
        
         schema->columns[0] = new ColumnDesc((char *)"unique_id", INT);
-        for(int i=1;i<schema->numColumns;i++)
+        for(int i=1;i<schema->numColumns;i++) {
             schema->columns[i] = new ColumnDesc(column_desc_list[i-1]->name, column_desc_list[i-1]->type);
+            switch (column_desc_list[i-1]->type)
+            {
+                case INT:
+                    col_type = "int";
+                    break;
+                case DOUBLE:
+                    col_type = "double";
+                    break;
+                case VARCHAR:
+                    col_type = "varchar";
+                    break;
+                default:
+                    break;
+            }
+            schemaStr += "," + string(column_desc_list[i-1]->name) + ":" + col_type;
+        }
 
         Table* tbl = new Table();
-        int err = Table_Open(&(table_name+".db")[0], schema, false, &tbl);
+        int err = Table_Open(&("./data/"+table_name+".tbl")[0], schema, false, &tbl);
         if(err<0) {
             free(tbl);
             return -1;
         }
-
+        FILE *fp = fopen(("./data/"+table_name+".scm").c_str(), "w");
+        fprintf(fp, "%s\n", schemaStr.c_str());
+        fclose(fp);
 
         tbl->name = table_name;
         tbl->pk = constraint;
@@ -601,6 +624,8 @@ int execute_create(string table_name, vector<ColumnDesc*> &column_desc_list, vec
         tables.push_back(tbl);
         ChangeLog chnglog;
         change_logs.push_back(chnglog);
+        MappingLog mapplog;
+        mapping_logs.push_back(mapplog);
         return 0;
     }
 
@@ -675,17 +700,7 @@ int execute_insert(string table_name, vector<string> column_val_list) {
         log_entry.new_value = new_row;
         log_entry.change_type = _INSERT;
         change_logs[table_id][uid] = log_entry;
-        // cout << "[]hmmm" << endl;
-        // Schema * scm = schema;
-        // for (int j = 0; j < scm->numColumns; j++) {
-        //     if (scm->columns[j]->type == VARCHAR) {
-        //         // cout << "str" << endl;
-        //         cout<<*(log_entry.new_value->fields[j].str_val)<<endl;
-        //     } else {
-        //         cout<<log_entry.new_value->fields[j].int_val<<endl;
-        //     }
-        // }
-        // cout << "[]hmmm(2)" << endl;
+        
         return 0;
     }
 
@@ -703,17 +718,23 @@ int execute_delete(string table_name, CondAST* cond_tree) {
         Table* tbl = tables[table_id];
 
         Temp_Table* result = new Temp_Table();
-        int ret = execute_select(result, vector<string> (1, table_name), vector<string> (1, "*"), cond_tree);
+        vector<int> *rids = new vector<int>();
+        int ret = execute_select(result, vector<string> (1, table_name), vector<string> (1, "*"), cond_tree, rids);
 
         for (int i = 0; i < result->rows.size(); i++)
         {
             ChangeLog &change_log = change_logs[table_id];
             int unique_id = result->rows[i]->fields[0].int_val;
-
+            if (rids->at(i) != -1) {
+                mapping_logs[table_id][unique_id] = rids->at(i);
+            }
             if (change_log.find(unique_id) != change_log.end()) {
                 delete change_log[unique_id].new_value;
                 change_log[unique_id].new_value = NULL;
                 change_log[unique_id].change_type = _DELETE;
+
+                if (change_log[unique_id].old_value == NULL)
+                    change_log.erase(unique_id);
             }
             else {
                 Log_Entry* log_entry = new Log_Entry();
@@ -726,6 +747,7 @@ int execute_delete(string table_name, CondAST* cond_tree) {
             }
         }
         delete result;
+        delete rids;
         return C_OK;
     }
     catch (int x) {

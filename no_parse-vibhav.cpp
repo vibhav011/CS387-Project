@@ -1,5 +1,6 @@
 #include "./dblayer/tbl.h"
 #include "./receiver/query.h"
+#include "./receiver/commit.h"
 #include "utils.h"
 #include "ast.h"
 #include <iostream>
@@ -37,8 +38,8 @@ void clean_and_exit() {
 }
 
 int main() {
-    vector<string>* table_names = new vector<string> (1, "data");
-    table_names->push_back("data1");
+    vector<string>* table_names = new vector<string> (1, "countries");
+    // table_names->push_back("data1");
     vector<string>* col_names = new vector<string> (1, "Country");
     col_names->push_back("Capital");
     col_names->push_back("Population");
@@ -59,23 +60,22 @@ int main() {
     cols.push_back(col3);
     vector<string> pk;
     pk.push_back("Country");
-    int create_exit = execute_create("data", cols, pk);
+    int create_exit = execute_create("countries", cols, pk);
     vector<string> col_val_list1;
     col_val_list1.push_back("Afghanistan");
     col_val_list1.push_back("Kabul");
     col_val_list1.push_back("3553008");
-    cout << "before" << endl;
-    int insert_exit = execute_insert("data", col_val_list1);
-    cout << "after" << endl;
-    return 0;
-    // execute_delete("data", NULL);
-    // execute_delete("data", NULL);
-    // cout << "delete done" << endl;
+    // cout << "before" << endl;
+    int insert_exit = execute_insert("countries", col_val_list1);
+    // cout << "after" << endl;
+
+    execute_delete("countries", NULL);
+    cout << "delete done" << endl;
     vector<string> col_val_list2;
     col_val_list2.push_back("Albania");
     col_val_list2.push_back("Tirana");
     col_val_list2.push_back("2930187");
-    insert_exit = execute_insert("data", col_val_list2);
+    insert_exit = execute_insert("countries", col_val_list2);
     cout << "insert done" << endl;
     /*
     create_exit = execute_create("data1", cols, pk);
@@ -108,10 +108,10 @@ int main() {
     // RelAST* cond_tree = new RelAST(col_ast, const_ast, _EQ);
     // cout<<"calling seletc"<<endl;
 
-    vector<string> fetch_cols(1, "data.Country");
-    fetch_cols.push_back("data.Population");
+    vector<string> fetch_cols(1, "countries.Country");
+    fetch_cols.push_back("countries.Population");
     // fetch_cols.push_back("data1.Capital");
-    vector<string> temp = vector<string> (1, "data");
+    vector<string> temp = vector<string> (1, "countries");
     // temp.push_back("data1");
     int select_exit = execute_select(result, temp, fetch_cols);
     cout<<"final result size "<< result->rows.size()<<endl;
@@ -127,6 +127,10 @@ int main() {
         }
     }
     cout<<"select exited with: "<<select_exit<<endl;
+    
+    vector<int>* ChangeIndices= new vector<int>(1, 0);
+    execute_commit(ChangeIndices);
+    delete ChangeIndices;
     delete result;
     delete col_names;
     delete table_names;

@@ -68,6 +68,8 @@ parseSchema(char *buf) {
 	    itype = INT;
 	} else if (stricmp(type, "long") == 0) {
 	    itype = LONG;
+    } else if (stricmp(type, "double") == 0) {
+	    itype = DOUBLE;
 	} else {
 	    fprintf(stderr, "Unknown type %s \n", type);
 	    exit(EXIT_FAILURE);
