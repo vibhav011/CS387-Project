@@ -4,12 +4,17 @@
 
 %{
 #include "./receiver/query.h"
+#include "./receiver/commit.h"
 #include "ast.h"
 #include "utils.h"
 #include "sock.hpp"
 
 extern vector<Temp_Table*> results;
-int const_type;
+extern int obtain_read_lock(int worker_id, vector<string> table_names);
+extern int obtain_write_lock(int worker_id, vector<string> table_names);
+extern int release_read_lock(int worker_id, vector<string> table_names);
+extern int release_write_lock(int worker_id, vector<string> table_names);
+vector<string> changed_tables[10];
 
 %}
 
@@ -98,11 +103,17 @@ query
     }
     | COMMIT SEMICOLON
     {
-        results[((Pro *)yyget_extra(scanner))->id] = new Temp_Table();
+        int worker_id = ((Pro *)yyget_extra(scanner))->id;
+        results[worker_id] = new Temp_Table();
+        checkerr(execute_commit(changed_tables[worker_id]));
+        changed_tables[worker_id].clear();
     }
     | ROLLBACK SEMICOLON
     {
-        results[((Pro *)yyget_extra(scanner))->id] = new Temp_Table();
+        int worker_id = ((Pro *)yyget_extra(scanner))->id;
+        results[worker_id] = new Temp_Table();
+        checkerr(execute_rollback(changed_tables[worker_id]));
+        changed_tables[worker_id].clear();
     }
 ;
 
@@ -145,25 +156,29 @@ select_query
     : SELECT STAR FROM table_list
     {
         Temp_Table *temp = new Temp_Table();
-        checkerr(execute_select(temp, *$4, {"*"}), scanner);
+        int worker_id = ((Pro *)yyget_extra(scanner))->id;
+        checkerr(execute_select(temp, *$4, {"*"}));
         $$ = temp;
     }
     | SELECT STAR FROM table_list WHERE condition
     {
         Temp_Table *temp = new Temp_Table();
-        checkerr(execute_select(temp, *$4, {"*"}, $6), scanner);
+        int worker_id = ((Pro *)yyget_extra(scanner))->id;
+        checkerr(execute_select(temp, *$4, {"*"}, $6));
         $$ = temp;
     }
     | SELECT column_list FROM table_list 
     {
         Temp_Table *temp = new Temp_Table();
-        checkerr(execute_select(temp, *$4, *$2), scanner);
+        int worker_id = ((Pro *)yyget_extra(scanner))->id;
+        checkerr(execute_select(temp, *$4, *$2));
         $$ = temp;
     }
     | SELECT column_list FROM table_list WHERE condition 
     {
         Temp_Table *temp = new Temp_Table();
-        checkerr(execute_select(temp, *$4, *$2, $6), scanner);
+        int worker_id = ((Pro *)yyget_extra(scanner))->id;
+        checkerr(execute_select(temp, *$4, *$2, $6));
         $$ = temp;
     }
 ;
@@ -287,11 +302,19 @@ constant
 create_query
     : CREATE TABLE NAME ROUND_BRACKET_OPEN column_desc_list COMMA constraint ROUND_BRACKET_CLOSE  
     {
-        checkerr(execute_create(*$3, *$5, *$7), scanner);
+        int worker_id = ((Pro *)yyget_extra(scanner))->id;
+        obtain_write_lock(worker_id, {*$3});
+        checkerr(execute_create(*$3, *$5, *$7));
+        changed_tables[worker_id].push_back(*$3);
+        release_write_lock(worker_id, {*$3});
     }
     | CREATE TABLE NAME ROUND_BRACKET_OPEN column_desc_list ROUND_BRACKET_CLOSE 
     {
-        checkerr(execute_create(*$3, *$5), scanner);
+        int worker_id = ((Pro *)yyget_extra(scanner))->id;
+        obtain_write_lock(worker_id, {*$3});
+        checkerr(execute_create(*$3, *$5));
+        changed_tables[worker_id].push_back(*$3);
+        release_write_lock(worker_id, {*$3});
     }
 ;
 
@@ -339,7 +362,11 @@ constraint
 insert_query
     : INSERT INTO NAME VALUES ROUND_BRACKET_OPEN column_val_list ROUND_BRACKET_CLOSE 
     {
-        checkerr(execute_insert(*$3, *$6), scanner);
+        int worker_id = ((Pro *)yyget_extra(scanner))->id;
+        obtain_write_lock(worker_id, {*$3});
+        checkerr(execute_insert(*$3, *$6));
+        changed_tables[worker_id].push_back(*$3);
+        release_write_lock(worker_id, {*$3});
     }
 ;
 
@@ -363,11 +390,19 @@ column_val
 update_query
     : UPDATE NAME SET update_list WHERE condition 
     {
-        checkerr(execute_update(*$2, *$4, $6), scanner);
+        int worker_id = ((Pro *)yyget_extra(scanner))->id;
+        obtain_write_lock(worker_id, {*$2});
+        checkerr(execute_update(*$2, *$4, $6));
+        changed_tables[worker_id].push_back(*$2);
+        release_write_lock(worker_id, {*$2});
     }
     | UPDATE NAME SET update_list 
     {
-        checkerr(execute_update(*$2, *$4), scanner);
+        int worker_id = ((Pro *)yyget_extra(scanner))->id;
+        obtain_write_lock(worker_id, {*$2});
+        checkerr(execute_update(*$2, *$4));
+        changed_tables[*(int *)yyget_extra(scanner)].push_back(*$2);
+        release_write_lock(worker_id, {*$2});
     }
 ;
 
@@ -396,11 +431,19 @@ update
 delete_query
     : DELETE FROM NAME condition 
     {
-        checkerr(execute_delete(*$3, $4), scanner);
+        int worker_id = ((Pro *)yyget_extra(scanner))->id;
+        obtain_write_lock(worker_id, {*$3});
+        checkerr(execute_delete(*$3, $4));
+        changed_tables[worker_id].push_back(*$3);
+        release_write_lock(worker_id, {*$3});
     }
     | DELETE FROM NAME 
     {
-        checkerr(execute_delete(*$3), scanner);
+        int worker_id = ((Pro *)yyget_extra(scanner))->id;
+        obtain_write_lock(worker_id, {*$3});
+        checkerr(execute_delete(*$3));
+        changed_tables[worker_id].push_back(*$3);
+        release_write_lock(worker_id, {*$3});
     }
 ;
 

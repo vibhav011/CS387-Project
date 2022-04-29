@@ -15,6 +15,7 @@ using namespace std;
 
 extern vector<ChangeLog> change_logs;
 extern vector<MappingLog> mapping_logs;
+extern map<string, int> table_name_to_id;
 extern vector<Table*> tables;
 extern vector<int> UIds;
 
@@ -78,7 +79,12 @@ int commit_insert(Table *tbl, Table_Row *tr, RecId* rid) {
 
 }
 
-int execute_commit(vector<int>* ChangeIndices) {
+int execute_commit(vector<string> change_tables) {
+
+    vector<int> *ChangeIndices = new vector<int>();
+    for(auto table: change_tables)
+        ChangeIndices->push_back(table_name_to_id[table]);
+
     string folder_path = "./data/" + gen_random(10) + ".log";
     filesystem::create_directory(folder_path);
     
@@ -199,7 +205,11 @@ int execute_rollback_single(Table *tbl, ChangeLog& change_log, MappingLog& mappi
     return C_OK;
 }
 
-int execute_rollback(vector<int>* ChangeIndices) {
+int execute_rollback(vector<string> changed_tables) {
+
+    vector<int> *ChangeIndices = new vector<int>();
+    for(auto table: changed_tables)
+        ChangeIndices->push_back(table_name_to_id[table]);
 
     for (int i = 0; i < ChangeIndices->size(); i++) {
         Table *tbl = tables[ChangeIndices->at(i)];

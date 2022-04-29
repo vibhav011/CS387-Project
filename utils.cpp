@@ -5,7 +5,7 @@ vector<Table*> tables;              // objects of all tables
 vector<int> UIds;                   // constanstly increasing uids for each of the tables
 vector<ChangeLog> change_logs;     // objects of change logs for corresponding tables in `tables`
 vector<MappingLog> mapping_logs;
-vector<string, int> table_access;   // Map from table name to user id (-1 in case no user is editing it)
+map<string, int> table_access;   // Map from table name to user id (-1 in case no user is editing it)
 
 Entry Table_Row::getField(int ind)
 {

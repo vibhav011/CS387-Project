@@ -247,6 +247,14 @@ void install_sig_handler(){
 
 extern void setup_and_recover();
 
+int obtain_write_lock(int worker_id, string table_name){
+    
+}
+
+int release_write_lock(int worker_id, string table_name){
+    
+}
+
 int main(){
     // setup_and_recover();
 
