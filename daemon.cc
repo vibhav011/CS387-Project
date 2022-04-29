@@ -213,8 +213,8 @@ int myhandler(string query, Conn *conn){
     fclose(conn->f);
 
     conn->f = fopen(conn->fname, "r");
-    yyset_in(conn->f, conn->scanner);
     yylex_init_extra(&conn->worker_meta, &conn->scanner);
+    yyset_in(conn->f, conn->scanner);
     
     yyparse(conn->scanner);
     fclose(conn->f);

@@ -10,7 +10,7 @@ cd ./pflayer
 make
 cd ..
 flex --header-file=lex.yy.h scanner.l
-/opt/homebrew/Cellar/bison/3.8.2/bin/bison -dv parser.y
+bison -dv parser.y
 
 g++ -c receiver/query.cpp
 g++ -c -std=c++17 receiver/commit.cpp
