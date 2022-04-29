@@ -39,9 +39,9 @@ void clean_and_exit() {
 }
 
 int main() {
-    setup_and_recover();
+    // setup_and_recover();
     cout<<"setup and recover done"<<endl;
-    vector<string>* table_names = new vector<string> (1, "countries");
+    vector<string>* table_names = new vector<string> (1, "countries_load");
     // table_names->push_back("data1");
     vector<string>* col_names = new vector<string> (1, "Country");
     col_names->push_back("Capital");
@@ -56,7 +56,7 @@ int main() {
     ColumnDesc* colsPtr[] = {col1, col2, col3};
     Schema* schema = new Schema(3, colsPtr);
     Temp_Table* result = new Temp_Table(schema);
-    Temp_Table *result2;
+    Temp_Table *result2 = new Temp_Table(schema);
 
     vector<ColumnDesc*> cols;
     cols.push_back(col1);
@@ -64,27 +64,30 @@ int main() {
     cols.push_back(col3);
     vector<string> pk;
     pk.push_back("Country");
-    int create_exit = execute_create("countries", cols, pk);
+    int create_exit = execute_create("countries_load", cols, pk);
 
-    for(int ij = 0; ij <4; ij++){
+    for(int ij = 0; ij <500; ij++){
+        delete result;
+        delete result2;
         vector<string> col_val_list1;
-        col_val_list1.push_back("Afghanistan");
+        col_val_list1.push_back("Afghanistan"+to_string(ij));
         col_val_list1.push_back("Kabul");
         col_val_list1.push_back("3553008");
-        int insert_exit = execute_insert("countries", col_val_list1);
-        cout << "insert done" << endl;
+        int insert_exit = execute_insert("countries_load", col_val_list1);
+        cout << "insert exited with " << insert_exit<< endl;
 
         vector<string> col_val_list2;
-        col_val_list2.push_back("Albania");
+        col_val_list2.push_back("Albania"+to_string(ij));
         col_val_list2.push_back("Tirana");
         col_val_list2.push_back("2930187");
-        insert_exit = execute_insert("countries", col_val_list2);
-        cout << "insert done" << endl;
+        insert_exit = execute_insert("countries_load", col_val_list2);
+        cout << "insert exited with " << insert_exit<< endl;
 
-        vector<string> fetch_cols(1, "countries.Country");
-        fetch_cols.push_back("countries.Population");
-        fetch_cols.push_back("countries.Capital");
-        vector<string> temp = vector<string> (1, "countries");
+        vector<string> fetch_cols(1, "countries_load.Country");
+        fetch_cols.push_back("countries_load.Population");
+        fetch_cols.push_back("countries_load.Capital");
+        vector<string> temp = vector<string> (1, "countries_load");
+        result = new Temp_Table(schema);
         int select_exit = execute_select(result, temp, fetch_cols);
         cout<<"select exited with: "<<select_exit<<endl;
         cout<<"final result size "<< result->rows.size()<<endl;
@@ -100,7 +103,7 @@ int main() {
             }
         }
 
-        vector<string> change_tables = vector<string>(1, "countries");
+        vector<string> change_tables = vector<string>(1, "countries_load");
         int exit_commit = execute_commit(change_tables);
         cout<<"execute commit exited with "<<exit_commit<<endl;
 
