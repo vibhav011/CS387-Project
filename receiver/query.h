@@ -1,8 +1,8 @@
 #ifndef _QRY_H_
 #define _QRY_H_
 #include "../dblayer/tbl.h"
-#include "../ast.h"
-#include "../utils.h"
+#include "ast.h"
+#include "utils.h"
 #include <vector>
 #include <map>
 #include <string>

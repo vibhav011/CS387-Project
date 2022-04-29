@@ -1,7 +1,7 @@
 #ifndef _COMMIT_H_
 #define _COMMIT_H_
 
-#include "../utils.h"
+#include "utils.h"
 #include "../dblayer/tbl.h"
 
 int commit_insert(Table *tbl, Table_Row *tr, RecId *rid);       // insert a new row into a table
