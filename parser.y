@@ -489,4 +489,8 @@ void checkerr(int err_code, yyscan_t scanner) {
             break;
     }
     fflush(f);
+
+    int worker_id = ((Pro *)yyget_extra(scanner))->id;
+    if (err_code != C_OK)
+        execute_rollback(changed_tables[worker_id]);
 }

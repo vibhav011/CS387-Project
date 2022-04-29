@@ -22,14 +22,6 @@ Query_Obj::Query_Obj(vector<string> col_names, CondAST* cond_tree, Temp_Table* t
     this->tbl2_id = tbl2_id;
 }
 
-void Table_Scan(Temp_Table *tbl, void *callbackObj, ReadFunc callbackfn) {
-    for (int i = 0; i < tbl->rows.size(); i++) {
-        ((Query_Obj*)callbackObj)->tr1 = tbl->rows[i];
-        if (callbackfn(callbackObj, 0, NULL, 0) != C_OK)
-            break;
-    }
-}
-
 void delete_table_row_fields(Table_Row *tr, Schema *schema) {
     for (int i = 0; i < schema->numColumns; i++) {
         if (schema->columns[i]->type == VARCHAR)
@@ -85,15 +77,18 @@ int Table_Single_Select(void *callbackObj, RecId rid, Byte *row, int len) {
     } else {
         // Decoding the fields
         decode_to_table_row(tr, tbl1->schema, row);
-        int unique_id = tr->getField(0).int_val;
-        ChangeLog& change_log = change_logs[cObj->tbl1_id];
-        if (change_log.find(unique_id) != change_log.end()) {
-            delete_table_row_fields(tr, tbl1->schema);
-            if (change_log[unique_id].change_type == _DELETE) { // The row is deleted
-                delete tr;
-                return C_OK;
+        if(cObj->user_id == -1 || table_access[tbl1->name] == cObj->user_id)
+        {
+            int unique_id = tr->getField(0).int_val;
+            ChangeLog& change_log = change_logs[cObj->tbl1_id];
+            if (change_log.find(unique_id) != change_log.end()) {
+                delete_table_row_fields(tr, tbl1->schema);
+                if (change_log[unique_id].change_type == _DELETE) { // The row is deleted
+                    delete tr;
+                    return C_OK;
+                }
+                *tr = *change_log[unique_id].new_value;
             }
-            *tr = *change_log[unique_id].new_value;
         }
     }
     int ret = query_process(cObj, tr, rid);
@@ -113,15 +108,18 @@ int Table_Single_Select_Join(void *callbackObj, RecId rid, Byte *row, int len) {
         // Decoding the fields
         Table* tbl2 = tables[cObj->tbl2_id];
         decode_to_table_row(tr, tbl2->schema, row);
-        int unique_id = tr->getField(0).int_val;
-        ChangeLog& change_log = change_logs[cObj->tbl2_id];
-        if(change_log.find(unique_id) != change_log.end()) {
-            delete_table_row_fields(tr, tbl2->schema);
-            if (change_log[unique_id].change_type == _DELETE) {    // The row is deleted
-                delete tr;
-                return C_OK;
+        if(cObj->user_id == -1 || table_access[tbl2->name] == cObj->user_id)
+        {
+            int unique_id = tr->getField(0).int_val;
+            ChangeLog& change_log = change_logs[cObj->tbl2_id];
+            if(change_log.find(unique_id) != change_log.end()) {
+                delete_table_row_fields(tr, tbl2->schema);
+                if (change_log[unique_id].change_type == _DELETE) {    // The row is deleted
+                    delete tr;
+                    return C_OK;
+                }
+                *tr = *change_log[unique_id].new_value;
             }
-            *tr = *change_log[unique_id].new_value;
         }
     }
     
@@ -370,7 +368,7 @@ int execute_select(Temp_Table *result, vector<string> table_names, vector<string
         callbackObj->rids = rids;
         callbackObj->user_id = user_id;
         Table_Scan(tbl, callbackObj, Table_Single_Select);
-        if (user_id == -1 || table_access[table_names[0]] == user_id)
+        if(user_id == -1 || table_access[table_names[0]] == user_id)
             log_scan(callbackObj);
         int retval = callbackObj->ret_value;
         delete callbackObj;
@@ -461,7 +459,7 @@ bool passes_pk_constraints(string table_name, Table_Row* row) {
     {
         bool match = true;
         if(result->rows[i]->fields[0].int_val == row->fields[0].int_val){
-            cout<<"found it"<<endl;
+            // cout<<"found it"<<endl;
             continue;
         }
         for(int j=0;j<tbl->pk.size();j++)
@@ -469,9 +467,9 @@ bool passes_pk_constraints(string table_name, Table_Row* row) {
             int pk_col_num = tbl->schema->getColumnNum(tbl->pk[j].c_str());
             switch(tbl->schema->columns[pk_col_num]->type) {
                 case VARCHAR:
-                    cout<<"in match"<<endl;
-                    cout<<"new row : "<<*(row->getField(pk_col_num).str_val)<<endl;
-                    cout<<"old row: "<<*(result->rows[i]->getField(pk_col_num).str_val)<<endl;
+                    // cout<<"in match"<<endl;
+                    // cout<<"new row : "<<*(row->getField(pk_col_num).str_val)<<endl;
+                    // cout<<"old row: "<<*(result->rows[i]->getField(pk_col_num).str_val)<<endl;
                     if(*(row->getField(pk_col_num).str_val) != *(result->rows[i]->getField(pk_col_num).str_val))
                         match = false;
                     break;
@@ -496,14 +494,13 @@ bool passes_pk_constraints(string table_name, Table_Row* row) {
         }
     }
     delete result;
-    cout<<"returning"<<endl;
     return !found;
 }
 
 int execute_update(string table_name, vector<Update_Pair*> &update_list, CondAST* cond_tree) {
     try {
         ChangeLog temp_cl;
-        cout<<"all in uopdate"<<endl<<endl;
+        // cout<<"all in uopdate"<<endl<<endl;
         if(table_name_to_id.find(table_name) == table_name_to_id.end()) 
             return C_TABLE_NOT_FOUND;
 
@@ -523,80 +520,77 @@ int execute_update(string table_name, vector<Update_Pair*> &update_list, CondAST
             *new_value = *old_value;
             for (int j = 0; j < update_list.size(); j++)
             {
-                cout<<update_list[j]->lhs<<endl;
+                // cout<<update_list[j]->lhs<<endl;
                 int change_col_num = tbl->schema->getColumnNum(update_list[j]->lhs.c_str());
-                if(change_col_num == -1)
+                if(change_col_num == -1) {
+                    delete new_value;
                     return -1;
-
-                string* new_rhs = new string(update_list[j]->rhs);
-                switch (tbl->schema->columns[change_col_num]->type)
-                {
-                    case INT:
-                        try {
-                            int new_int_value = atoi((*new_rhs).c_str());
-                            new_value->fields[change_col_num].int_val = new_int_value;
-                        }
-                        catch(int x) {
-                            return -1;
-                        }
-                        delete new_rhs;
-                        break;
-                    case DOUBLE:
-                        try {
-                            double new_float_value = atof((*new_rhs).c_str());
-                            new_value->fields[change_col_num].float_val = new_float_value;
-                        }
-                        catch(int x) {
-                            return -1;
-                        }
-                        delete new_rhs;
-                        break;
-                    case VARCHAR:
-                        cout<<"in update varchar case"<<endl;
-                        cout<<change_col_num<<endl;
-                        cout<<*new_rhs<<endl;
-                        new_value->fields[change_col_num].str_val = new_rhs;
-                        break;
-                    default:
-                        break;
                 }
+
                 if(!passes_range_constraints(table_name, change_col_num, update_list[j]->rhs)) {
                     delete result;
-                    for (int k = 0; k < tbl->schema->numColumns; k++) {
-                        if (tbl->schema->columns[k]->type == VARCHAR) {
-                            delete new_value->fields[k].str_val;
+                    for (int jj = 0; jj < j; jj++) {
+                        int change_col_num = tbl->schema->getColumnNum(update_list[jj]->lhs.c_str());
+                        if (tbl->schema->columns[change_col_num]->type == VARCHAR) {
+                            delete new_value->fields[change_col_num].str_val;
                         }
                     }
                     cout<<"no for rc"<<endl;
                     delete new_value;
                     return -1;
                 }
-                
-                if(!passes_pk_constraints(table_name, new_value)) {
-                    for (int jj = 0; jj < i; jj++)
-                    {
-                        cout<<"jj: "<<jj<<endl;
-                        if(temp_cl.find(result->rows[jj]->fields[0].int_val) != temp_cl.end()) {
-                            cout<<"here"<<endl;
-                            change_logs[table_id][result->rows[jj]->fields[0].int_val].new_value = temp_cl[result->rows[jj]->fields[0].int_val].old_value;
-                            cout<<"out"<<endl;
-                        }
-                        else{
-                            continue;
-                        }
-                    }
-                    delete result;
-                    for (int k = 0; k < tbl->schema->numColumns; k++) {
-                        if (tbl->schema->columns[k]->type == VARCHAR) {
-                            delete new_value->fields[k].str_val;
-                        }
-                    }
 
-                    cout<<"no for pk"<<endl;
-                    delete new_value;
-                    return -1;
+                string new_rhs(update_list[j]->rhs);
+                switch (tbl->schema->columns[change_col_num]->type)
+                {
+                    case INT:
+                        try {
+                            int new_int_value = atoi((new_rhs).c_str());
+                            new_value->fields[change_col_num].int_val = new_int_value;
+                        }
+                        catch(int x) {
+                            return -1;
+                        }
+                        break;
+                    case DOUBLE:
+                        try {
+                            double new_float_value = atof((new_rhs).c_str());
+                            new_value->fields[change_col_num].float_val = new_float_value;
+                        }
+                        catch(int x) {
+                            return -1;
+                        }
+                        break;
+                    case VARCHAR:
+                        new_value->fields[change_col_num].str_val = new string(new_rhs);
+                        break;
+                    default:
+                        break;
                 }
             }
+
+            if(!passes_pk_constraints(table_name, new_value)) {
+                for (int jj = 0; jj < i; jj++)
+                {
+                    if(temp_cl.find(result->rows[jj]->fields[0].int_val) != temp_cl.end()) {
+                        change_logs[table_id][result->rows[jj]->fields[0].int_val].new_value = temp_cl[result->rows[jj]->fields[0].int_val].old_value;
+                    }
+                    else{
+                        continue;
+                    }
+                }
+                delete result;
+                for (int jj = 0; jj < update_list.size(); jj++) {
+                    int change_col_num = tbl->schema->getColumnNum(update_list[jj]->lhs.c_str());
+                    if (tbl->schema->columns[change_col_num]->type == VARCHAR) {
+                        delete new_value->fields[change_col_num].str_val;
+                    }
+                }
+
+                delete new_value;
+                return -1;
+            }
+
             ChangeLog &change_log = change_logs[table_id];
             int unqiue_id = result->rows[i]->fields[0].int_val;
 
@@ -604,7 +598,7 @@ int execute_update(string table_name, vector<Update_Pair*> &update_list, CondAST
                 Log_Entry* tle = new Log_Entry();
                 tle->old_value = change_log[unqiue_id].new_value;
                 change_log[unqiue_id].new_value = new_value;
-                cout<<"in cl: "<<*(change_log[unqiue_id].new_value->fields[1].str_val)<<endl;
+                // cout<<"in cl: "<<*(change_log[unqiue_id].new_value->fields[1].str_val)<<endl;
                 temp_cl[unqiue_id] = *tle;
                 delete tle;
             }
@@ -615,7 +609,7 @@ int execute_update(string table_name, vector<Update_Pair*> &update_list, CondAST
                 log_entry->new_value = new_value;
                 log_entry->change_type = _UPDATE;
                 change_log[unqiue_id] = *log_entry; 
-                cout<<"in cl: "<<*(change_log[unqiue_id].new_value->fields[1].str_val)<<endl;
+                // cout<<"in cl: "<<*(change_log[unqiue_id].new_value->fields[1].str_val)<<endl;
                 delete log_entry;
             }
         }
