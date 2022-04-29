@@ -619,6 +619,12 @@ int execute_create(string table_name, vector<ColumnDesc*> &column_desc_list, vec
         }
         FILE *fp = fopen(("./data/"+table_name+".scm").c_str(), "w");
         fprintf(fp, "%s\n", schemaStr.c_str());
+        string constraint_str = "";
+        for(int i=0;i<constraint.size();i++) {
+            constraint_str += constraint[i] + " ";
+        }
+        fprintf(fp, "%d ", constraint.size());
+        fprintf(fp, "%s\n", constraint_str.c_str());
         fclose(fp);
 
         tbl->name = table_name;

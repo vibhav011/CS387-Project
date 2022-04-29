@@ -139,7 +139,7 @@ Table_Insert(Table *tbl, Byte *record, int len, RecId *rid) {
         header = (Header *) *tbl->pagebuf;
         nslots = header->numSlots = 0;
         header->freeSlotOffset = PF_PAGE_SIZE;
-        freeSpace = header->freeSlotOffset - sizeof(int) - sizeof(short)*2;
+        freeSpace = header->freeSlotOffset - 2*sizeof(int) - sizeof(short)*2;
     }
     
     assert(freeSpace >= len);     // Assuming that the record fits in the page

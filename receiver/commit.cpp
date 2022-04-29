@@ -20,7 +20,7 @@ extern vector<int> UIds;
 
 #define MAX_PAGE_SIZE 4000
 
-int commit_insert(Table *tbl, Table_Row *tr){
+int commit_insert(Table *tbl, Table_Row *tr, RecId* rid) {
     int numfields = tbl->schema->numColumns;
     char record[MAX_PAGE_SIZE];
 
@@ -70,9 +70,8 @@ int commit_insert(Table *tbl, Table_Row *tr){
         }
     }
 
-    RecId rid;
     // break into phantom_table_insert followed by append_insert_to_file followed by real_table_insert
-    int err = Table_Insert(tbl, record, pos, &rid);
+    int err = Table_Insert(tbl, record, pos, rid);
     if(err != 0) return C_ERROR;
 
     return C_OK;
@@ -101,12 +100,21 @@ int execute_commit(vector<int>* ChangeIndices) {
             case _UPDATE: {
                 int ret_value = commit_delete(tbl, mapping_log[old_value->fields[0].int_val]);
                 if (ret_value != C_OK) return ret_value;
-                ret_value = commit_insert(tbl, new_value);
+                RecId x;
+                ret_value = commit_insert(tbl, new_value, &x);
                 if (ret_value != C_OK) return ret_value;
                 break;
             }
             case _INSERT: {
-                int ret_value = commit_insert(tbl, new_value);
+                int uid = new_value->fields[0].int_val;
+                RecId rid;
+                int ret_value = commit_insert(tbl, new_value, &rid);
+                
+                std::ofstream outfile;
+                outfile.open(folder_path+"/"+tbl->name+".mlog", std::ios_base::app); // append instead of overwrite
+                outfile << uid << ' ' << rid << endl;
+                outfile.close();
+                
                 if (ret_value != C_OK) return ret_value;
                 break;
             }
@@ -123,11 +131,11 @@ int execute_commit(vector<int>* ChangeIndices) {
         outfile.open("./data/"+tbl->name+".scm", std::ios_base::app); // append instead of overwrite
         outfile << endl << UIds[ChangeIndices->at(i)];
 
-        if (*tbl->lastPage != -1) {
-            cout << "yay " << *tbl->lastPage << endl;
-            cout << PF_UnfixPage(tbl->fd, *tbl->lastPage, true) << endl;
-            cout << PF_GetThisPage(tbl->fd, *tbl->lastPage, tbl->pagebuf) << endl;
-        }
+        PF_UnfixPage(tbl->fd, *tbl->lastPage, true);
+        PF_CloseFile(tbl->fd);
+        free(tbl->lastPage);
+        free(tbl->pagebuf);
+        Table_Open(&("./data/"+tbl->name+".tbl")[0], tbl->schema, false, &tbl);
         change_log.clear();
         mapping_log.clear();
     }
@@ -152,7 +160,8 @@ int execute_rollback_single(Table *tbl, ChangeLog& change_log, MappingLog& mappi
         case _UPDATE: {
             int ret_value = commit_delete(tbl, mapping_log[new_value->fields[0].int_val]);
             if (ret_value != C_OK) return ret_value;
-            ret_value = commit_insert(tbl, old_value);
+            RecId x;
+            ret_value = commit_insert(tbl, old_value, &x);
             if (ret_value != C_OK) return ret_value;
             break;
         }
@@ -162,7 +171,8 @@ int execute_rollback_single(Table *tbl, ChangeLog& change_log, MappingLog& mappi
             break;
         }
         case _DELETE: {
-            int ret_value = commit_insert(tbl, old_value);
+            RecId x;
+            int ret_value = commit_insert(tbl, old_value, &x);
             if (ret_value != C_OK) return ret_value;
             break;
         }
@@ -170,6 +180,13 @@ int execute_rollback_single(Table *tbl, ChangeLog& change_log, MappingLog& mappi
             break;
         }
     }
+    PF_UnfixPage(tbl->fd, *tbl->lastPage, true);
+    PF_CloseFile(tbl->fd);
+    free(tbl->lastPage);
+    free(tbl->pagebuf);
+    Table_Open(&("./data/"+tbl->name+".tbl")[0], tbl->schema, false, &tbl);
+    change_log.clear();
+    mapping_log.clear();
     return C_OK;
 }
 
@@ -181,7 +198,7 @@ int execute_rollback(vector<int>* ChangeIndices) {
         MappingLog& mapping_log = mapping_logs[ChangeIndices->at(i)];
 
         int ret_val = execute_rollback_single(tbl, change_log, mapping_log);
-        Table_Close(tbl);
+
         if (ret_val != C_OK) return ret_val;
     }
     return C_OK;
