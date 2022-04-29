@@ -20,5 +20,5 @@ g++ -c parser.tab.c
 g++ -c utils.cpp
 g++ -c ast.cc
 
-g++ no_parse.cpp ast.o query.o dblayer/tbl.o dblayer/codec.o pflayer/pf.o pflayer/buf.o pflayer/hash.o utils.o commit.o helper.o
+g++ api.cpp ast.o query.o dblayer/tbl.o dblayer/codec.o pflayer/pf.o pflayer/buf.o pflayer/hash.o utils.o commit.o helper.o
 # g++ daemon.cc y.tab.o query.o ast.o -o daemon -pthread

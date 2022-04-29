@@ -146,7 +146,6 @@ int Daemon::accept_conn(){
         close(cl);
         return -1;
     }
-    // cout << "here" << endl;
     if(this->conn[i]->conn_thread != NULL) this->conn[i]->conn_thread->join();
 
     this->conn[i]->inuse = 1;
@@ -249,7 +248,6 @@ int main(){
     install_sig_handler();
 
     while(loop_flag){
-        // cout << "here" << endl;
         d->accept_conn();
     }
     delete d;

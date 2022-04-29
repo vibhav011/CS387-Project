@@ -88,26 +88,18 @@ letter [a-zA-Z_]
 }
 
 \"[^\"]+\" { 
-    char txt[30];
-    strcpy(txt, yytext);
-    yylval->str = new string();
-    *(yylval->str) = txt;
+    string s = string(yytext);
+    yylval->str = new string(s.substr(1, s.size()-2));
     return TEXT_CONSTANT; 
 }
 
 {digit}+ {
-    char txt[30];
-    yylval->str = new string();
-    strcpy(txt, yytext);
-    *(yylval->str) = txt;
+    yylval->str = new string(yytext);
     return INT_CONSTANT; 
 }
 
 {digit}+\.{digit}+ { 
-    char txt[30];
-    yylval->str = new string();
-    strcpy(txt, yytext);
-    *(yylval->str) = txt;
+    yylval->str = new string(yytext);
     return FLOAT_CONSTANT; 
 }
 

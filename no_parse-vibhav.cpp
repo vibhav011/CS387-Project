@@ -8,6 +8,7 @@ using namespace std;
 
 extern vector<ChangeLog> change_logs; 
 extern vector<Table*> tables;
+extern void setup_and_recover();
 
 void clean_and_exit() {
     for (int i = 0; i < tables.size(); i++) {
@@ -38,6 +39,8 @@ void clean_and_exit() {
 }
 
 int main() {
+    setup_and_recover();
+    
     vector<string>* table_names = new vector<string> (1, "countries");
     // table_names->push_back("data1");
     vector<string>* col_names = new vector<string> (1, "Country");
@@ -59,6 +62,7 @@ int main() {
     cols.push_back(col2);
     cols.push_back(col3);
     vector<string> pk;
+    /*
     pk.push_back("Country");
     int create_exit = execute_create("countries", cols, pk);
     vector<string> col_val_list1;
@@ -130,6 +134,24 @@ int main() {
     
     vector<int>* ChangeIndices= new vector<int>(1, 0);
     execute_commit(ChangeIndices);
+
+    Temp_Table *result2 = new Temp_Table(schema);
+
+    select_exit = execute_select(result2, temp, fetch_cols);
+    cout<<"final result size "<< result2->rows.size()<<endl;
+    for (int i = 0; i < result2->rows.size(); i++) {
+        cout<<"row "<<i<<endl;
+        for (int j = 0; j < result2->schema->numColumns; j++) {
+            if (result2->schema->columns[j]->type == VARCHAR) {
+                // cout << "str" << endl;
+                cout<<*(result2->rows[i]->fields[j].str_val)<<endl;
+            } else {
+                cout<<result2->rows[i]->fields[j].int_val<<endl;
+            }
+        }
+    }
+
+
     delete ChangeIndices;
     delete result;
     delete col_names;
