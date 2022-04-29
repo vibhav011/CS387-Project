@@ -626,7 +626,7 @@ int execute_create(string table_name, vector<ColumnDesc*> &column_desc_list, vec
         for(int i=0;i<constraint.size();i++) {
             constraint_str += constraint[i] + " ";
         }
-        fprintf(fp, "%d ", constraint.size());
+        fprintf(fp, "%ld ", constraint.size());
         fprintf(fp, "%s\n", constraint_str.c_str());
         fclose(fp);
 
@@ -680,7 +680,7 @@ int execute_insert(string table_name, vector<string> column_val_list) {
                 case DOUBLE:
                     cout << column_val_list[i-1] << endl;
                     len = column_val_list.size();
-                    entry.float_val = stof(column_val_list[i-1].substr(1, len-2));
+                    entry.float_val = stof(column_val_list[i-1]);
                     cout << "out of stof" << endl;
                     new_row->fields.push_back(entry);
                     break;

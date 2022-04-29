@@ -39,8 +39,8 @@ struct Temp_Table {
             return ;
         }
         vector<int> types;
-        fprintf(f, "Number of columns: %d", this->schema->numColumns);
-        fprintf(f, "Number of rows: %ld", this->rows.size());
+        // fprintf(f, "Number of columns: %d\n", this->schema->numColumns);
+        fprintf(f, "Number of rows: %ld\n", this->rows.size());
 
         // cout<<"Number of columns: "<<this->schema->numColumns<<endl;
         // cout<<"Number of rows: "<<this->rows.size()<<endl;
@@ -50,7 +50,7 @@ struct Temp_Table {
             fprintf(f, "%*s", 20, this->schema->columns[i]->name);
             // cout<<setw(20)<<this->schema->columns[i]->name;
         }
-        cout<<endl;
+        fprintf(f, "\n");
 
         for(int ii = 0; ii < this->rows.size(); ii++)
         {
@@ -60,15 +60,18 @@ struct Temp_Table {
                 if(types[i] == INT)
                     fprintf(f, "%*d", 20, rows[ii]->getField(i).int_val);
                     // cout<<setw(20)<<rows[ii]->getField(i).int_val;
-                else if(types[i] == DOUBLE)
+                else if(types[i] == DOUBLE){
                     fprintf(f, "%*.*f", 20, 3, rows[ii]->getField(i).float_val);
+                    cout << rows[ii]->getField(i).float_val << endl;
+                }
                     // cout<<setw(20)<<rows[ii]->getField(i).float_val;
                 else
                     fprintf(f, "%*s", 20, rows[ii]->getField(i).str_val->c_str());
                     // cout<<setw(20)<<*(rows[ii]->getField(i).str_val);
             }
-            cout<<endl;
+            fprintf(f, "\n");
         }
+        fflush(f);
     }
 
     void set_schema_columns(vector<string> names)

@@ -221,7 +221,7 @@ int myhandler(string query, Conn *conn){
     delete results[conn->worker_id];
     results[conn->worker_id] = NULL;
     
-    write(conn->stdout_fd, "this is another output\n", 23);
+    // write(conn->stdout_fd, "this is another output\n", 23);
 
     return 0;
 }
