@@ -206,23 +206,17 @@ extern int yyparse(int);
 
 int myhandler(string query, Conn *conn){
     cout << query << endl;
-
     conn->f = fopen(conn->fname, "w");
     fprintf(conn->f, "%s", query.c_str());
     fclose(conn->f);
 
     conn->f = fopen(conn->fname, "r");
     yyset_in(conn->f, conn->scanner);
-    
-    cout << query << endl;
 
     yyparse(conn->scanner);
-    cout << query << endl;
     fclose(conn->f);
-    cout<<query<<endl;
 
     results[conn->worker_id]->prettyPrint();
-    cout<<"ankit"<<endl;
     delete results[conn->worker_id];
     results[conn->worker_id] = NULL;
     

@@ -81,7 +81,7 @@ int commit_insert(Table *tbl, Table_Row *tr){
 
 int execute_commit(vector<int>* ChangeIndices) {
     string folder_path = "./data/" + gen_random(10) + ".log";
-    std::filesystem::create_directory(folder_path);
+    filesystem::create_directory(folder_path);
     
     for (int i = 0; i < ChangeIndices->size(); i++) {
         Table *tbl = tables[ChangeIndices->at(i)];
@@ -131,7 +131,7 @@ int execute_commit(vector<int>* ChangeIndices) {
         mapping_log.clear();
     }
     
-    std::filesystem::remove_all(folder_path);
+    filesystem::remove_all(folder_path);
     return C_OK;
 }
 
