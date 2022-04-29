@@ -1,8 +1,9 @@
+#include <set>
+#include <iostream>
+#include <unistd.h>
 #include "query.h"
 #include "../utils.h"
 #include "../dblayer/codec.h"
-#include <set>
-#include<iostream>
 using namespace std;
 
 extern map<string, int> table_name_to_id;

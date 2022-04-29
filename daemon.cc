@@ -226,8 +226,8 @@ int myhandler(string query, Conn *conn){
     if (results[conn->worker_meta.id] != NULL) {
         results[conn->worker_meta.id]->prettyPrint(conn->worker_meta.out);
         delete results[conn->worker_meta.id];
+        results[conn->worker_meta.id] = NULL;
     }
-    results[conn->worker_meta.id] = NULL;
     
     // write(conn->stdout_fd, "this is another output\n", 23);
 

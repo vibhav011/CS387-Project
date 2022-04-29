@@ -1,13 +1,1 @@
-CREATE TABLE data2(ff DOUBLE);
-INSERT INTO data2 VALUES ("12.12");
-INSERT INTO data2 VALUES ("23.89");
-SELECT * FROM data2;
-
-CREATE TABLE data3 (ff DOUBLE, ii INT);
-INSERT INTO data3 VALUES ("123.123", "123");
-INSERT INTO data3 VALUES ("89.89", "89");
-SELECT * FROM data3;
-
-UPDATE data3 SET ii=7 WHERE ff>90;
-SELECT * FROM data2, data3;
-COMMIT;
+create table t1 (ii INT, ff DOUBLE);
