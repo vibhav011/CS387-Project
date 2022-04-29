@@ -243,6 +243,11 @@ void install_sig_handler(){
 
 extern void setup_and_recover();
 
+int obtain_read_lock(int worker_id, vector<string> table_names){return 0;}
+int obtain_write_lock(int worker_id, vector<string> table_names){return 0;}
+int release_read_lock(int worker_id, vector<string> table_names){return 0;}
+int release_write_lock(int worker_id, vector<string> table_names){return 0;}
+
 int main(){
     // setup_and_recover();
 

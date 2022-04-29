@@ -51,14 +51,14 @@ int main() {
     vector<string> fetch_cols = {"*"};
     vector<string> fetch_tables = {"data", "data1"};
     execute_select(result, fetch_tables, fetch_cols, cond_tree);
-    result->prettyPrint();
+    result->prettyPrint(stdout);
     result->rows.clear();
 
-    vector<int> v = {0};
-    execute_commit(&v);
+    vector<string> v = {"data"};
+    execute_commit(v);
     cout<<"Executed commit on data"<<endl;
 
     execute_select(result, fetch_tables, fetch_cols, cond_tree);
-    result->prettyPrint();
+    result->prettyPrint(stdout);
     result->rows.clear();
 }
