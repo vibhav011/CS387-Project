@@ -271,6 +271,10 @@ expression
     {
         $$ = new ColAST(*$1);
     }
+    | NAME
+    {
+        $$ = new ColAST(*$1);
+    }
 ;
 
 constant
@@ -351,6 +355,8 @@ column_val_list
 
 column_val
     : TEXT_CONSTANT
+    | FLOAT_CONSTANT
+    | INT_CONSTANT
 ;
 
 update_query

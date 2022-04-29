@@ -1,3 +1,1 @@
-unique_id:int,Country:varchar,Capital:varchar,Pop:int
-
-2
+unique_id:int,num:double

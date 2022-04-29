@@ -145,7 +145,6 @@ int main(){
                 }
                 last = i+1;
                 lq = 0;
-                // cout << query << endl;
             }
         }
         if(last != len){

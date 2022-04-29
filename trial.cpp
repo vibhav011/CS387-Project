@@ -2,7 +2,8 @@
 using namespace std;
 int main()
 {
-    string s = "342";
+    vector<string> v;
+    v.push_back("")
     cout<<stoi("342")<<endl;
     return 0;
 }

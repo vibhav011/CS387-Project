@@ -50,7 +50,7 @@ int main() {
 
     vector<string> fetch_cols = {"*"};
     vector<string> fetch_tables = {"data"};
-    execute_select(result, fetch_tables, fetch_cols);
+    execute_select(result, fetch_tables, fetch_cols, cond_tree);
     result->prettyPrint();
     result->rows.clear();
 
