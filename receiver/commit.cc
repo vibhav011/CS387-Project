@@ -158,40 +158,42 @@ int execute_commit(vector<string> &change_tables) {
 }
 
 int commit_delete(Table *tbl, RecId rid) {
+    if(rid < 0) return C_OK;
     int ret = Table_Delete(tbl, rid);
     return ret;
 }
 
 int execute_rollback_single(Table *tbl, ChangeLog& change_log, MappingLog& mapping_log) {
-    cout<<"yahan?"<<endl;
     int ret_value = C_OK;
     for (ChangeLog::iterator it = change_log.begin(); it != change_log.end(); it++) {
-        cout<<"in"<<endl;
         int unique_id = it->first;
         Log_Entry& log_entry = it->second;
         Table_Row *old_value = log_entry.old_value;
         Table_Row *new_value = log_entry.new_value;
-        cout<<log_entry.change_type<<endl;
-        cout<<_UPDATE<<endl;
-        cout<<_INSERT<<endl;
-        cout<<_DELETE<<endl;
+
+        int rid = -1;
+        if(mapping_log.find(new_value->fields[0].int_val) != mapping_log.end()){
+            rid = mapping_log[new_value->fields[0].int_val];
+        }
+
         switch (log_entry.change_type) {
         case _UPDATE: {
-            cout<<"update"<<endl;
-            ret_value = commit_delete(tbl, mapping_log[new_value->fields[0].int_val]);
+            cout<<"rollback update"<<endl;
+            ret_value = commit_delete(tbl, rid);
             RecId x;
             ret_value = commit_insert(tbl, old_value, &x);
             if (ret_value != C_OK) return ret_value;
             break;
         }
         case _INSERT: {
-            cout<<"reverting insert on rid:"<<endl;
-            cout<<mapping_log[new_value->fields[0].int_val]<<endl;
-            ret_value = commit_delete(tbl, mapping_log[new_value->fields[0].int_val]);
+            cout << "rollback insert on (uid, rid): ";
+            cout << new_value->fields[0].int_val;
+            cout << mapping_log[new_value->fields[0].int_val]<<endl;
+            ret_value = commit_delete(tbl, rid);
             break;
         }
         case _DELETE: {
-            cout<<"delete"<<endl;
+            cout<<"rollback delete"<<endl;
             RecId x;
             ret_value = commit_insert(tbl, old_value, &x);
             break;

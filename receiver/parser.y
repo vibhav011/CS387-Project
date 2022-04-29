@@ -14,6 +14,7 @@ extern int obtain_write_lock(int worker_id, string table_names);
 extern mutex create_mutex;
 extern map<string, int> table_access;
 vector<string> changed_tables[MAX_PROCESSES];
+bool txn_active[MAX_PROCESSES] = {0};
 
 %}
 
@@ -85,34 +86,22 @@ query
         results[((Pro *)yyget_extra(scanner))->id] = $1;
     }
     | create_query SEMICOLON
-    {
-        results[((Pro *)yyget_extra(scanner))->id] = new Temp_Table();
-    }
     | insert_query SEMICOLON
-    {
-        results[((Pro *)yyget_extra(scanner))->id] = new Temp_Table();
-    }
     | update_query SEMICOLON
-    {
-        results[((Pro *)yyget_extra(scanner))->id] = new Temp_Table();
-    }
     | delete_query SEMICOLON
-    {
-        results[((Pro *)yyget_extra(scanner))->id] = new Temp_Table();
-    }
     | COMMIT SEMICOLON
     {
         int worker_id = ((Pro *)yyget_extra(scanner))->id;
-        results[worker_id] = new Temp_Table();
         checkerr(execute_commit(changed_tables[worker_id]), scanner);
         changed_tables[worker_id].clear();
+        txn_active[worker_id] = false;
     }
     | ROLLBACK SEMICOLON
     {
         int worker_id = ((Pro *)yyget_extra(scanner))->id;
-        results[worker_id] = new Temp_Table();
         checkerr(execute_rollback(changed_tables[worker_id]), scanner);
         changed_tables[worker_id].clear();
+        txn_active[worker_id] = false;
     }
 ;
 
@@ -158,13 +147,20 @@ select_query
         int worker_id = ((Pro *)yyget_extra(scanner))->id;
         checkerr(execute_select(temp, *$4, {"*"}, NULL, NULL, worker_id), scanner);
         $$ = temp;
+        txn_active[worker_id] = true;
     }
     | SELECT STAR FROM table_list WHERE condition
     {
         Temp_Table *temp = new Temp_Table();
         int worker_id = ((Pro *)yyget_extra(scanner))->id;
-        checkerr(execute_select(temp, *$4, {"*"}, $6, NULL, worker_id), scanner);
+        int err = execute_select(temp, *$4, {"*"}, $6, NULL, worker_id);
+        if(err != C_OK){
+            delete temp;
+            temp = NULL;
+        } 
+        checkerr(err, scanner);
         $$ = temp;
+        txn_active[worker_id] = true;
     }
     | SELECT column_list FROM table_list 
     {
@@ -172,13 +168,20 @@ select_query
         int worker_id = ((Pro *)yyget_extra(scanner))->id;
         checkerr(execute_select(temp, *$4, *$2, NULL, NULL, worker_id), scanner);
         $$ = temp;
+        txn_active[worker_id] = true;
     }
     | SELECT column_list FROM table_list WHERE condition 
     {
         Temp_Table *temp = new Temp_Table();
         int worker_id = ((Pro *)yyget_extra(scanner))->id;
-        checkerr(execute_select(temp, *$4, *$2, $6, NULL, worker_id), scanner);
+        int err = execute_select(temp, *$4, {"*"}, $6, NULL, worker_id);
+        if(err != C_OK){
+            delete temp;
+            temp = NULL;
+        } 
+        checkerr(err, scanner);
         $$ = temp;
+        txn_active[worker_id] = true;
     }
 ;
 
@@ -232,6 +235,10 @@ condition
     {
         $$ = (CondAST *)$1;
     }
+    | ROUND_BRACKET_OPEN condition ROUND_BRACKET_CLOSE
+    {
+        $$ = $2;
+    }
 ;
 
 relex
@@ -278,6 +285,10 @@ expression
     {
         $$ = new BinArithAST($1, $3, _DIV);
     }
+    | ROUND_BRACKET_OPEN expression ROUND_BRACKET_CLOSE
+    {
+        $$ = $2;
+    }
     | constant 
     {
         $$ = new ConstAST($1);
@@ -287,7 +298,7 @@ expression
         $$ = new ColAST(*$1);
     }
     | NAME
-    {
+    {   
         $$ = new ColAST(*$1);
     }
 ;
@@ -300,16 +311,28 @@ constant
 
 create_query
     : CREATE TABLE NAME ROUND_BRACKET_OPEN column_desc_list COMMA constraint ROUND_BRACKET_CLOSE  
-    {
+    {   
+        FILE *f = ((Pro *)yyget_extra(scanner))->out;
         int worker_id = ((Pro *)yyget_extra(scanner))->id;
+        if(txn_active[worker_id]){
+            fprintf(f, "Warning: cannot create table in the middle of a txn\n");
+            fflush(f);
+            return 1;
+        }
         create_mutex.lock();
         checkerr(execute_create(*$3, *$5, *$7), scanner);
         changed_tables[worker_id].push_back(*$3);
         create_mutex.unlock();
     }
     | CREATE TABLE NAME ROUND_BRACKET_OPEN column_desc_list ROUND_BRACKET_CLOSE 
-    {
+    {   
+        FILE *f = ((Pro *)yyget_extra(scanner))->out;
         int worker_id = ((Pro *)yyget_extra(scanner))->id;
+        if(txn_active[worker_id]){
+            fprintf(f, "Warning: cannot create table in the middle of a txn\n");
+            fflush(f);
+            return 1;
+        }
         create_mutex.lock();
         checkerr(execute_create(*$3, *$5), scanner);
         changed_tables[worker_id].push_back(*$3);
@@ -362,10 +385,11 @@ insert_query
     : INSERT INTO NAME VALUES ROUND_BRACKET_OPEN column_val_list ROUND_BRACKET_CLOSE 
     {
         int worker_id = ((Pro *)yyget_extra(scanner))->id;
-        checkerr(obtain_write_lock(worker_id, *$3), scanner);
+        obtain_write_lock(worker_id, *$3);
         checkerr(execute_insert(*$3, *$6), scanner);
-        changed_tables[worker_id].push_back(*$3);
+        changed_tables[worker_id].push_back(*$3); 
         // cannot release the lock here
+        txn_active[worker_id] = true;
     }
 ;
 
@@ -394,6 +418,7 @@ update_query
         checkerr(execute_update(*$2, *$4, $6), scanner);
         changed_tables[worker_id].push_back(*$2);
         // cannot release the lock here
+        txn_active[worker_id] = true;
     }
     | UPDATE NAME SET update_list 
     {
@@ -402,6 +427,7 @@ update_query
         checkerr(execute_update(*$2, *$4), scanner);
         changed_tables[*(int *)yyget_extra(scanner)].push_back(*$2);
         // cannot release the lock here
+        txn_active[worker_id] = true;
     }
 ;
 
@@ -436,6 +462,7 @@ delete_query
         checkerr(execute_delete(*$3, $5), scanner);
         changed_tables[worker_id].push_back(*$3);
         // cannot release the lock here
+        txn_active[worker_id] = true;
     }
     | DELETE FROM NAME 
     {
@@ -445,19 +472,21 @@ delete_query
         checkerr(execute_delete(*$3), scanner);
         changed_tables[worker_id].push_back(*$3);
         // cannot release the lock here
+        txn_active[worker_id] = true;
     }
 ;
 
 %%
 
-void yyerror(YYLTYPE* yyllocp, yyscan_t unused, const char* msg)
-{
+void yyerror(YYLTYPE* yyllocp, yyscan_t unused, const char* msg){
     FILE *f = ((Pro *)yyget_extra(unused))->out;
-    fprintf(f, "Error: %s\n", msg);
-    fflush(f);
+    fprintf(f, "%s: rolling back to last commit..\n", msg); fflush(f);
     cerr<<msg<<endl;
+
     int worker_id = ((Pro *)yyget_extra(unused))->id;
     execute_rollback(changed_tables[worker_id]);
+    txn_active[worker_id] = false;
+
     return;
 }
 
@@ -474,7 +503,6 @@ void checkerr(int err_code, yyscan_t scanner) {
             cout<<"false output"<<endl;
             break;
         case C_ERROR:
-            fprintf(f, "some error occured, check query. Rolling back.\n");
             cout<<"error"<<endl;
             break;
         case C_TABLE_NOT_FOUND:
@@ -493,6 +521,9 @@ void checkerr(int err_code, yyscan_t scanner) {
     fflush(f);
 
     int worker_id = ((Pro *)yyget_extra(scanner))->id;
-    if (err_code != C_OK)
+    if (err_code != C_OK){
+        fprintf(f, "invalid query:: rolling back...\n");
         execute_rollback(changed_tables[worker_id]);
+        txn_active[worker_id] = false;
+    }
 }

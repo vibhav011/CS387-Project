@@ -31,7 +31,7 @@ letter [a-zA-Z_]
 (WHERE|where) { return WHERE; }
 (AND|and) { return AND; }
 (OR|or) { return OR; }
-"!" { return NOT; }
+("!"|NOT) { return NOT; }
 "+" { return PLUS; }
 "-" { return MINUS; }
 "/" { return DIV; }

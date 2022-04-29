@@ -226,8 +226,8 @@ int myhandler(string query, Conn *conn){
     if (results[conn->worker_meta.id] != NULL) {
         results[conn->worker_meta.id]->prettyPrint(conn->worker_meta.out);
         delete results[conn->worker_meta.id];
+        results[conn->worker_meta.id] = NULL;
     }
-    results[conn->worker_meta.id] = NULL;
     
     // write(conn->stdout_fd, "this is another output\n", 23);
 
@@ -253,7 +253,7 @@ extern void setup_and_recover();
 
 int main(){
     setup_and_recover();
-
+    cout << "recovered" << endl;
     Daemon *d = new Daemon(SOCK_PATH, myhandler);
     install_sig_handler();
 
