@@ -94,7 +94,7 @@ letter [a-zA-Z_]
     return TEXT_CONSTANT; 
 }
 
-{digit}+ {
+[\-]?{digit}+ {
     yylval->str = new string(yytext);
     return INT_CONSTANT; 
 }
