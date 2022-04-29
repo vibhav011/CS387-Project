@@ -110,7 +110,11 @@ string BinArithAST::compute(T v1, T v2)
     if(this->op == _PLUS) return to_string(v1+v2);
     if(this->op == _MINUS) return to_string(v1-v2);
     if(this->op == _MULT) return to_string(v1*v2);
-    if(this->op == _DIV) return to_string(v1/v2);
+    if(this->op == _DIV) 
+    {
+        if(v2 == (T)0) return "";
+        return to_string(v1/v2);
+    }
     return "";
 }
 

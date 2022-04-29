@@ -253,7 +253,7 @@ extern void setup_and_recover();
 
 int main(){
     setup_and_recover();
-
+    cout << "recovered" << endl;
     Daemon *d = new Daemon(SOCK_PATH, myhandler);
     install_sig_handler();
 

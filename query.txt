@@ -1,1 +1,9 @@
-create table t1 (ii INT, ff DOUBLE);
+create table t1 (ii INT);
+insert into t1 values (1);
+create table t2 (ff DOUBLE);
+select * from t2;
+commit;
+create table t3 (ss VARCHAR);
+insert into t1 values (12);
+rollback;
+select * from t1;
