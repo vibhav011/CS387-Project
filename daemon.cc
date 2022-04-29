@@ -43,7 +43,7 @@ Daemon::Daemon(const char *sock_path, request_handler_t func){
     addr.sun_family = AF_UNIX;
     strcpy(addr.sun_path, sock_path);
 
-    this->sock_fd = socket(AF_UNIX, SOCK_SEQPACKET, 0);
+    this->sock_fd = socket(AF_UNIX, SOCK_STREAM, 0);
     if(this->sock_fd < 0){
         perror("cannot open listen socket");
         exit(1);

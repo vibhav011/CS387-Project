@@ -9,7 +9,7 @@ DB_inst::DB_inst(const char *sock_path, int timeout){
     addr.sun_family = AF_UNIX;
     strcpy(addr.sun_path, sock_path);
 
-    fd = socket(AF_UNIX, SOCK_SEQPACKET, 0);
+    fd = socket(AF_UNIX, SOCK_STREAM, 0);
     if(fd<0){
         perror("socket error");
         exit(1);
