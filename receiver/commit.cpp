@@ -9,11 +9,14 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <cstdio>
+#include <filesystem>
+#include <fstream>
 using namespace std;
 
 extern vector<ChangeLog> change_logs;
 extern vector<MappingLog> mapping_logs;
 extern vector<Table*> tables;
+extern vector<int> UIds;
 
 #define MAX_PAGE_SIZE 4000
 
@@ -77,23 +80,16 @@ int commit_insert(Table *tbl, Table_Row *tr){
 }
 
 int execute_commit(vector<int>* ChangeIndices) {
-    // TODO: Dump the change logs to disk
-    // int user_id = 0;
-    // string folder_name = "./"+to_string(user_id);
-    // mkdir(folder_name.c_str(), 0);
-    
-    // for (int i = 0; i < ChangeIndices->size(); i++)
-    // {
-    //     string clog_filename = folder_name+"/"+tables[ChangeIndices->at(i)]->name+".clog";
-    //     string mlog_filename = folder_name+"/"+tables[ChangeIndices->at(i)]->name+".mlog";
-    //     dump_clog(tables[ChangeIndices->at(i)], change_logs[ChangeIndices->at(i)], clog_filename);
-    //     dump_mlog(tables[ChangeIndices->at(i)], mapping_logs[ChangeIndices->at(i)], mlog_filename);
-    // }
+    string folder_path = "./data/" + gen_random(10) + ".log";
+    std::filesystem::create_directory(folder_path);
     
     for (int i = 0; i < ChangeIndices->size(); i++) {
         Table *tbl = tables[ChangeIndices->at(i)];
         ChangeLog& change_log = change_logs[ChangeIndices->at(i)];
         MappingLog& mapping_log = mapping_logs[ChangeIndices->at(i)];
+
+        dump_clog(tbl, change_log, folder_path+"/"+tbl->name+".clog");
+        dump_mlog(tbl, mapping_log, folder_path+"/"+tbl->name+".mlog");
 
         for (ChangeLog::iterator it = change_log.begin(); it != change_log.end(); it++) {
             int unique_id = it->first;
@@ -123,24 +119,54 @@ int execute_commit(vector<int>* ChangeIndices) {
                 break;
             }
         }
+        std::ofstream outfile;
+        outfile.open("./data/"+tbl->name+".scm", std::ios_base::app); // append instead of overwrite
+        outfile << endl << UIds[ChangeIndices->at(i)];
 
         Table_Close(tbl);
+        change_log.clear();
+        mapping_log.clear();
     }
-    // TODO: Delete the change logs and mapping logs from disk
-    // for (int i = 0; i < ChangeIndices->size(); i++)
-    // {
-    //     string clog_filename = folder_name+"/"+tables[ChangeIndices->at(i)]->name+".clog";
-    //     string mlog_filename = folder_name+"/"+tables[ChangeIndices->at(i)]->name+".mlog";
-    //     remove(clog_filename.c_str());
-    //     remove(mlog_filename.c_str());
-    // }
-    // rmdir(folder_name.c_str());
+    
+    std::filesystem::remove_all(folder_path);
     return C_OK;
 }
 
 int commit_delete(Table *tbl, RecId rid) {
     int ret = Table_Delete(tbl, rid);
     return ret;
+}
+
+int execute_rollback_single(Table *tbl, ChangeLog& change_log, MappingLog& mapping_log) {
+    for (ChangeLog::iterator it = change_log.begin(); it != change_log.end(); it++) {
+        int unique_id = it->first;
+        Log_Entry& log_entry = it->second;
+        Table_Row *old_value = log_entry.old_value;
+        Table_Row *new_value = log_entry.new_value;
+
+        switch (log_entry.change_type) {
+        case _UPDATE: {
+            int ret_value = commit_delete(tbl, mapping_log[new_value->fields[0].int_val]);
+            if (ret_value != C_OK) return ret_value;
+            ret_value = commit_insert(tbl, old_value);
+            if (ret_value != C_OK) return ret_value;
+            break;
+        }
+        case _INSERT: {
+            int ret_value = commit_delete(tbl, mapping_log[new_value->fields[0].int_val]);
+            if (ret_value != C_OK) return ret_value;
+            break;
+        }
+        case _DELETE: {
+            int ret_value = commit_insert(tbl, old_value);
+            if (ret_value != C_OK) return ret_value;
+            break;
+        }
+        default:
+            break;
+        }
+    }
+    return C_OK;
 }
 
 int execute_rollback(vector<int>* ChangeIndices) {
@@ -150,35 +176,9 @@ int execute_rollback(vector<int>* ChangeIndices) {
         ChangeLog& change_log = change_logs[ChangeIndices->at(i)];
         MappingLog& mapping_log = mapping_logs[ChangeIndices->at(i)];
 
-        for (ChangeLog::iterator it = change_log.begin(); it != change_log.end(); it++) {
-            int unique_id = it->first;
-            Log_Entry& log_entry = it->second;
-            Table_Row *old_value = log_entry.old_value;
-            Table_Row *new_value = log_entry.new_value;
-
-            switch (log_entry.change_type) {
-            case _UPDATE: {
-                int ret_value = commit_delete(tbl, mapping_log[new_value->fields[0].int_val]);
-                if (ret_value != C_OK) return ret_value;
-                ret_value = commit_insert(tbl, old_value);
-                if (ret_value != C_OK) return ret_value;
-                break;
-            }
-            case _INSERT: {
-                int ret_value = commit_delete(tbl, mapping_log[new_value->fields[0].int_val]);
-                if (ret_value != C_OK) return ret_value;
-                break;
-            }
-            case _DELETE: {
-                int ret_value = commit_insert(tbl, old_value);
-                if (ret_value != C_OK) return ret_value;
-                break;
-            }
-            default:
-                break;
-            }
-        }
+        int ret_val = execute_rollback_single(tbl, change_log, mapping_log);
         Table_Close(tbl);
+        if (ret_val != C_OK) return ret_val;
     }
     return C_OK;
 }
