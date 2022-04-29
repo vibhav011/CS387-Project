@@ -483,7 +483,10 @@ bool passes_pk_constraints(string table_name, Table_Row* row) {
 
 int execute_update(string table_name, vector<Update_Pair*> &update_list, CondAST* cond_tree) {
     try {
-        if(table_name_to_id.find(table_name) == table_name_to_id.end()) return C_TABLE_NOT_FOUND;
+
+        if(table_name_to_id.find(table_name) == table_name_to_id.end()) 
+            return C_TABLE_NOT_FOUND;
+
         int table_id = table_name_to_id[table_name];
         Table* tbl  = tables[table_id];
         
@@ -556,7 +559,6 @@ int execute_update(string table_name, vector<Update_Pair*> &update_list, CondAST
 
             if (change_log.find(unqiue_id) != change_log.end()) {
                 delete change_log[unqiue_id].new_value;
-                change_log[unqiue_id].change_type = _UPDATE;
                 change_log[unqiue_id].new_value = new_value;
             }
             else {

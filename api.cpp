@@ -49,7 +49,7 @@ int main() {
     RelAST* cond_tree = new RelAST(col_ast, const_ast, _GT);
 
     vector<string> fetch_cols = {"*"};
-    vector<string> fetch_tables = {"data"};
+    vector<string> fetch_tables = {"data", "data1"};
     execute_select(result, fetch_tables, fetch_cols, cond_tree);
     result->prettyPrint();
     result->rows.clear();
