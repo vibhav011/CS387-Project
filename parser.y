@@ -10,7 +10,7 @@
 #include "sock.hpp"
 
 extern vector<Temp_Table*> results;
-extern int obtain_write_lock(string table_names);
+extern int obtain_write_lock(int worker_id, string table_names);
 extern mutex create_mutex;
 extern map<string, int> table_access;
 vector<string> changed_tables[MAX_PROCESSES];
@@ -362,8 +362,7 @@ insert_query
     : INSERT INTO NAME VALUES ROUND_BRACKET_OPEN column_val_list ROUND_BRACKET_CLOSE 
     {
         int worker_id = ((Pro *)yyget_extra(scanner))->id;
-        checkerr(obtain_write_lock(*$3), scanner);
-        table_access[*$3] = worker_id;
+        checkerr(obtain_write_lock(worker_id, *$3), scanner);
         checkerr(execute_insert(*$3, *$6), scanner);
         changed_tables[worker_id].push_back(*$3);
         // cannot release the lock here
@@ -391,8 +390,7 @@ update_query
     : UPDATE NAME SET update_list WHERE condition 
     {
         int worker_id = ((Pro *)yyget_extra(scanner))->id;
-        checkerr(obtain_write_lock(*$2), scanner);
-        table_access[*$2] = worker_id;
+        checkerr(obtain_write_lock(worker_id, *$2), scanner);
         checkerr(execute_update(*$2, *$4, $6), scanner);
         changed_tables[worker_id].push_back(*$2);
         // cannot release the lock here
@@ -400,8 +398,7 @@ update_query
     | UPDATE NAME SET update_list 
     {
         int worker_id = ((Pro *)yyget_extra(scanner))->id;
-        checkerr(obtain_write_lock(*$2), scanner);
-        table_access[*$2] = worker_id;
+        checkerr(obtain_write_lock(worker_id, *$2), scanner);
         checkerr(execute_update(*$2, *$4), scanner);
         changed_tables[*(int *)yyget_extra(scanner)].push_back(*$2);
         // cannot release the lock here
@@ -434,7 +431,7 @@ delete_query
     : DELETE FROM NAME condition 
     {
         int worker_id = ((Pro *)yyget_extra(scanner))->id;
-        checkerr(obtain_write_lock(*$3), scanner);
+        checkerr(obtain_write_lock(worker_id, *$3), scanner);
         table_access[*$3] = worker_id;
         checkerr(execute_delete(*$3, $4), scanner);
         changed_tables[worker_id].push_back(*$3);
@@ -443,7 +440,7 @@ delete_query
     | DELETE FROM NAME 
     {
         int worker_id = ((Pro *)yyget_extra(scanner))->id;
-        checkerr(obtain_write_lock(*$3), scanner);
+        checkerr(obtain_write_lock(worker_id, *$3), scanner);
         table_access[*$3] = worker_id;
         checkerr(execute_delete(*$3), scanner);
         changed_tables[worker_id].push_back(*$3);

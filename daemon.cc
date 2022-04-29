@@ -7,6 +7,7 @@
 #include "sock.hpp"
 #include "utils.h"
 #include "receiver/helper.h"
+// #define MSG_NOSIGNAL 524288
 
 using namespace std;
 
@@ -16,6 +17,8 @@ vector<Temp_Table*> results;
 Conn::Conn(){
     this->worker_meta.id = id++;
     sprintf(this->fname, "/tmp/toydb.%d", this->worker_meta.id);
+    this->inuse = 0;
+    this->conn_thread = NULL;
 
     yylex_init_extra(&this->worker_meta, &this->scanner);
 }
@@ -25,7 +28,6 @@ Daemon::Daemon(const char *sock_path, request_handler_t func){
 
     for(int i=0; i<MAX_PROCESSES; i++){
         this->conn[i] = new Conn(); 
-        this->conn[i]->conn_thread = NULL; 
     }
 
     struct sockaddr_un addr;
@@ -63,7 +65,7 @@ Daemon::Daemon(const char *sock_path, request_handler_t func){
         exit(1);
     }
 
-    results = vector<Temp_Table*>(MAX_PROCESSES);
+    results = vector<Temp_Table*>(MAX_PROCESSES, NULL);
 }
 
 Daemon::~Daemon(){
@@ -220,8 +222,10 @@ int myhandler(string query, Conn *conn){
 
     // FILE *f = fdopen(conn->stdout_fd, "a+");
 
-    results[conn->worker_meta.id]->prettyPrint(conn->worker_meta.out);
-    delete results[conn->worker_meta.id];
+    if (results[conn->worker_meta.id] != NULL) {
+        results[conn->worker_meta.id]->prettyPrint(conn->worker_meta.out);
+        delete results[conn->worker_meta.id];
+    }
     results[conn->worker_meta.id] = NULL;
     
     // write(conn->stdout_fd, "this is another output\n", 23);

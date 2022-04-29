@@ -77,18 +77,15 @@ int Table_Single_Select(void *callbackObj, RecId rid, Byte *row, int len) {
     } else {
         // Decoding the fields
         decode_to_table_row(tr, tbl1->schema, row);
-        if(cObj->user_id == -1 || table_access[tbl1->name] == cObj->user_id)
-        {
-            int unique_id = tr->getField(0).int_val;
-            ChangeLog& change_log = change_logs[cObj->tbl1_id];
-            if (change_log.find(unique_id) != change_log.end()) {
-                delete_table_row_fields(tr, tbl1->schema);
-                if (change_log[unique_id].change_type == _DELETE) { // The row is deleted
-                    delete tr;
-                    return C_OK;
-                }
-                *tr = *change_log[unique_id].new_value;
+        int unique_id = tr->getField(0).int_val;
+        ChangeLog& change_log = change_logs[cObj->tbl1_id];
+        if (change_log.find(unique_id) != change_log.end() && (cObj->user_id == -1 || cObj->user_id == table_access[tbl1->name])) {
+            delete_table_row_fields(tr, tbl1->schema);
+            if (change_log[unique_id].change_type == _DELETE) { // The row is deleted
+                delete tr;
+                return C_OK;
             }
+            *tr = *change_log[unique_id].new_value;
         }
     }
     int ret = query_process(cObj, tr, rid);
@@ -108,18 +105,16 @@ int Table_Single_Select_Join(void *callbackObj, RecId rid, Byte *row, int len) {
         // Decoding the fields
         Table* tbl2 = tables[cObj->tbl2_id];
         decode_to_table_row(tr, tbl2->schema, row);
-        if(cObj->user_id == -1 || table_access[tbl2->name] == cObj->user_id)
-        {
-            int unique_id = tr->getField(0).int_val;
-            ChangeLog& change_log = change_logs[cObj->tbl2_id];
-            if(change_log.find(unique_id) != change_log.end()) {
-                delete_table_row_fields(tr, tbl2->schema);
-                if (change_log[unique_id].change_type == _DELETE) {    // The row is deleted
-                    delete tr;
-                    return C_OK;
-                }
-                *tr = *change_log[unique_id].new_value;
+        
+        int unique_id = tr->getField(0).int_val;
+        ChangeLog& change_log = change_logs[cObj->tbl2_id];
+        if(change_log.find(unique_id) != change_log.end() && (cObj->user_id == -1 || cObj->user_id == table_access[tbl2->name])) {
+            delete_table_row_fields(tr, tbl2->schema);
+            if (change_log[unique_id].change_type == _DELETE) {    // The row is deleted
+                delete tr;
+                return C_OK;
             }
+            *tr = *change_log[unique_id].new_value;
         }
     }
     

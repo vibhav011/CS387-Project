@@ -1,4 +1,5 @@
 #include "sock.hpp"
+// #define MSG_NOSIGNAL 524288
 using namespace std;
 
 DB_inst::DB_inst(const char *sock_path, int timeout){
