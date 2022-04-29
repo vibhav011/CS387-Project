@@ -10,7 +10,7 @@
 
 using namespace std;
 
-enum {C_OK, C_TRUE, C_FALSE, C_ERROR, C_TABLE_NOT_FOUND, C_FIELD_NOT_FOUND} error_codes;
+enum {C_OK, C_TRUE, C_FALSE, C_ERROR, C_TABLE_NOT_FOUND, C_FIELD_NOT_FOUND, C_TABLE_ALREADY_EXISTS} error_codes;
 
 typedef union {
     int int_val;

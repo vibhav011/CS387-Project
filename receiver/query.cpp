@@ -271,6 +271,7 @@ int query_process(Query_Obj *cObj, Table_Row *tr, RecId rid)
 }
 
 int execute_select(Temp_Table *result, vector<string> table_names, vector<string> col_names, CondAST *cond_tree) {
+
     for (int i = 0; i < table_names.size(); i++)
     {
         if(table_name_to_id.find(table_names[i]) == table_name_to_id.end())
@@ -428,7 +429,6 @@ bool passes_range_constraints(string table_name, int column_num, string value) {
 }
 
 bool passes_pk_constraints(string table_name, Table_Row* row) {
-    cout<<"there there "<< *(row->fields[1].str_val)<<endl;
     if(table_name_to_id.find(table_name) == table_name_to_id.end()) 
         return false;
 
@@ -451,7 +451,6 @@ bool passes_pk_constraints(string table_name, Table_Row* row) {
             switch(tbl->schema->columns[pk_col_num]->type) {
                 case VARCHAR:
                     if(*(row->getField(pk_col_num).str_val) != *(result->rows[i]->getField(pk_col_num).str_val))
-                        cout<<"came here?\n"<<endl;
                         match = false;
                     break;
                 case INT:
@@ -470,7 +469,6 @@ bool passes_pk_constraints(string table_name, Table_Row* row) {
         }
         if(match) 
         {
-            cout<<"here now"<<endl;
             found = true;
             break;
         }
@@ -522,9 +520,6 @@ int execute_update(string table_name, vector<Update_Pair*> &update_list, CondAST
                         delete new_rhs;
                         break;
                     case VARCHAR:
-                        cout<<"vartchar"<<endl;
-                        cout<<change_col_num<<endl;
-                        cout<<*new_rhs<<endl;
                         new_value->fields[change_col_num].str_val = new_rhs;
                         break;
                     default:
@@ -581,6 +576,9 @@ int execute_update(string table_name, vector<Update_Pair*> &update_list, CondAST
 
 int execute_create(string table_name, vector<ColumnDesc*> &column_desc_list, vector<string> constraint) {
     try {
+        if(table_name_to_id.find(table_name) != table_name_to_id.end())
+            return C_TABLE_ALREADY_EXISTS;
+
         ColumnDesc** cols = new ColumnDesc*[column_desc_list.size()+1];
         Schema* schema = new Schema(column_desc_list.size()+1, cols, table_name);
        
@@ -614,7 +612,6 @@ int execute_create(string table_name, vector<ColumnDesc*> &column_desc_list, vec
 int execute_insert(string table_name, vector<string> column_val_list) {
     try {
 
-        cout<<table_name<<" "<<column_val_list.size()<<endl;
         if(table_name_to_id.find(table_name) == table_name_to_id.end()) 
             return C_TABLE_NOT_FOUND;
 

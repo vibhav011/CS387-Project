@@ -23,8 +23,8 @@ ROLLBACK { return ROLLBACK; }
 WITH { return WITH; }
 , { return COMMA; }
 AS { return AS; }
-"(" { cout<<"left\n";return ROUND_BRACKET_OPEN; }
-")" { cout<<"right\n";return ROUND_BRACKET_CLOSE; }
+"(" { return ROUND_BRACKET_OPEN; }
+")" { return ROUND_BRACKET_CLOSE; }
 SELECT { return SELECT; }
 FROM { return FROM; }
 WHERE { return WHERE; }
