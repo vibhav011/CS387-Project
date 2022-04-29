@@ -43,15 +43,15 @@ int const_type;
 
 %token <str> DOT_NAME NAME TEXT_CONSTANT INT_CONSTANT FLOAT_CONSTANT
 %token <int_val> INTEGER FLOAT TEXT
-%token AND OR NOT MULT PLUS MINUS DIV GE LT GT LE NE EQ STAR
-%token SEMICOLON COMMIT ROLLBACK WITH COMMA AS ROUND_BRACKET_OPEN ROUND_BRACKET_CLOSE SELECT FROM WHERE CREATE TABLE RANGE PRIMARY KEY INSERT INTO VALUES ASSIGN UPDATE SET DELETE INFINITY BETWEEN
+%token AND OR NOT PLUS MINUS DIV GE LT GT LE NE EQ STAR
+%token SEMICOLON COMMIT ROLLBACK WITH COMMA AS ROUND_BRACKET_OPEN ROUND_BRACKET_CLOSE SELECT FROM WHERE CREATE TABLE RANGE PRIMARY KEY INSERT INTO VALUES ASSIGN UPDATE SET DELETE BETWEEN
 
 %left OR
 %left AND
 %right NOT
 %nonassoc NE EQ LT LE GT GE
 %left PLUS MINUS
-%left MULT DIV
+%left STAR DIV
 %nonassoc REDC
 %nonassoc COMMA
 
@@ -81,7 +81,6 @@ query
     }
     | create_query SEMICOLON
     {
-        cout << "here" << endl;
         results[*(int *)yyget_extra(scanner)] = new Temp_Table();
     }
     | insert_query SEMICOLON
@@ -176,7 +175,6 @@ column_list
     }
     | column 
     {   
-        cout << "here" << endl;
         $$ = new vector<string> (1, *$1);
     }
 ;
@@ -240,7 +238,7 @@ relex
     }
     | expression NE expression
     {
-        $$ = new RelAST($1, $3, _NE);
+        $$ = new RelAST($1, $3, __NE);
     }
     | expression EQ expression
     {
@@ -249,7 +247,7 @@ relex
 ;
 
 expression
-    : expression MULT expression 
+    : expression STAR expression 
     {
         $$ = new BinArithAST($1, $3, _MULT);
     }
@@ -273,6 +271,10 @@ expression
     {
         $$ = new ColAST(*$1);
     }
+    | NAME
+    {
+        $$ = new ColAST(*$1);
+    }
 ;
 
 constant
@@ -288,7 +290,6 @@ create_query
     }
     | CREATE TABLE NAME ROUND_BRACKET_OPEN column_desc_list ROUND_BRACKET_CLOSE 
     {
-        cout<<"sdfsdbgfd"<<endl;
         checkerr(execute_create(*$3, *$5));
     }
 ;
@@ -313,7 +314,6 @@ column_desc
     }
     | NAME type 
     {
-        cout<<"dgerdfhtf"<<endl;
         $$ = new ColumnDesc(&(*$1)[0], $2);
     }
 ;
@@ -338,8 +338,6 @@ constraint
 insert_query
     : INSERT INTO NAME VALUES ROUND_BRACKET_OPEN column_val_list ROUND_BRACKET_CLOSE 
     {
-        cout<<"scfkjbhsdkj"<<endl;
-        cout<<(*$3)<<endl;
         checkerr(execute_insert(*$3, *$6));
     }
 ;
@@ -357,6 +355,8 @@ column_val_list
 
 column_val
     : TEXT_CONSTANT
+    | FLOAT_CONSTANT
+    | INT_CONSTANT
 ;
 
 update_query
@@ -430,6 +430,9 @@ void checkerr(int err_code) {
             break;
         case C_FIELD_NOT_FOUND:
             cout<<"field not found"<<endl;
+            break;
+        case C_TABLE_ALREADY_EXISTS:
+            cout<<"table already exists"<<endl;
             break;
     }
 }

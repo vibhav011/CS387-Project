@@ -18,23 +18,22 @@ letter [a-zA-Z_]
 %%
 
 ; { return SEMICOLON; }
-COMMIT { return COMMIT; }
-ROLLBACK { return ROLLBACK; }
-WITH { return WITH; }
+(COMMIT|commit) { return COMMIT; }
+(ROLLBACK|rollback) { return ROLLBACK; }
+(WITH|with) { return WITH; }
 , { return COMMA; }
-AS { return AS; }
-"(" { cout<<"left\n";return ROUND_BRACKET_OPEN; }
-")" { cout<<"right\n";return ROUND_BRACKET_CLOSE; }
-SELECT { return SELECT; }
-FROM { return FROM; }
-WHERE { return WHERE; }
-AND { return AND; }
-OR { return OR; }
-NOT { return NOT; }
-MULT { return MULT; }
-PLUS { return PLUS; }
-MINUS { return MINUS; }
-DIV { return DIV; }
+(AS|as) { return AS; }
+"(" { return ROUND_BRACKET_OPEN; }
+")" { return ROUND_BRACKET_CLOSE; }
+(SELECT|select) { return SELECT; }
+(FROM|from) { return FROM; }
+(WHERE|where) { return WHERE; }
+(AND|and) { return AND; }
+(OR|or) { return OR; }
+"!" { return NOT; }
+"+" { return PLUS; }
+"-" { return MINUS; }
+"/" { return DIV; }
 ">=" { return GE; }
 "<" { return LT; }
 ">" { return GT; }
@@ -42,36 +41,35 @@ DIV { return DIV; }
 "!=" { return NE; }
 "==" { return EQ; }
 "*" { return STAR; }
-CREATE { return CREATE; }
-BETWEEN { return BETWEEN; }
-TABLE { return TABLE; }
+"=" { return ASSIGN; }
+(CREATE|create) { return CREATE; }
+(BETWEEN|between) { return BETWEEN; }
+(TABLE|table) { return TABLE; }
 
-INT { 
+(INT|int) { 
     yylval->int_val = INT;
     return INTEGER; 
 }
 
-DOUBLE { 
+(DOUBLE|double) { 
     yylval->int_val = DOUBLE;
     return FLOAT; 
 }
 
-VARCHAR { 
+(VARCHAR|varchar) { 
     yylval->int_val = VARCHAR;
     return TEXT; 
 }
 
-RANGE { return RANGE; }
-PRIMARY { return PRIMARY; }
-KEY { return KEY; }
-INSERT { return INSERT; }
-INTO { return INTO; }
-VALUES { return VALUES; }
-"=" { return ASSIGN; }
-UPDATE { return UPDATE; }
-SET { return SET; }
-DELETE { return DELETE; }
-INFINITY { return INFINITY; }
+(RANGE|range) { return RANGE; }
+(PRIMARY|primary) { return PRIMARY; }
+(KEY|key) { return KEY; }
+(INSERT|insert) { return INSERT; }
+(INTO|into) { return INTO; }
+(VALUES|values) { return VALUES; }
+(UPDATE|update) { return UPDATE; }
+(SET|set) { return SET; }
+(DELETE|delete) { return DELETE; }
 
 {letter}({letter}|{digit})*\.{letter}({letter}|{digit})* { 
     yylval->str = new string();
@@ -90,26 +88,18 @@ INFINITY { return INFINITY; }
 }
 
 \"[^\"]+\" { 
-    char txt[30];
-    strcpy(txt, yytext);
-    yylval->str = new string();
-    *(yylval->str) = txt;
+    string s = string(yytext);
+    yylval->str = new string(s.substr(1, s.size()-2));
     return TEXT_CONSTANT; 
 }
 
 {digit}+ {
-    char txt[30];
-    yylval->str = new string();
-    strcpy(txt, yytext);
-    *(yylval->str) = txt;
+    yylval->str = new string(yytext);
     return INT_CONSTANT; 
 }
 
 {digit}+\.{digit}+ { 
-    char txt[30];
-    yylval->str = new string();
-    strcpy(txt, yytext);
-    *(yylval->str) = txt;
+    yylval->str = new string(yytext);
     return FLOAT_CONSTANT; 
 }
 

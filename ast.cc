@@ -64,6 +64,13 @@ string ColAST::getVal(Table_Row *row1, Schema *s1, Table_Row *row2, Schema *s2)
         return this->fetch_value(row1, s1);
     if(row2 != NULL && s2->table_name == table_name)
         return this->fetch_value(row2, s2);
+    if(table_name == "")
+    {
+        string s = this->fetch_value(row1, s1);
+        if(s == "" && row2 != NULL)
+            s = this->fetch_value(row2, s2);
+        return s;
+    }
     return "";
 }
 
@@ -147,7 +154,7 @@ int RelAST::compare(T v1, T v2)
     if(this->op == _LT) return v1 < v2;
     if(this->op == _LE) return v1 <= v2;
     if(this->op == _EQ) return v1 == v2;
-    if(this->op == _NE) return v1 != v2;
+    if(this->op == __NE) return v1 != v2;
     return true;
 }
 
@@ -158,7 +165,7 @@ int RelAST::check_row(Table_Row *row1, Schema *s1, Table_Row *row2, Schema *s2)
     string val2 = this->rhs->getVal(row1, s1, row2, s2);
 
     if(this->lhs->getType() != this->rhs->getType())
-        cerr<<"Type mismatch"<<endl;
+        cerr<<"Type mismatch: "<<this->lhs->getType()<<" "<<this->rhs->getType()<<endl;
 
     if(val1 == "" || val2 == "")
         return C_ERROR;

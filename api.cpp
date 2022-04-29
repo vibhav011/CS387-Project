@@ -27,10 +27,9 @@ int main() {
     execute_insert("data", col_val_list1);
     cout<<"Inserted first row in data"<<endl;
 
-    // execute_delete("data", NULL);
-
     vector<string> col_val_list2 = {"Albania", "Tirana", "2930187"};
     execute_insert("data", col_val_list2);
+    cout<<change_logs[0].size()<<endl;
     cout<<"Inserted second row in data"<<endl;
 
     execute_create("data1", cols, pk);
@@ -49,10 +48,11 @@ int main() {
     ConstAST* const_ast = new ConstAST(data);
     RelAST* cond_tree = new RelAST(col_ast, const_ast, _GT);
 
-    vector<string> fetch_cols = {"Country"};
-    vector<string> fetch_tables = {"data"};
-    execute_select(result, fetch_tables, fetch_cols);
+    vector<string> fetch_cols = {"*"};
+    vector<string> fetch_tables = {"data", "data1"};
+    execute_select(result, fetch_tables, fetch_cols, cond_tree);
     result->prettyPrint();
+    result->rows.clear();
 
     vector<int> v = {0};
     execute_commit(&v);
@@ -60,4 +60,5 @@ int main() {
 
     execute_select(result, fetch_tables, fetch_cols, cond_tree);
     result->prettyPrint();
+    result->rows.clear();
 }

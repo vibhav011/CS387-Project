@@ -1,10 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <string>
 #include <assert.h>
 #include <ctype.h>
 #include "tbl.h"
 #include "util.h"
+using namespace std;
 
 char *trim(char *str)
 {
@@ -48,32 +50,34 @@ parseSchema(char *buf) {
     buf = strdup(buf);
     char *tokens[MAX_TOKENS];
     int n = split(buf, (char*)",", tokens);
-    Schema *sch = (Schema*)malloc(sizeof(Schema));
-    sch->columns = (ColumnDesc**)malloc(n * sizeof(ColumnDesc *));
+    ColumnDesc** cols = new ColumnDesc*[n];// (ColumnDesc**)malloc(n * sizeof(ColumnDesc *));
+    Schema *sch = new Schema(n, cols, "");//(Schema*)malloc(sizeof(Schema));
     // strtok is terrible; it depends on global state.
     // Do one split based on ',".
     // Could use strtok_s for this use case
     char *descTokens[MAX_TOKENS];
     sch->numColumns = n;
     for (int i = 0; i < n; i++) {
-	int c = split(tokens[i], (char*)":", descTokens);
-	assert(c == 2);
-	ColumnDesc *cd = (ColumnDesc *) malloc(sizeof(ColumnDesc));
-	cd->name = strdup(descTokens[0]);
-	char *type = descTokens[1];
-	int itype = 0;
-	if (stricmp(type, "varchar") == 0) {
-	    itype = VARCHAR;
-	} else if (stricmp(type, "int") == 0) {
-	    itype = INT;
-	} else if (stricmp(type, "long") == 0) {
-	    itype = LONG;
-	} else {
-	    fprintf(stderr, "Unknown type %s \n", type);
-	    exit(EXIT_FAILURE);
-	}
-	cd->type = itype;
-	sch->columns[i] = cd;
+        int c = split(tokens[i], (char*)":", descTokens);
+        assert(c == 2);
+        // cd->name = strdup(descTokens[0]);
+        char *type = descTokens[1];
+        int itype = 0;
+        if (stricmp(type, "varchar") == 0) {
+            itype = VARCHAR;
+        } else if (stricmp(type, "int") == 0) {
+            itype = INT;
+        } else if (stricmp(type, "long") == 0) {
+            itype = LONG;
+        } else if (stricmp(type, "double") == 0) {
+            itype = DOUBLE;
+        } else {
+            fprintf(stderr, "Unknown type %s \n", type);
+            exit(EXIT_FAILURE);
+        }
+        ColumnDesc *cd = new ColumnDesc(strdup(descTokens[0]), itype);// = new ColumnDesc *) malloc(sizeof(ColumnDesc));
+        // cd->type = itype;
+        sch->columns[i] = cd;
     }
     free(buf);
     return sch;

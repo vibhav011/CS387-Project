@@ -57,6 +57,7 @@ Table_Open(char *dbname, Schema *schema, bool overwrite, Table **ptable)
 
     // Open the file (create and open if it doesn't exist)
     if ((fd = PF_OpenFile(dbname)) < 0) {
+        cout << "shit" << endl;
         if ((errVal = PF_CreateFile(dbname)) != PFE_OK) {
             PF_PrintError("Error creating file");
             return errVal;
@@ -79,8 +80,9 @@ Table_Open(char *dbname, Schema *schema, bool overwrite, Table **ptable)
 
     // Counting number of pages and fixing the last page into pagebuf
     int prevPage = -1;
-
+    cout << "ok time" << endl;
     while (PF_GetNextPage(fd, table->lastPage, table->pagebuf) == PFE_OK) {
+        cout << "pliz" << endl;
         table->numPages++;
         PF_UnfixPage(fd, prevPage, false);
         prevPage = *table->lastPage;
@@ -137,7 +139,7 @@ Table_Insert(Table *tbl, Byte *record, int len, RecId *rid) {
         header = (Header *) *tbl->pagebuf;
         nslots = header->numSlots = 0;
         header->freeSlotOffset = PF_PAGE_SIZE;
-        freeSpace = header->freeSlotOffset - sizeof(int) - sizeof(short)*2;
+        freeSpace = header->freeSlotOffset - 2*sizeof(int) - sizeof(short)*2;
     }
     
     assert(freeSpace >= len);     // Assuming that the record fits in the page
