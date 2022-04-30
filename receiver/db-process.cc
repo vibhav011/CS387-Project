@@ -127,7 +127,7 @@ int main(){
     int i, last = 0, lq = 0;
     int rc;
     sleep(1);
-    while(1){
+    while(!cin.eof()){
         printf("$ ");
         cin.getline(buf, MAX_BUFFLEN-1); // 1 char always available for \0
         int len = strlen(buf);
