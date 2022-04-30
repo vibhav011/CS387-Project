@@ -4,7 +4,7 @@
 #include "utils.h"
 #include "../dblayer/tbl.h"
 
-int commit_insert(Table *tbl, Table_Row *tr, RecId *rid);       // insert a new row into a table
+int commit_insert(Table *tbl, Table_Row *tr, RecId *rid, int orid);       // insert a new row into a table
                                                     // Returns C_OK on success, C_ERROR on failure
 
 int commit_delete(Table *tbl, RecId rid);           // delete a row from a table

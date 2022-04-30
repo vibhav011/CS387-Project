@@ -154,6 +154,7 @@ Table_Insert(Table *tbl, Byte *record, int len, RecId *rid) {
  */
 int
 Table_Get(Table *tbl, RecId rid, Byte *record, int maxlen) {
+    
     int slot = rid & 0xFFFF;
     int pageNum = rid >> 16;
 
@@ -254,7 +255,7 @@ Table_Scan(Table *tbl, void *callbackObj, ReadFunc callbackfn) {
         int nslots = header->numSlots;
         for (int i = 0; i < nslots && !to_break; i++) {
             int len = getLen(i, *pagebuf);
-            int rid = (*pagenum << 16) + getNthSlotOffset(i, *pagebuf);
+            int rid = (*pagenum << 16) + i;
             if (callbackfn(callbackObj, rid, *pagebuf+header->slotOffsets[i], len) != 0) {
                 to_break = true;
             }

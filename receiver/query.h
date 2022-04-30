@@ -62,7 +62,7 @@ struct Temp_Table {
                     // cout<<setw(20)<<rows[ii]->getField(i).int_val;
                 else if(types[i] == DOUBLE){
                     fprintf(f, "%*.*f", 20, 3, rows[ii]->getField(i).float_val);
-                    cout << rows[ii]->getField(i).float_val << endl;
+                    // cout << rows[ii]->getField(i).float_val << endl;
                 }
                     // cout<<setw(20)<<rows[ii]->getField(i).float_val;
                 else

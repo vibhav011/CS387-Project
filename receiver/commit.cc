@@ -23,9 +23,20 @@ int release_write_lock(string table_name);
 
 #define MAX_PAGE_SIZE 4000
 
-int commit_insert(Table *tbl, Table_Row *tr, RecId* rid) {
+int commit_insert(Table *tbl, Table_Row *tr, RecId* rid, int orid=-1) {
     int numfields = tbl->schema->numColumns;
     char record[MAX_PAGE_SIZE];
+
+    int ret = -1;
+    if(orid >= 0) ret = Table_Get(tbl, orid, record, MAX_PAGE_SIZE);
+
+    if(ret != -1){
+        int uid = DecodeInt(record);
+        if(uid == tr->fields[0].int_val){
+            *rid = orid;
+            return C_OK;
+        }
+    }
 
     int pos = 0, bytes_added = 0;
     char cpy[256]; // better solution possible
@@ -75,6 +86,7 @@ int commit_insert(Table *tbl, Table_Row *tr, RecId* rid) {
 
     // break into phantom_table_insert followed by append_insert_to_file followed by real_table_insert
     int err = Table_Insert(tbl, record, pos, rid);
+    cout << "RID alloted " << *rid << endl;
     if(err != 0) return C_ERROR;
 
     return C_OK;
@@ -91,17 +103,17 @@ int execute_commit(set<string> &change_tables) {
     filesystem::create_directory(folder_path);
 
 #ifdef NOLOGS
-    exit(100);
+    cout << "Crash in befpre dumping to actual database" << endl;
+    exit(1);
 #endif
-    cout << "indices size: " << ChangeIndices->size() << endl;
     for (int i = 0; i < ChangeIndices->size(); i++) {
         Table *tbl = tables[ChangeIndices->at(i)];
         ChangeLog& change_log = change_logs[ChangeIndices->at(i)];
         MappingLog& mapping_log = mapping_logs[ChangeIndices->at(i)];
 
-        cout << "change log size: " << change_log.size() << endl;
         dump_clog(tbl, change_log, folder_path+"/"+tbl->name+".clog");
         dump_mlog(tbl, mapping_log, folder_path+"/"+tbl->name+".mlog");
+        cout << "Dumped logs" << endl;
 
         for (ChangeLog::iterator it = change_log.begin(); it != change_log.end(); it++) {
             int unique_id = it->first;
@@ -110,7 +122,7 @@ int execute_commit(set<string> &change_tables) {
             Table_Row *new_value = log_entry.new_value;
 
 #ifdef SOMELOGS
-cout << "commit: here" << endl;
+            cout << "Crash in between dumping to actual database" << endl;
             if(it != change_log.begin()){
                 exit(1);
             }
@@ -165,6 +177,7 @@ cout << "commit: here" << endl;
     }
 
 #ifdef TOTLOGS
+        cout << "Crash in after dumping to actual database but before deleting log files" << endl;
         exit(1);
 #endif
 
@@ -187,12 +200,12 @@ int execute_rollback_single(Table *tbl, ChangeLog& change_log, MappingLog& mappi
         Table_Row *new_value = log_entry.new_value;
 
         int rid = -1;
-        if(mapping_log.find(new_value->fields[0].int_val) != mapping_log.end()){
-            rid = mapping_log[new_value->fields[0].int_val];
-        }
 
         switch (log_entry.change_type) {
         case _UPDATE: {
+            if(mapping_log.find(new_value->fields[0].int_val) != mapping_log.end()){
+                rid = mapping_log[new_value->fields[0].int_val];
+            }
             cout<<"rollback update"<<endl;
             ret_value = commit_delete(tbl, rid);
             RecId x;
@@ -201,16 +214,20 @@ int execute_rollback_single(Table *tbl, ChangeLog& change_log, MappingLog& mappi
             break;
         }
         case _INSERT: {
-            cout << "rollback insert on (uid, rid): ";
-            cout << new_value->fields[0].int_val;
-            cout << mapping_log[new_value->fields[0].int_val]<<endl;
+            if(mapping_log.find(new_value->fields[0].int_val) != mapping_log.end()){
+                rid = mapping_log[new_value->fields[0].int_val];
+            }
+            cout << "rollback insert" << endl;
             ret_value = commit_delete(tbl, rid);
             break;
         }
         case _DELETE: {
+            if(mapping_log.find(old_value->fields[0].int_val) != mapping_log.end()){
+                rid = mapping_log[old_value->fields[0].int_val];
+            }
             cout<<"rollback delete"<<endl;
             RecId x;
-            ret_value = commit_insert(tbl, old_value, &x);
+            ret_value = commit_insert(tbl, old_value, &x, rid);
             break;
         }
         default:

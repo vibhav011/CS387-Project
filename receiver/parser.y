@@ -384,7 +384,6 @@ insert_query
     {
         int worker_id = ((Pro *)yyget_extra(scanner))->id;
         obtain_write_lock(worker_id, *$3);
-        cout << "insert query called" << endl;
         int ret = execute_insert(*$3, *$6);
         checkerr(ret, scanner);
         if (ret == C_OK) {
@@ -508,13 +507,13 @@ void checkerr(int err_code, yyscan_t scanner) {
     FILE *f = ((Pro *)yyget_extra(scanner))->out;
     switch(err_code) {
         case C_OK:
-            cout<<"successfully terminated"<<endl;
+            // cout<<"successfully terminated"<<endl;
             break;
         case C_TRUE:
-            cout<<"true output"<<endl;
+            // cout<<"true output"<<endl;
             break;
         case C_FALSE:
-            cout<<"false output"<<endl;
+            // cout<<"false output"<<endl;
             break;
         case C_ERROR:
             cout<<"error"<<endl;

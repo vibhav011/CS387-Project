@@ -219,7 +219,6 @@ int myhandler(string query, Conn *conn){
     yyparse(conn->scanner);
     fclose(conn->f);
     free(conn->scanner);
-    cout << "out of yyparse()" << endl;
 
     // FILE *f = fdopen(conn->stdout_fd, "a+");
 
@@ -253,7 +252,7 @@ extern void setup_and_recover();
 
 int main(){
     setup_and_recover();
-    cout << "recovered" << endl;
+    cout << "startup done" << endl;
     Daemon *d = new Daemon(SOCK_PATH, myhandler);
     install_sig_handler();
 

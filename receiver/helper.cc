@@ -110,7 +110,9 @@ int read_clog(ChangeLog &change_log, string filename){
         old_row = new_row = NULL;
         indata >> uid;
         indata >> change_type;
-        cout<<"change type okay in read_clog? "<<change_type<<endl;
+        string _;
+        getline(indata, _);
+
         if(change_type != _INSERT) {
             old_row = new Table_Row();
             for (int i = 0; i < numcols; i++)

@@ -72,14 +72,13 @@ void recover_from_folder(string folder_name) {
     }
     for (auto it = change_logs.begin(); it != change_logs.end(); it++) {
         int table_id = it->first;
-        ChangeLog change_log = it->second;
+        ChangeLog &change_log = it->second;
 
         if (mapping_logs.find(table_id) == mapping_logs.end())
             continue;
 
-        MappingLog mapping_log = mapping_logs[table_id];
+        MappingLog &mapping_log = mapping_logs[table_id];
         // TODO: implement following functions and uncomment
-        cout<<"called exec rb single on "<<table_id<<endl;
         execute_rollback_single(tables[table_id], change_log, mapping_log);
     }
 }
@@ -92,7 +91,6 @@ void setup_and_recover() {
         std::filesystem::create_directory(DATA_PATH); // create data folder
     }
     for (const auto& dirEntry : std::filesystem::directory_iterator(DATA_PATH)) {
-        cout<<dirEntry.path().filename()<<endl;
         if (dirEntry.is_directory()) {
             string s = dirEntry.path(); // .filename();
             if (s.size() > 4) {
