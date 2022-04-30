@@ -44,7 +44,13 @@ struct Temp_Table {
 
         // cout<<"Number of columns: "<<this->schema->numColumns<<endl;
         // cout<<"Number of rows: "<<this->rows.size()<<endl;
-        for(int i=0;i<this->schema->numColumns;i++)
+        int start = 1;
+        string col_name(this->schema->columns[1]->name);
+        if (col_name == "unique_id") start = 2;
+        if (col_name.size() > 10)
+            if (col_name.substr(col_name.size()-10) == ".unique_id")
+                start = 2;
+        for(int i=start;i<this->schema->numColumns;i++)
         {
             types.push_back(this->schema->columns[i]->type);
             fprintf(f, "%*s", 20, this->schema->columns[i]->name);
@@ -55,12 +61,12 @@ struct Temp_Table {
         for(int ii = 0; ii < this->rows.size(); ii++)
         {
             assert(rows[ii]->fields.size() == this->schema->numColumns);
-            for(int i=0;i<this->schema->numColumns;i++)
+            for(int i=start;i<this->schema->numColumns;i++)
             {
-                if(types[i] == INT)
+                if(types[i-start] == INT)
                     fprintf(f, "%*d", 20, rows[ii]->getField(i).int_val);
                     // cout<<setw(20)<<rows[ii]->getField(i).int_val;
-                else if(types[i] == DOUBLE){
+                else if(types[i-start] == DOUBLE){
                     fprintf(f, "%*.*f", 20, 3, rows[ii]->getField(i).float_val);
                     // cout << rows[ii]->getField(i).float_val << endl;
                 }
