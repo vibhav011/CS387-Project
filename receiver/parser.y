@@ -520,15 +520,15 @@ void checkerr(int err_code, yyscan_t scanner) {
             break;
         case C_TABLE_NOT_FOUND:
             fprintf(f, "table not found\n");
-            cout<<"table not found"<<endl;
+            // cout<<"table not found"<<endl;
             break;
         case C_FIELD_NOT_FOUND:
             fprintf(f, "field not found\n");
-            cout<<"field not found"<<endl;
+            // cout<<"field not found"<<endl;
             break;
         case C_TABLE_ALREADY_EXISTS:
             fprintf(f, "table already exists\n");
-            cout<<"table already exists"<<endl;
+            // cout<<"table already exists"<<endl;
             break;
     }
     fflush(f);
