@@ -8,6 +8,7 @@
 #include <iostream>
 #include <cassert>
 #include <mutex>
+#include <set>
 #include "../dblayer/tbl.h"
 #define DATA_PATH "../data/"
 

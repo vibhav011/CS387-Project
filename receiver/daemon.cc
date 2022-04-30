@@ -14,7 +14,7 @@ using namespace std;
 
 int Conn::id = 0;
 vector<Temp_Table*> results;
-extern vector<string> changed_tables[MAX_PROCESSES];
+extern set<string> changed_tables[MAX_PROCESSES];
 
 Conn::Conn(){
     this->worker_meta.id = id++;

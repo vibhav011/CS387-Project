@@ -81,7 +81,7 @@ int commit_insert(Table *tbl, Table_Row *tr, RecId* rid) {
 
 }
 
-int execute_commit(vector<string> &change_tables) {
+int execute_commit(set<string> &change_tables) {
 
     vector<int> *ChangeIndices = new vector<int>();
     for(auto table: change_tables)
@@ -228,7 +228,7 @@ int execute_rollback_single(Table *tbl, ChangeLog& change_log, MappingLog& mappi
     return ret_value;
 }
 
-int execute_rollback(vector<string> &change_tables) {
+int execute_rollback(set<string> &change_tables) {
     cout << "rollback" << endl;
     vector<int> *ChangeIndices = new vector<int>();
     for(auto table: change_tables)
@@ -248,6 +248,6 @@ int execute_rollback(vector<string> &change_tables) {
     for(string name: change_tables){
         release_write_lock(name);
     }
-
+    cout << "exiting rollback" << endl;
     return C_OK;
 }

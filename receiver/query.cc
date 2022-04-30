@@ -658,6 +658,13 @@ int execute_create(string table_name, vector<ColumnDesc*> &column_desc_list, vec
             schemaStr += "," + string(column_desc_list[i-1]->name) + ":" + col_type;
         }
 
+        for (string s: constraint) {
+            if (schema->getColumnNum(s.c_str()) == -1) {
+                // delete schema;
+                return C_FIELD_NOT_FOUND;
+            }
+        }
+
         Table* tbl = new Table();
         int err = Table_Open(&(DATA_PATH+table_name+".tbl")[0], schema, false, &tbl);
         if(err<0) {
