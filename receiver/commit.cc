@@ -61,7 +61,6 @@ int commit_insert(Table *tbl, Table_Row *tr, RecId* rid) {
                 printf("insert error: no space left for double/float value");
                 return C_ERROR;
             }
-            cout << "++++++++++++++" << tr->fields[i].float_val << endl;
             bytes_added = EncodeDouble(tr->fields[i].float_val, record+pos);
             pos += bytes_added;
             break;
@@ -90,12 +89,17 @@ int execute_commit(vector<string> &change_tables) {
 
     string folder_path = DATA_PATH + gen_random(10) + ".log";
     filesystem::create_directory(folder_path);
-    
+
+#ifdef NOLOGS
+    exit(100);
+#endif
+    cout << "indices size: " << ChangeIndices->size() << endl;
     for (int i = 0; i < ChangeIndices->size(); i++) {
         Table *tbl = tables[ChangeIndices->at(i)];
         ChangeLog& change_log = change_logs[ChangeIndices->at(i)];
         MappingLog& mapping_log = mapping_logs[ChangeIndices->at(i)];
 
+        cout << "change log size: " << change_log.size() << endl;
         dump_clog(tbl, change_log, folder_path+"/"+tbl->name+".clog");
         dump_mlog(tbl, mapping_log, folder_path+"/"+tbl->name+".mlog");
 
@@ -104,6 +108,13 @@ int execute_commit(vector<string> &change_tables) {
             Log_Entry& log_entry = it->second;
             Table_Row *old_value = log_entry.old_value;
             Table_Row *new_value = log_entry.new_value;
+
+#ifdef SOMELOGS
+cout << "commit: here" << endl;
+            if(it != change_log.begin()){
+                exit(1);
+            }
+#endif
 
             switch (log_entry.change_type) {
             case _UPDATE: {
@@ -152,6 +163,10 @@ int execute_commit(vector<string> &change_tables) {
     for(string name: change_tables){
         release_write_lock(name);
     }
+
+#ifdef TOTLOGS
+        exit(1);
+#endif
 
     filesystem::remove_all(folder_path);
     return C_OK;

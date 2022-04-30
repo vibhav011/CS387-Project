@@ -3,6 +3,9 @@ CFLAGS = -std=c++11
 OBJS=lex.yy.o parser.tab.o ast.o commit.o helper.o loader.o query.o utils.o ../dblayer/dblayer.a
 SRC=ast.cc commit.cc helper.cc loader.cc parser.tab.c lex.yy.c query.cc utils.cc
 
+# test
+TEST=
+
 all: daemon dbprocess
 
 dbprocess: db-process.cc
@@ -30,7 +33,7 @@ ast.o: ast.cc
 	$(CC) -c $(CFLAGS) ast.cc
 
 commit.o: commit.cc
-	$(CC) -c -std=c++17 commit.cc
+	$(CC) -c $(TEST) -std=c++17 commit.cc
 
 helper.o: helper.cc
 	$(CC) -c $(CFLAGS) helper.cc
