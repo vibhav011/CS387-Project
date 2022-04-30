@@ -14,10 +14,10 @@ daemon: $(OBJS)
 ../dblayer/dblayer.a:
 	cd ../dblayer; make
 
-lex.yy.c lex.yy.h:
+lex.yy.c lex.yy.h: scanner.l
 	flex --header-file=lex.yy.h scanner.l
 
-parser.tab.c parser.tab.h:
+parser.tab.c parser.tab.h: parser.y
 	bison -dv parser.y
 
 lex.yy.o: lex.yy.c parser.tab.h

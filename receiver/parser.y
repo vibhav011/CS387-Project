@@ -13,7 +13,7 @@ extern vector<Temp_Table*> results;
 extern int obtain_write_lock(int worker_id, string table_names);
 extern mutex create_mutex;
 extern map<string, int> table_access;
-vector<string> changed_tables[MAX_PROCESSES];
+set<string> changed_tables[MAX_PROCESSES];
 bool txn_active[MAX_PROCESSES] = {0};
 
 %}
@@ -321,7 +321,6 @@ create_query
         }
         create_mutex.lock();
         checkerr(execute_create(*$3, *$5, *$7), scanner);
-        changed_tables[worker_id].push_back(*$3);
         create_mutex.unlock();
     }
     | CREATE TABLE NAME ROUND_BRACKET_OPEN column_desc_list ROUND_BRACKET_CLOSE 
@@ -335,7 +334,6 @@ create_query
         }
         create_mutex.lock();
         checkerr(execute_create(*$3, *$5), scanner);
-        changed_tables[worker_id].push_back(*$3);
         create_mutex.unlock();
     }
 ;
@@ -386,10 +384,14 @@ insert_query
     {
         int worker_id = ((Pro *)yyget_extra(scanner))->id;
         obtain_write_lock(worker_id, *$3);
-        checkerr(execute_insert(*$3, *$6), scanner);
-        changed_tables[worker_id].push_back(*$3); 
-        // cannot release the lock here
-        txn_active[worker_id] = true;
+        cout << "insert query called" << endl;
+        int ret = execute_insert(*$3, *$6);
+        checkerr(ret, scanner);
+        if (ret == C_OK) {
+            changed_tables[worker_id].insert(*$3);
+            // cannot release the lock here
+            txn_active[worker_id] = true;
+        }
     }
 ;
 
@@ -415,19 +417,25 @@ update_query
     {
         int worker_id = ((Pro *)yyget_extra(scanner))->id;
         checkerr(obtain_write_lock(worker_id, *$2), scanner);
-        checkerr(execute_update(*$2, *$4, $6), scanner);
-        changed_tables[worker_id].push_back(*$2);
-        // cannot release the lock here
-        txn_active[worker_id] = true;
+        int ret = execute_update(*$2, *$4, $6);
+        checkerr(ret, scanner);
+        if (ret == C_OK) {
+            changed_tables[worker_id].insert(*$2);
+            // cannot release the lock here
+            txn_active[worker_id] = true;
+        }
     }
     | UPDATE NAME SET update_list 
     {
         int worker_id = ((Pro *)yyget_extra(scanner))->id;
         checkerr(obtain_write_lock(worker_id, *$2), scanner);
-        checkerr(execute_update(*$2, *$4), scanner);
-        changed_tables[*(int *)yyget_extra(scanner)].push_back(*$2);
-        // cannot release the lock here
-        txn_active[worker_id] = true;
+        int ret = execute_update(*$2, *$4);
+        checkerr(ret, scanner);
+        if (ret == C_OK) {
+            changed_tables[worker_id].insert(*$2);
+            // cannot release the lock here
+            txn_active[worker_id] = true;
+        }
     }
 ;
 
@@ -459,20 +467,26 @@ delete_query
         int worker_id = ((Pro *)yyget_extra(scanner))->id;
         checkerr(obtain_write_lock(worker_id, *$3), scanner);
         table_access[*$3] = worker_id;
-        checkerr(execute_delete(*$3, $5), scanner);
-        changed_tables[worker_id].push_back(*$3);
-        // cannot release the lock here
-        txn_active[worker_id] = true;
+        int ret = execute_delete(*$3, $5);
+        checkerr(ret, scanner);
+        if (ret == C_OK) {
+            changed_tables[worker_id].insert(*$3);
+            // cannot release the lock here
+            txn_active[worker_id] = true;
+        }
     }
     | DELETE FROM NAME 
     {
         int worker_id = ((Pro *)yyget_extra(scanner))->id;
         checkerr(obtain_write_lock(worker_id, *$3), scanner);
         table_access[*$3] = worker_id;
-        checkerr(execute_delete(*$3), scanner);
-        changed_tables[worker_id].push_back(*$3);
-        // cannot release the lock here
-        txn_active[worker_id] = true;
+        int ret = execute_delete(*$3);
+        checkerr(ret, scanner);
+        if (ret == C_OK) {
+            changed_tables[worker_id].insert(*$3);
+            // cannot release the lock here
+            txn_active[worker_id] = true;
+        }
     }
 ;
 
@@ -523,6 +537,7 @@ void checkerr(int err_code, yyscan_t scanner) {
     int worker_id = ((Pro *)yyget_extra(scanner))->id;
     if (err_code != C_OK){
         fprintf(f, "invalid query:: rolling back...\n");
+        fflush(f);
         execute_rollback(changed_tables[worker_id]);
         txn_active[worker_id] = false;
     }
